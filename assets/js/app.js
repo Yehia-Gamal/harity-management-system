@@ -7,6 +7,16 @@ function getNextCaseNo_() {
   return max + 1;
 }
 
+function toggleCasesListCategoriesMobile() {
+  try {
+    const grid = document.querySelector('.cases-list-filters-grid');
+    if (!grid) return;
+    grid.classList.toggle('cats-open');
+    const btn = document.getElementById('toggleCasesCatsBtn');
+    if (btn) btn.textContent = grid.classList.contains('cats-open') ? 'إخفاء' : 'إظهار';
+  } catch { }
+}
+
 function renderNewCaseForm_() {
   const host = document.getElementById('caseForm');
   if (!host) return;
@@ -1389,10 +1399,11 @@ function showMainApp() {
   } catch { }
   try {
     const u = AppState.currentUser;
-    const nameEl = document.getElementById('userName');
+    const nameInline = document.getElementById('userNameInline');
     const menuName = document.getElementById('userMenuName');
     const menuMeta = document.getElementById('userMenuMeta');
-    if (nameEl) nameEl.textContent = (u?.name || u?.username || '').toString();
+    const nm = (u?.name || u?.username || '').toString();
+    if (nameInline) nameInline.textContent = nm;
     if (menuName) menuName.textContent = (u?.name || u?.username || '').toString();
     if (menuMeta) menuMeta.textContent = (u?.username ? `@${u.username}` : '').toString();
   } catch { }
@@ -3293,7 +3304,13 @@ function setFilterOptions() {
   // Case grade
   try {
     if (window.filterCaseGrade) {
-      filterCaseGrade.innerHTML = `<option value="">كل التقييمات</option><option>A</option><option>B</option><option>C</option>`;
+      filterCaseGrade.innerHTML = [
+        '<option value="">كل التقييمات</option>',
+        '<option>حالة مستديمة</option>',
+        '<option>حالة موسمية</option>',
+        '<option>حالة مرفوضة</option>',
+        '<option>حالة قيد الانتظار</option>'
+      ].join('');
     }
   } catch { }
 

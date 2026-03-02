@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>لجنة أسرة كريمة – جمعية خواطر أحلى شباب</title>
-  <link rel="icon" type="image/png" href="assets/images/logo.png">
+  <link rel="icon" type="image/png" href="assets/images/logo 2.png">
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css?v=20260215">
 </head>
@@ -49,12 +49,15 @@
     <header class="header">
       <div class="container">
         <div class="wrap">
-          <div class="logo">🏠 لجنة أسرة كريمة</div>
+          <div class="brand">
+            <img class="brand-logo" src="assets/images/logo.png" alt="أحلى شباب" />
+          </div>
+          <div class="logo"><span class="logo-text">لجنة أسرة كريمة</span></div>
           <div class="header-actions">
             <div class="dropdown" id="userDropdown">
               <button id="userMenuBtn" class="btn light" type="button">
                 <span id="userRole" style="display:none"></span>
-                <span id="userName" style="margin-inline:8px"></span>
+                <span id="userNameInline" style="margin-inline:8px"></span>
                 ⌄
               </button>
               <div id="userMenu" class="menu hidden" role="menu" aria-hidden="true">
@@ -121,15 +124,20 @@
             </div>
           </details>
         </div>
-        <div class="grid" style="margin:8px 0;display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+        <div class="grid cases-list-filters-grid" style="margin:8px 0;display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
           <input id="caseSearch" class="control" placeholder="بحث سريع" oninput="filterCases()" />
           <input id="filterExplorer" class="control" placeholder="المستكشف" oninput="filterCases()" />
           <select id="filterGovernorate" class="control" onchange="filterCases()"></select>
           <input id="filterArea" class="control" placeholder="المنطقة" oninput="filterCases()" />
 
           <div class="form-group" style="margin:0;grid-column:1/4">
-            <label class="label" style="margin:0 0 6px">فئات الحالة (اختيار متعدد)</label>
-            <div id="filterCategoriesGroup" class="control" style="padding:8px;display:flex;flex-wrap:wrap;gap:8px" onchange="filterCases()"></div>
+            <div class="cases-filter-cats-head" style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+              <label class="label" style="margin:0 0 6px">فئات الحالة (اختيار متعدد)</label>
+              <button id="toggleCasesCatsBtn" type="button" class="btn light mobile-only" onclick="toggleCasesListCategoriesMobile()" style="color:#1f2937;border-color:#e5e7eb;padding:6px 10px">إظهار</button>
+            </div>
+            <div class="cases-filter-cats-body">
+              <div id="filterCategoriesGroup" class="control" style="padding:8px;display:flex;flex-wrap:wrap;gap:8px" onchange="filterCases()"></div>
+            </div>
           </div>
           <div class="form-group" style="margin:0;align-self:start">
             <label class="label" style="margin:0 0 6px">تقييم الحالة</label>

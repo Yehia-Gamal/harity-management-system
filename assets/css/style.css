@@ -5,7 +5,12 @@ body.modal-open{overflow:hidden}
 .container{max-width:1200px;margin:0 auto;padding:0 16px}
 .header{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;position:sticky;top:0;z-index:10;box-shadow:var(--shadow)}
 .header .wrap{display:flex;justify-content:space-between;align-items:center;padding:12px 0}
-.logo{font-weight:800;font-size:1.25rem;letter-spacing:.2px}
+.logo{font-weight:800;font-size:1.25rem;letter-spacing:.2px;display:flex;align-items:center;gap:8px}
+.logo-text{display:inline-block}
+.logo-mark{display:inline-flex;align-items:center;justify-content:center}
+.brand{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.brand-logo{width:36px;height:36px;object-fit:contain;filter:drop-shadow(0 6px 14px rgba(0,0,0,.20))}
+.brand-user{font-size:.85rem;opacity:.92;max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-start}
 .nav{display:flex;gap:8px;align-items:center;padding:10px 0 14px;overflow:auto;scrollbar-width:thin}
 .nav::-webkit-scrollbar{height:6px}
@@ -30,6 +35,8 @@ body.modal-open{overflow:hidden}
 .menu .menu-item{width:100%;text-align:right;padding:10px 12px;background:#fff;border:none;cursor:pointer}
 .menu .menu-item:hover{background:#f3f4f6}
 .menu .menu-info{padding:12px;border-bottom:1px solid #eef2f7;background:#fafafa}
+
+ .mobile-only{display:none!important}
 
 @media (max-width:768px){.header-actions{gap:6px}.header-actions .control{max-width:100%!important}}
 .btn{display:inline-block;border:none;border-radius:8px;padding:10px 16px;cursor:pointer;transition:.2s;background:var(--secondary);color:#fff}
@@ -107,7 +114,7 @@ body.modal-open{overflow:hidden}
  @media (max-width:768px){.dash-table-toolbar{grid-template-columns:1fr}}
  .dash-table-filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:12px;border-bottom:1px solid #eef2f7;background:#fafafa}
  @media (max-width:1024px){.dash-table-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
- @media (max-width:768px){.dash-table-filters{grid-template-columns:1fr}}
+ @media (max-width:768px){.dash-table-filters{grid-template-columns:1fr;gap:8px;padding:8px}}
  .dash-table-footer{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px;border-top:1px solid #eef2f7;background:#fff}
  .dash-muted{color:#64748b;font-size:.9rem}
 
@@ -192,15 +199,28 @@ body.modal-open{overflow:hidden}
 
 @media (max-width:768px){
  .container{padding:0 12px}
- .header .wrap{flex-direction:column;align-items:stretch;gap:10px}
- .logo{font-size:1.1rem}
- .nav{padding:8px 0 12px}
- .nav-btn{padding:8px 10px;font-size:.95rem}
+ .header .wrap{display:grid;grid-template-columns:1fr auto;grid-template-areas:"title brand" "actions actions";gap:8px;padding:8px 0;align-items:center}
+ body{font-size:15px}
+ .label{font-size:.95rem}
+ .control{font-size:.95rem}
+ .btn{font-size:.95rem}
+ .brand{grid-area:brand;justify-self:start;align-items:flex-start}
+ .brand-logo{width:100px;height:50px}
+ .brand-user{font-size:.72rem;max-width:90px}
+ .logo{grid-area:title;font-size:1.05rem;margin-bottom:0;justify-content:flex-start}
+ .logo-text{text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+ .header-actions{grid-area:actions;justify-content:flex-end}
+ #userMenuBtn{width:40px;min-width:40px;max-width:40px;height:40px;padding:5px 5px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;font-size:10px}
+
+ /* خيار A: شريط تنقل صف واحد بسكرول أفقي */
+ .nav{padding:6px 0 10px;gap:6px;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+ .nav-btn{padding:6px 8px;font-size:.9rem}
  .section{padding:14px;margin:12px 0}
- .card{padding:18px}
+ .card{padding:16px}
  .btn{padding:10px 12px}
  .btn.light{border-width:1px}
- .tabs{gap:8px}
+ .tabs{gap:6px}
+ .tabs .btn{padding:8px 10px}
  .modal{padding:10px}
  .modal-card{max-width:100%;padding:14px;border-radius:12px}
  .table-wrapper{overflow:auto}
@@ -212,6 +232,33 @@ body.modal-open{overflow:hidden}
  .dash-table-footer{flex-direction:column;align-items:stretch}
  .alert-item{flex-direction:column;align-items:stretch}
  .alert-actions{flex-wrap:wrap}
+
+ #casesListActiveFilter{display:none!important}
+ .mobile-only{display:inline-flex!important}
+ .cases-list-filters-grid .cases-filter-cats-body{display:none}
+ .cases-list-filters-grid.cats-open .cases-filter-cats-body{display:block}
+ .cases-list-filters-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .cases-list-filters-grid > .form-group{grid-column:1/-1!important}
+ .cases-list-filters-grid .control{padding:9px 10px;border-width:1px;border-radius:12px}
+ #filterCategoriesGroup{gap:6px!important;padding:6px!important}
+
+ /* تنزيلات كزر على الهاتف */
+ #casesListSection details{border:none!important;background:transparent!important;padding:0!important}
+ #casesListSection details > summary{list-style:none}
+ #casesListSection details > summary::-webkit-details-marker{display:none}
+ #casesListSection details > summary{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:8px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.10);color:#fff}
+ #casesListSection details[open]{padding:10px!important;border:1px solid #e5e7eb!important;border-radius:12px!important;background:#fff!important}
+ #casesListSection details[open] > summary{background:#f8fafc;color:#0f172a;border-color:#e5e7eb}
+
+ /* تثبيت شريط أدوات قائمة الحالات */
+ #casesCardsToolbar{position:sticky;top:120px;z-index:9}
+
+ /* تقليل Padding للكروت في الهاتف */
+ .case-card{padding:12px}
+ .case-card-name{font-size:1rem}
+ .case-card-meta{font-size:.85rem}
+ .case-card-line{font-size:.92rem}
+ .case-card-actions .btn{padding:8px 10px}
  #caseForm .grid{gap:12px}
  #caseForm .form-group{margin-bottom:10px}
  #caseForm .control{max-width:100%!important}
@@ -223,6 +270,8 @@ body.modal-open{overflow:hidden}
  #caseForm div[style*="grid-template-columns:repeat(5,1fr)"]{grid-template-columns:1fr!important}
  #caseForm div[style*="grid-template-columns:1fr 1fr 2fr"]{grid-template-columns:1fr!important}
  #caseForm div[style*="grid-template-columns:1fr 1fr 1fr 1fr 2fr"]{grid-template-columns:1fr!important}
+ /* تحسين فئات الحالة على الهواتف */
+ div[style*="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))"]{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))!important;gap:6px!important;padding:8px!important}
 }
 
 @media (max-width:420px){
@@ -232,9 +281,23 @@ body.modal-open{overflow:hidden}
  .btn{width:100%}
  .tabs .btn{width:auto}
  .modal-card{padding:12px}
- .control{padding:9px}
+ body{font-size:14px}
+ .control{padding:9px;font-size:.92rem}
+ .label{font-size:.92rem}
  .control.compact{padding:7px 9px}
  #caseForm .btn{padding:10px 12px}
  #caseForm .control{padding:9px}
  #caseForm .control.compact{padding:7px 9px}
+
+ /* تحسينات إضافية للهيدر والفلاتر والفئات */
+ .brand-user{font-size:.72rem;max-width:110px}
+ .logo{font-size:1rem;margin-bottom:0}
+ .nav{padding:6px 0 10px;gap:4px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
+ .nav-btn{padding:5px 8px;font-size:.85rem;width:auto;text-align:center}
+ .dash-table-filters{padding:6px;gap:6px}
+ .dash-table-toolbar{grid-template-columns:1fr;padding:8px}
+ .cases-list-filters-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ #filterCategoriesGroup{gap:5px!important;padding:6px!important}
+ /* تحسين فئات الحالة على الهواتف الصغيرة */
+ div[style*="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))"]{grid-template-columns:repeat(auto-fit,minmax(100px,1fr))!important;gap:4px!important;padding:6px!important}
 }
