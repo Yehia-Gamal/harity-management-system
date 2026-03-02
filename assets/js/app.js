@@ -891,17 +891,17 @@ function buildUserPermissionsUi_(selected) {
     const items = (g.items || []).filter(k => (PERMISSIONS || []).includes(k));
     if (!items.length) return '';
     const inner = items.map(mkItem).join('');
-    return `<div class="perm-group">
-      <div class="perm-group-title">${escapeHtml(g.title || '')}</div>
+    return `<details class="perm-group" open>
+      <summary class="perm-group-title">${escapeHtml(g.title || '')}</summary>
       <div class="perm-group-grid">${inner}</div>
-    </div>`;
+    </details>`;
   }).join('');
 
   const others = (PERMISSIONS || []).filter(k => !rendered.has(k));
-  const othersHtml = others.length ? `<div class="perm-group">
-      <div class="perm-group-title">أخرى</div>
+  const othersHtml = others.length ? `<details class="perm-group" open>
+      <summary class="perm-group-title">أخرى</summary>
       <div class="perm-group-grid">${others.map(mkItem).join('')}</div>
-    </div>` : '';
+    </details>` : '';
 
   host.innerHTML = `${groupsHtml}${othersHtml}`;
   try { wireUserMgmtAutosave_(); } catch { }
@@ -1527,6 +1527,7 @@ function showSection(key, navBtnId) {
     reports: 'reportsSection',
     audit: 'auditSection',
     settings: 'settingsSection',
+    userManagement: 'userManagementSection',
     medicalCommittee: 'medicalCommitteeSection'
   };
   const all = Object.values(map);
@@ -1538,6 +1539,14 @@ function showSection(key, navBtnId) {
   const target = document.getElementById(targetId);
   if (target) target.classList.remove('hidden');
 
+  if (targetId === 'settingsSection') {
+    try {
+      const canManageUsers = hasPerm('users_manage');
+      const usersCard = document.querySelector('#settingsSection .settings-users-home-card');
+      if (usersCard) usersCard.style.display = canManageUsers ? '' : 'none';
+    } catch { }
+  }
+
   if (targetId === 'newCaseSection') {
     try {
       const f = document.getElementById('caseForm');
@@ -1548,6 +1557,11 @@ function showSection(key, navBtnId) {
       }
     } catch { }
     try { renderNewCaseForm_(); } catch { }
+  }
+
+  if (targetId === 'userManagementSection') {
+    try { syncSettingsPermissionsUi_(); } catch { }
+    try { setTimeout(() => { try { void renderUsersList(); } catch { } }, 0); } catch { }
   }
 
   try {
@@ -1633,7 +1647,17 @@ function initHeaderUi() {
     const menu = document.getElementById(menuId);
     if (!btn || !menu) return;
     const open = () => { menu.classList.remove('hidden'); menu.setAttribute('aria-hidden', 'false'); };
-    const close = () => { menu.classList.add('hidden'); menu.setAttribute('aria-hidden', 'true'); };
+    const close = () => {
+      try {
+        const active = document.activeElement;
+        if (active && menu.contains(active)) {
+          try { (active).blur?.(); } catch { }
+          try { btn.focus?.(); } catch { }
+        }
+      } catch { }
+      menu.classList.add('hidden');
+      menu.setAttribute('aria-hidden', 'true');
+    };
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (menu.classList.contains('hidden')) open(); else close();
@@ -5733,30 +5757,55 @@ async function saveMySettings() {
   if (!SupabaseClient) { alert('تعذر الاتصال بقاعدة البيانات'); return; }
   if (!AppState.currentUser?.id) { alert('لم يتم تسجيل الدخول'); return; }
   const hint = document.getElementById('mySettingsHint');
-  const fullName = (document.getElementById('myFullName')?.value || '').trim();
+  const oldPass = (document.getElementById('myOldPassword')?.value || '').toString();
   const newPass = (document.getElementById('myNewPassword')?.value || '').toString();
-  try {
-    const { error } = await SupabaseClient.from('profiles').update({ full_name: fullName }).eq('id', AppState.currentUser.id);
-    if (error) throw error;
-    AppState.currentUser.name = fullName || AppState.currentUser.username;
-  } catch {
-    if (hint) { hint.style.display = 'block'; hint.textContent = 'تعذر حفظ الاسم'; }
-    else alert('تعذر حفظ الاسم');
+
+  if (!oldPass.trim()) {
+    if (hint) { hint.style.display = 'block'; hint.textContent = 'أدخل كلمة المرور القديمة'; }
+    else alert('أدخل كلمة المرور القديمة');
     return;
   }
-  if (newPass && newPass.trim().length > 0) {
-    try {
-      const res = await SupabaseClient.auth.updateUser({ password: newPass });
-      if (res?.error) throw res.error;
-      try { document.getElementById('myNewPassword').value = ''; } catch { }
-    } catch {
-      if (hint) { hint.style.display = 'block'; hint.textContent = 'تم حفظ الاسم، لكن تعذر تغيير كلمة المرور'; }
-      else alert('تم حفظ الاسم، لكن تعذر تغيير كلمة المرور');
-      return;
-    }
+  if (!newPass.trim()) {
+    if (hint) { hint.style.display = 'block'; hint.textContent = 'أدخل كلمة المرور الجديدة'; }
+    else alert('أدخل كلمة المرور الجديدة');
+    return;
   }
-  if (hint) { hint.style.display = 'block'; hint.textContent = 'تم حفظ إعداداتك'; }
-  else alert('تم حفظ إعداداتك');
+
+  let email = (AppState.currentUser?.email || '').toString().trim();
+  if (!email) {
+    try {
+      const u = await SupabaseClient.auth.getUser();
+      email = (u?.data?.user?.email || '').toString().trim();
+    } catch { }
+  }
+  if (!email) {
+    if (hint) { hint.style.display = 'block'; hint.textContent = 'تعذر تحديد البريد الإلكتروني للمستخدم'; }
+    else alert('تعذر تحديد البريد الإلكتروني للمستخدم');
+    return;
+  }
+
+  try {
+    const reauth = await SupabaseClient.auth.signInWithPassword({ email, password: oldPass });
+    if (reauth?.error) throw reauth.error;
+  } catch {
+    if (hint) { hint.style.display = 'block'; hint.textContent = 'كلمة المرور القديمة غير صحيحة'; }
+    else alert('كلمة المرور القديمة غير صحيحة');
+    return;
+  }
+
+  try {
+    const res = await SupabaseClient.auth.updateUser({ password: newPass });
+    if (res?.error) throw res.error;
+    try { document.getElementById('myOldPassword').value = ''; } catch { }
+    try { document.getElementById('myNewPassword').value = ''; } catch { }
+  } catch {
+    if (hint) { hint.style.display = 'block'; hint.textContent = 'تعذر تغيير كلمة المرور'; }
+    else alert('تعذر تغيير كلمة المرور');
+    return;
+  }
+
+  if (hint) { hint.style.display = 'block'; hint.textContent = 'تم تغيير كلمة المرور'; }
+  else alert('تم تغيير كلمة المرور');
 }
 
 function syncSettingsPermissionsUi_() {
@@ -5764,7 +5813,7 @@ function syncSettingsPermissionsUi_() {
   const userHint = document.getElementById('userMgmtReadonlyHint');
   const bulk = document.getElementById('permBulkActions');
   const preset = document.getElementById('permPresetActions');
-  const actions = document.querySelector('#settingsSection .settings-actions');
+  const actions = document.querySelector('#userManagementSection .settings-actions');
   const resetBtn = document.getElementById('resetPasswordLinkBtn');
   const inputs = ['userMgmtUsername', 'userMgmtName', 'userMgmtIsActive'];
 
@@ -5794,7 +5843,29 @@ function syncSettingsPermissionsUi_() {
     const host = document.getElementById('userMgmtPermissions');
     Array.from(host?.querySelectorAll('input.perm-box') || []).forEach(b => b.removeAttribute('disabled'));
   } catch { }
+
+  try {
+    const uname = (document.getElementById('userMgmtUsername')?.value || '').toString().trim();
+    if (resetBtn) resetBtn.disabled = !uname;
+  } catch { }
 }
+
+// settings: keep reset password link button enabled only when a username is selected
+try {
+  const wireResetPasswordBtnState_ = () => {
+    const unameEl = document.getElementById('userMgmtUsername');
+    const resetBtn = document.getElementById('resetPasswordLinkBtn');
+    if (!unameEl || !resetBtn) return;
+    if (unameEl.getAttribute('data-wired-reset') === '1') return;
+    unameEl.setAttribute('data-wired-reset', '1');
+    const sync = () => { try { syncSettingsPermissionsUi_(); } catch { } };
+    unameEl.addEventListener('input', sync);
+    unameEl.addEventListener('change', sync);
+    sync();
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wireResetPasswordBtnState_);
+  else wireResetPasswordBtnState_();
+} catch { }
 
 async function renderUsersList() {
   const host = document.getElementById('usersList');
@@ -5828,9 +5899,9 @@ async function renderUsersList() {
           <div class="title">${escapeHtml(uname || p.id)}</div>
           <div class="meta">${escapeHtml(name || '')}${lastSeen ? ` — آخر ظهور: ${escapeHtml(lastSeen)}` : ''}</div>
         </div>
-        <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+        <div class="user-item-actions">
           ${badge}
-          <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+          <div class="user-item-buttons">
             ${toggleBtn}
             ${editBtn}
           </div>

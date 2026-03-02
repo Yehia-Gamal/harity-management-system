@@ -50,7 +50,7 @@
       <div class="container">
         <div class="wrap">
           <div class="brand">
-            <img class="brand-logo" src="assets/images/logo.png" alt="أحلى شباب" />
+            <img class="brand-logo" src="assets/images/logo 2.png" alt="أحلى شباب" />
           </div>
           <div class="logo"><span class="logo-text">لجنة أسرة كريمة</span></div>
           <div class="header-actions">
@@ -696,9 +696,8 @@
           <div class="settings-card-body">
             <form onsubmit="return false" autocomplete="on">
               <div class="grid cols-2">
-                <div class="form-group"><label class="label">اسم المستخدم</label><input id="myUsername" class="control" disabled></div>
-                <div class="form-group"><label class="label">الاسم</label><input id="myFullName" class="control" placeholder="اسم للعرض"></div>
-                <div class="form-group" style="grid-column:1/-1"><label class="label">كلمة مرور جديدة</label><input id="myNewPassword" type="password" class="control" autocomplete="new-password" placeholder="اتركها فارغة إذا لا تريد التغيير"></div>
+                <div class="form-group" style="grid-column:1/-1"><label class="label">كلمة المرور القديمة</label><input id="myOldPassword" type="password" class="control" autocomplete="current-password" placeholder="أدخل كلمة المرور القديمة"></div>
+                <div class="form-group" style="grid-column:1/-1"><label class="label">كلمة المرور الجديدة</label><input id="myNewPassword" type="password" class="control" autocomplete="new-password" placeholder="أدخل كلمة المرور الجديدة"></div>
               </div>
               <div class="settings-actions">
                 <button type="button" class="btn" onclick="saveMySettings()">حفظ إعداداتي</button>
@@ -709,6 +708,28 @@
         </div>
 
         <div class="settings-layout">
+          <div class="settings-card settings-users-home-card">
+            <div class="settings-card-header">
+              <div>
+                <h3>المستخدمون</h3>
+                <div class="settings-card-subtitle">إدارة المستخدمين وتحديد الصلاحيات</div>
+              </div>
+            </div>
+            <div class="settings-card-body">
+              <div class="settings-actions">
+                <button type="button" class="btn" onclick="showSection('userManagement')">فتح إدارة المستخدمين</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="userManagementSection" class="section hidden">
+        <h2>إدارة المستخدمين</h2>
+        <div class="settings-actions" style="margin-top:0">
+          <button type="button" class="btn light" onclick="showSection('settings')" style="color:#1f2937;border-color:#e5e7eb">رجوع للإعدادات</button>
+        </div>
+        <div class="settings-layout">
           <div class="settings-grid">
             <div class="settings-card">
               <div class="settings-card-header">
@@ -718,7 +739,7 @@
                 </div>
               </div>
               <div class="settings-card-body">
-                <div class="form-group" style="margin-bottom:10px">
+                <div class="form-group settings-users-search" style="margin-bottom:10px">
                   <label class="label">بحث</label>
                   <input id="usersSearch" class="control" placeholder="ابحث باليوزرنيم أو الاسم...">
                 </div>
@@ -740,10 +761,6 @@
                   <div class="grid cols-2">
                     <div class="form-group"><label class="label">اسم المستخدم</label><input id="userMgmtUsername" class="control" placeholder="مثال: explorer2"></div>
                     <div class="form-group"><label class="label">الاسم</label><input id="userMgmtName" class="control" placeholder="الاسم للعرض"></div>
-                    <div class="form-group" style="display:none"><label class="label">الدور</label>
-                      <select id="userMgmtRole" class="control"><option value="explorer">مستكشف</option><option value="data_entry">مدخل بيانات</option><option value="supervisor">مشرف</option><option value="viewer">مشاهد</option><option value="admin">إدارة</option></select>
-                    </div>
-                    <div class="form-group" style="display:none"><label class="label">كلمة المرور</label><input id="userMgmtPassword" type="password" class="control" autocomplete="new-password" placeholder="اتركها فارغة عند عدم التغيير"></div>
                     <div class="form-group"><label class="label">حالة المستخدم</label>
                       <label class="toggle">
                         <input id="userMgmtIsActive" type="checkbox" checked />
