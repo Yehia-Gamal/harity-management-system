@@ -282,6 +282,124 @@ body.modal-open {
     border: 2px solid #fff
 }
 
+#forgotPasswordBtn {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    color: #0f172a;
+    font-weight: 700;
+    padding: 10px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: .15s;
+}
+
+#forgotPasswordBtn:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1
+}
+
+#loginError {
+    margin-top: 10px;
+    background: transparent !important;
+    color: #dc2626;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+#loginHint {
+    margin-top: 10px;
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    color: #475569
+}
+
+.control-error {
+    border-color: rgba(220, 38, 38, .55) !important;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, .10) !important;
+    background: rgba(254, 242, 242, .35) !important
+}
+
+#toastContainer {
+    position: fixed;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    width: 92%;
+    max-width: 420px
+}
+
+.toast {
+    width: 100%;
+    background: #0f172a;
+    color: #fff;
+    border-radius: 12px;
+    padding: 12px 14px;
+    box-shadow: 0 14px 28px rgba(15, 23, 42, .22);
+    font-size: 14px;
+    line-height: 1.4;
+    text-align: center;
+    position: relative
+}
+
+.toast-text {
+    padding-inline: 18px
+}
+
+.toast-close {
+    position: absolute;
+    top: 6px;
+    inset-inline-end: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.22);
+    background: rgba(255,255,255,.10);
+    color: #fff;
+    cursor: pointer;
+    line-height: 1;
+    font-size: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center
+}
+
+.toast.warning .toast-close {
+    border-color: rgba(15,23,42,.18);
+    background: rgba(15,23,42,.08);
+    color: #111827
+}
+
+.toast.error {
+    background: #dc2626
+}
+
+.toast.success {
+    background: #16a34a
+}
+
+.toast.warning {
+    background: #f59e0b;
+    color: #111827
+}
+
+.modal {
+    max-height: 100vh;
+    overflow-y: auto
+}
+
+.modal-card {
+    max-height: calc(100vh - 40px);
+    overflow-y: auto
+}
+
 .section {
     background: #fff;
     border-radius: var(--radius);
@@ -348,6 +466,39 @@ body.modal-open {
     padding: 10px;
     border: 2px solid #e5e7eb;
     border-radius: 8px
+}
+
+.password-field {
+    position: relative;
+    display: flex;
+    align-items: center
+}
+
+.password-field .control {
+    padding-inline-end: 44px
+}
+
+.pw-toggle {
+    position: absolute;
+    inset-inline-end: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    color: #0f172a;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: .15s
+}
+
+.pw-toggle:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1
 }
 
 .control.compact {

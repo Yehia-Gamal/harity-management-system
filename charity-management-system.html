@@ -6,7 +6,7 @@
   <title>لجنة أسرة كريمة – جمعية خواطر أحلى شباب</title>
   <link rel="icon" type="image/png" href="assets/images/logo 2.png">
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=20260215">
+  <link rel="stylesheet" href="assets/css/style.css?v=20260303_1200">
 </head>
 <body>
   <!-- Login -->
@@ -14,17 +14,27 @@
     <div class="container">
       <div class="card">
         <div style="text-align:center;margin-bottom:12px">
+          <img src="assets/images/logo.png" alt="لوجو جمعية خواطر أحلى شباب" style="max-width:120px;margin:0 auto 10px;display:block;border-radius:8px;" />
           <h2>لجنة أسرة كريمة</h2>
           <div>جمعية خواطر أحلى شباب</div>
         </div>
         <form id="loginForm">
           <div class="form-group">
             <label class="label" for="username">اسم المستخدم</label>
-            <input id="username" class="control" required />
+            <input id="username" class="control" autocomplete="username" required />
           </div>
           <div class="form-group">
             <label class="label" for="password">كلمة المرور</label>
-            <input id="password" type="password" class="control" autocomplete="current-password" required />
+            <div class="password-field">
+              <input id="password" type="password" class="control" autocomplete="current-password" required />
+              <button class="pw-toggle" type="button" data-pw-target="password" aria-label="إظهار كلمة المرور">👁</button>
+            </div>
+          </div>
+          <div class="form-group" style="margin-top:-6px">
+            <label style="display:flex;align-items:center;gap:10px;padding:6px 10px;border:1px solid #e5e7eb;border-radius:10px;background:#f8fafc">
+              <input id="rememberMe" type="checkbox" style="width:18px;height:18px" />
+              <span style="font-weight:700">تذكرني</span>
+            </label>
           </div>
           <div class="form-group" style="display:none">
             <label class="label" for="role">نوع المستخدم</label>
@@ -38,9 +48,32 @@
             </select>
           </div>
           <button class="btn" type="submit" style="width:100%">تسجيل الدخول</button>
+          <button id="forgotPasswordBtn" class="btn light" type="button" style="display:none;width:100%;margin-top:8px;color:#1f2937;border-color:#e5e7eb">نسيت كلمة المرور؟</button>
         </form>
         <div id="loginError" class="section hidden" style="margin-top:12px;background:#fee2e2;color:#991b1b">بيانات الدخول غير صحيحة</div>
+        <div id="loginHint" class="section hidden" style="margin-top:12px;background:#f8fafc;color:#334155;border:1px dashed #e5e7eb;border-radius:12px;padding:10px"></div>
       </div>
+    </div>
+  </div>
+
+  <div id="recoveryPasswordModal" class="modal" aria-hidden="true">
+    <div class="modal-card" style="max-width:560px">
+      <div class="modal-head">
+        <h3>إعادة تعيين كلمة المرور</h3>
+        <button class="close-btn" type="button" onclick="closeRecoveryPasswordModal()">×</button>
+      </div>
+      <form id="recoveryForm" onsubmit="applyRecoveryPassword_(); return false;">
+        <input type="text" name="username" autocomplete="username" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden" tabindex="-1">
+        <div class="grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+          <div class="form-group" style="grid-column:1/-1"><label class="label">كلمة المرور الجديدة</label><div class="password-field"><input id="recoveryNewPassword" type="password" class="control" autocomplete="new-password" placeholder="أدخل كلمة المرور الجديدة"><button class="pw-toggle" type="button" data-pw-target="recoveryNewPassword" aria-label="إظهار كلمة المرور">👁</button></div></div>
+          <div class="form-group" style="grid-column:1/-1"><label class="label">تأكيد كلمة المرور الجديدة</label><div class="password-field"><input id="recoveryNewPassword2" type="password" class="control" autocomplete="new-password" placeholder="أعد كتابة كلمة المرور الجديدة"><button class="pw-toggle" type="button" data-pw-target="recoveryNewPassword2" aria-label="إظهار كلمة المرور">👁</button></div></div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-start;margin-top:10px;flex-wrap:wrap">
+          <button id="recoverySaveBtn" type="submit" class="btn">حفظ كلمة المرور</button>
+          <button type="button" class="btn light" onclick="closeRecoveryPasswordModal()" style="color:#1f2937;border-color:#e5e7eb">إغلاق</button>
+        </div>
+        <div id="recoveryHint" class="settings-hint" style="display:none;margin-top:10px"></div>
+      </form>
     </div>
   </div>
 
@@ -176,6 +209,45 @@
             <button id="deleteCaseBtn" type="button" class="btn" onclick="deleteCurrentCase()" style="background:#dc2626">🗑️ حذف الحالة</button>
             <button type="button" class="btn light" onclick="closeCaseDetails()" style="color:#1f2937;border-color:#e5e7eb">إغلاق</button>
           </div>
+        </div>
+      </div>
+
+      <div id="userActionsModal" class="modal" aria-hidden="true">
+        <div class="modal-card" style="max-width:560px">
+          <div class="modal-head">
+            <h3>خيارات المستخدم</h3>
+            <button class="close-btn" type="button" onclick="closeUserActionsModal()">×</button>
+          </div>
+          <div class="grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+            <div class="form-group" style="grid-column:1/-1"><label class="label">البريد الإلكتروني</label><input id="userActionsEmail" class="control" disabled></div>
+            <div class="form-group" style="grid-column:1/-1"><label class="label">اسم المستخدم (userName)</label><input id="userActionsUsername" class="control" disabled></div>
+            <div class="form-group" style="grid-column:1/-1"><label class="label">الاسم</label><input id="userActionsName" class="control" disabled></div>
+            <div class="form-group" style="grid-column:1/-1"><label class="label">الحالة</label><div id="userActionsStatus" style="color:#64748b">—</div></div>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:flex-start;margin-top:10px;flex-wrap:wrap">
+            <button id="userActionsToggleBtn" type="button" class="btn" onclick="userActionsToggleActive_()">تعطيل/تفعيل</button>
+            <button type="button" class="btn light" onclick="userActionsResetPasswordLink_()" style="color:#1f2937;border-color:#e5e7eb">رابط إعادة تعيين كلمة المرور</button>
+            <button type="button" class="btn light" onclick="userActionsEditPermissions_()" style="color:#1f2937;border-color:#e5e7eb">تعديل الصلاحيات</button>
+            <button id="userActionsDeleteBtn" type="button" class="btn light" onclick="userActionsDelete_()" style="color:#991b1b;border-color:#fecaca;background:#fff">حذف الحساب</button>
+            <button type="button" class="btn light" onclick="closeUserActionsModal()" style="color:#1f2937;border-color:#e5e7eb">إغلاق</button>
+          </div>
+          <div id="userActionsHint" class="settings-hint" style="display:none;margin-top:10px"></div>
+        </div>
+      </div>
+
+      <div id="userPermissionsModal" class="modal" aria-hidden="true">
+        <div class="modal-card" style="max-width:720px">
+          <div class="modal-head">
+            <h3>صلاحيات المستخدم</h3>
+            <button class="close-btn" type="button" onclick="closeUserPermissionsModal()">×</button>
+          </div>
+          <div id="userPermMeta" style="color:#64748b">—</div>
+          <div id="userPermPermissions" class="perms-grid" style="margin-top:10px"></div>
+          <div style="display:flex;gap:8px;justify-content:flex-start;margin-top:12px;flex-wrap:wrap">
+            <button id="userPermSaveBtn" type="button" class="btn" onclick="saveUserPermissions_()">حفظ الإعدادات</button>
+            <button type="button" class="btn light" onclick="closeUserPermissionsModal()" style="color:#1f2937;border-color:#e5e7eb">إغلاق</button>
+          </div>
+          <div id="userPermHint" class="settings-hint" style="display:none;margin-top:10px"></div>
         </div>
       </div>
 
@@ -696,8 +768,9 @@
           <div class="settings-card-body">
             <form onsubmit="return false" autocomplete="on">
               <div class="grid cols-2">
-                <div class="form-group" style="grid-column:1/-1"><label class="label">كلمة المرور القديمة</label><input id="myOldPassword" type="password" class="control" autocomplete="current-password" placeholder="أدخل كلمة المرور القديمة"></div>
-                <div class="form-group" style="grid-column:1/-1"><label class="label">كلمة المرور الجديدة</label><input id="myNewPassword" type="password" class="control" autocomplete="new-password" placeholder="أدخل كلمة المرور الجديدة"></div>
+                <div class="form-group" style="grid-column:1/-1"><label class="label">اسم المستخدم</label><input id="myUsername" type="text" class="control" autocomplete="username" placeholder="اسم المستخدم"></div>
+                <div class="form-group" style="grid-column:1/-1"><label class="label">كلمة المرور القديمة</label><div class="password-field"><input id="myOldPassword" type="password" class="control" autocomplete="current-password" placeholder="أدخل كلمة المرور القديمة"><button class="pw-toggle" type="button" data-pw-target="myOldPassword" aria-label="إظهار كلمة المرور">👁</button></div></div>
+                <div class="form-group" style="grid-column:1/-1"><label class="label">كلمة المرور الجديدة</label><div class="password-field"><input id="myNewPassword" type="password" class="control" autocomplete="new-password" placeholder="أدخل كلمة المرور الجديدة"><button class="pw-toggle" type="button" data-pw-target="myNewPassword" aria-label="إظهار كلمة المرور">👁</button></div></div>
               </div>
               <div class="settings-actions">
                 <button type="button" class="btn" onclick="saveMySettings()">حفظ إعداداتي</button>
@@ -739,9 +812,25 @@
                 </div>
               </div>
               <div class="settings-card-body">
-                <div class="form-group settings-users-search" style="margin-bottom:10px">
-                  <label class="label">بحث</label>
-                  <input id="usersSearch" class="control" placeholder="ابحث باليوزرنيم أو الاسم...">
+                <div class="settings-card" style="margin-bottom:12px">
+                  <div class="settings-card-header">
+                    <div>
+                      <h3>إضافة مستخدم جديد</h3>
+                      <div class="settings-card-subtitle">إنشاء مستخدم بصلاحيات مبدئية (عرض/قراءة الحالات)</div>
+                    </div>
+                  </div>
+                  <div class="settings-card-body" style="padding:12px">
+                    <div class="grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+                      <div class="form-group" style="grid-column:1/-1"><label class="label">البريد الإلكتروني *</label><input id="newUserEmail" class="control" autocomplete="username" placeholder="example@gmail.com"></div>
+                      <div class="form-group" style="grid-column:1/-1"><label class="label">اسم المستخدم (اختياري)</label><input id="newUserUsername" class="control" placeholder="يُترك فارغاً لاستخدام البريد كاسم مستخدم"></div>
+                      <div class="form-group" style="grid-column:1/-1"><label class="label">الاسم المعروض</label><input id="newUserName" class="control" placeholder="الاسم داخل النظام"></div>
+                      <div class="form-group" style="grid-column:1/-1"><label class="label">كلمة مرور مؤقتة (اختياري)</label><input id="newUserTempPassword" type="password" class="control" autocomplete="new-password" placeholder="لو لديك Edge Function للإنشاء"></div>
+                    </div>
+                    <div style="display:flex;gap:8px;justify-content:flex-start;margin-top:10px;flex-wrap:wrap">
+                      <button type="button" class="btn" onclick="createUserFromUi_()">إنشاء المستخدم</button>
+                    </div>
+                    <div id="newUserHint" class="settings-hint" style="display:none;margin-top:10px"></div>
+                  </div>
                 </div>
                 <div id="usersList" class="users-list"></div>
                 <div class="settings-hint">لإضافة مستخدم جديد: أنشئه من لوحة Supabase (Authentication → Users). سيتم إنشاء ملفه تلقائياً ثم يمكنك إعطاؤه الصلاحيات من هنا.</div>
@@ -808,7 +897,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script defer src="assets/js/app.js"></script>
+  <script defer src="assets/js/app.js?v=20260304_1440"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </body>
 </html>

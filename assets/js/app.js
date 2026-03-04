@@ -1,5 +1,217 @@
 // State
+const APP_VERSION = '20260304_1440';
+
+let LastToastSig_ = '';
+let LastToastAt_ = 0;
+
+let AuthOpChain_ = Promise.resolve();
+
+function isAuthLockError_(e) {
+  try {
+    const msg = (e?.message || e?.error_description || e?.toString?.() || '').toString().toLowerCase();
+    return msg.includes('lock') || msg.includes('aborterror') || msg.includes('signal is aborted') || msg.includes('broken by another request');
+  } catch { return false; }
+
+  return false;
+}
+
+function getDefaultNewUserPermissions_() {
+  // Minimal view-only permissions: dashboard + read cases
+  return {
+    dashboard: true,
+    cases_read: true
+  };
+}
+
+async function createUserFromUi_() {
+  if (!hasPerm('users_manage')) { alert('لا تملك صلاحية إدارة المستخدمين'); return; }
+  if (!SupabaseClient) { alert('تعذر الاتصال بقاعدة البيانات'); return; }
+
+  const hint = document.getElementById('newUserHint');
+  const email = (document.getElementById('newUserEmail')?.value || '').toString().trim();
+  const username = (document.getElementById('newUserUsername')?.value || '').toString().trim() || email;
+  const name = (document.getElementById('newUserName')?.value || '').toString().trim();
+  const tempPassword = (document.getElementById('newUserTempPassword')?.value || '').toString();
+
+  if (hint) { hint.style.display = 'none'; hint.textContent = ''; }
+  if (!email || !email.includes('@')) {
+    if (hint) { hint.style.display = 'block'; hint.textContent = 'أدخل بريد إلكتروني صحيح'; }
+    return;
+  }
+
+  const permissions = getDefaultNewUserPermissions_();
+
+  // Attempt to create Auth user via Edge Function if available.
+  let createdAuth = false;
+  try {
+    if (SupabaseClient?.functions?.invoke) {
+      const { data, error } = await SupabaseClient.functions.invoke('create-user', {
+        body: { email, password: tempPassword || null, username, full_name: name || null }
+      });
+      if (!error && (data?.id || data?.user?.id)) createdAuth = true;
+    }
+  } catch { }
+
+  // Ensure profile row exists/updated with default permissions.
+  try {
+    const { data: existing, error: exErr } = await SupabaseClient.from('profiles').select('id').eq('username', username).maybeSingle();
+    if (exErr) throw exErr;
+    if (existing?.id) {
+      const { error } = await SupabaseClient.from('profiles').update({ full_name: name, permissions, is_active: true, email }).eq('id', existing.id);
+      if (error) {
+        const { error: e2 } = await SupabaseClient.from('profiles').update({ full_name: name, permissions, is_active: true }).eq('id', existing.id);
+        if (e2) throw e2;
+      }
+    } else {
+      const payload = { username, full_name: name || '', permissions, is_active: true, email };
+      const { error } = await SupabaseClient.from('profiles').insert(payload);
+      if (error) {
+        const payload2 = { username, full_name: name || '', permissions, is_active: true };
+        const { error: e2 } = await SupabaseClient.from('profiles').insert(payload2);
+        if (e2) throw e2;
+      }
+    }
+    try { await logAction('إنشاء مستخدم (واجهة)', '', `username: ${username} | email: ${email}`); } catch { }
+    try { await renderUsersList(); } catch { }
+    if (hint) {
+      hint.style.display = 'block';
+      hint.textContent = createdAuth
+        ? 'تم إنشاء المستخدم وتسجيله في النظام بصلاحيات مبدئية.'
+        : 'تم إنشاء ملف المستخدم بصلاحيات مبدئية. إذا لم يتم إنشاء المستخدم في Auth، أنشئه من لوحة Supabase أو وفّر Edge Function create-user.';
+    }
+    try { document.getElementById('newUserEmail').value = ''; } catch { }
+    try { document.getElementById('newUserUsername').value = ''; } catch { }
+    try { document.getElementById('newUserName').value = ''; } catch { }
+    try { document.getElementById('newUserTempPassword').value = ''; } catch { }
+  } catch (e) {
+    try { console.error('createUserFromUi_ error:', e); } catch { }
+    if (hint) { hint.style.display = 'block'; hint.textContent = 'تعذر إنشاء المستخدم'; }
+  }
+}
+
+function delay_(ms) {
+  return new Promise(res => setTimeout(res, ms));
+}
+
+async function withTimeout_(p, ms, msg) {
+  let t = null;
+  try {
+    const timeout = new Promise((_, rej) => {
+      t = setTimeout(() => rej(new Error(msg || 'timeout')), ms);
+    });
+    return await Promise.race([p, timeout]);
+  } finally {
+    try { if (t) clearTimeout(t); } catch { }
+  }
+}
+
+async function runAuthOp_(fn, { retryLock = true } = {}) {
+  const exec = async () => {
+    try {
+      return await fn();
+    } catch (e) {
+      if (retryLock && isAuthLockError_(e)) {
+        try { await delay_(250); } catch { }
+        return await fn();
+      }
+      throw e;
+    }
+  };
+  AuthOpChain_ = AuthOpChain_.then(exec, exec);
+  return AuthOpChain_;
+}
+
+function showToast_(message, type = 'info', duration = 4000) {
+  try {
+    const sig = `${type}:${(message || '').toString().trim()}`;
+    const now = Date.now();
+    if (sig && LastToastSig_ === sig && (now - LastToastAt_) < 1500) return;
+    LastToastSig_ = sig;
+    LastToastAt_ = now;
+    let container = document.getElementById('toastContainer');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'toastContainer';
+      document.body.appendChild(container);
+    }
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    const msg = (message || '').toString();
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'toast-close';
+    close.textContent = '×';
+    close.addEventListener('click', () => { try { toast.remove(); } catch { } });
+    const text = document.createElement('div');
+    text.className = 'toast-text';
+    text.textContent = msg;
+    toast.appendChild(close);
+    toast.appendChild(text);
+    container.appendChild(toast);
+    setTimeout(() => {
+      try { toast.remove(); } catch { }
+    }, duration);
+  } catch { }
+}
+
+function initPasswordToggles_() {
+  try {
+    const btns = Array.from(document.querySelectorAll('.pw-toggle'));
+    btns.forEach(btn => {
+      try {
+        if (btn.getAttribute('data-bound') === '1') return;
+        btn.setAttribute('data-bound', '1');
+        btn.addEventListener('click', () => {
+          try {
+            const targetId = (btn.getAttribute('data-pw-target') || '').toString().trim();
+            if (!targetId) return;
+            const input = document.getElementById(targetId);
+            if (!input) return;
+            const isPwd = (input.getAttribute('type') || '').toLowerCase() === 'password';
+            input.setAttribute('type', isPwd ? 'text' : 'password');
+            btn.textContent = isPwd ? '🙈' : '👁';
+            btn.setAttribute('aria-label', isPwd ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور');
+          } catch { }
+        });
+      } catch { }
+    });
+  } catch { }
+}
+
 const AppState = { currentUser: null, cases: [], isAuthenticated: false, googleSheetsUrl: 'https://script.google.com/macros/s/AKfycbwxEt1qnMH8HIQrpFm838LRq-g0p5_43m8tK563N8ZSjZ3NNysoeScWr2jV50osepU6/exec', caseIdCounter: 1000, settings: { url: null, token: null, regions: [], activeRegion: null } };
+
+function markCasesDerivedDirty_() {
+  try { AppState._derivedDirty = true; } catch { }
+}
+
+function refreshDerivedViewsIfNeeded_(sectionId) {
+  const dirty = !!AppState._derivedDirty;
+  if (!dirty) return;
+  try {
+    if (sectionId === 'dashboardSection') {
+      try { updateDashboardStats(); } catch { }
+      try { AppState._derivedDirty = false; } catch { }
+      return;
+    }
+    if (sectionId === 'reportsSection') {
+      let ok = false;
+      try {
+        generateReportPreview();
+        ok = true;
+      } catch { }
+      if (ok) {
+        try { AppState._derivedDirty = false; } catch { }
+      }
+      return;
+    }
+    if (sectionId === 'medicalCommitteeSection') {
+      try { updateMedicalCommitteeStats(); } catch { }
+      try { renderMedicalTable(); } catch { }
+      try { AppState._derivedDirty = false; } catch { }
+      return;
+    }
+  } catch { }
+}
 
 function getNextCaseNo_() {
   const nums = (AppState.cases || []).map(c => Number(c?.caseNo)).filter(n => Number.isFinite(n) && n > 0);
@@ -730,35 +942,57 @@ function ensureAssistanceArrays() {
 const SUPABASE_URL = 'https://fbctibquzuxfjonhbrjr.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_HWMOnpbnXOqCQm37lf7iyA_np0iIKMo';
 let SupabaseClient = null;
-try {
-  if (window.supabase && typeof window.supabase.createClient === 'function') {
-    const memStore = {};
-    const memStorage = {
+let AuthBusy_ = false;
+let IsRecoveryUrl_ = false;
+let SessionRecoveryInProgress_ = false;
+function computeIsRecoveryUrl_() {
+  try {
+    const hash = (location.hash || '').toString();
+    const search = (location.search || '').toString();
+    const raw = `${search}${hash}`;
+    return raw.includes('type=recovery') || raw.includes('access_token=') || raw.includes('code=');
+  } catch { return false; }
+}
+function getRememberMe_() {
+  try { return (localStorage.getItem('rememberMe') || '') === '1'; } catch { return false; }
+}
+function setRememberMe_(v) {
+  try { localStorage.setItem('rememberMe', v ? '1' : '0'); } catch { }
+  if (!v) {
+    try { localStorage.removeItem('sb-session'); } catch { }
+  }
+}
+function initSupabaseClient_() {
+  try {
+    if (!(window.supabase && typeof window.supabase.createClient === 'function')) return null;
+    const store = localStorage;
+    const storageKey = 'sb-session';
+    const storage = {
       getItem: (key) => {
-        if (key in memStore) return memStore[key];
-        return null;
+        try { return store.getItem(key); } catch { return null; }
       },
       setItem: (key, value) => {
-        memStore[key] = value;
+        try { store.setItem(key, value); } catch { }
       },
       removeItem: (key) => {
-        delete memStore[key];
+        try { store.removeItem(key); } catch { }
       }
     };
-    SupabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: {
-        storage: memStorage,
-        storageKey: 'sb-session',
-        persistSession: false,
-        autoRefreshToken: false,
-        detectSessionInUrl: false
+        storage,
+        storageKey,
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
       }
     });
+  } catch (e) {
+    try { console.error('Supabase init error:', e); } catch { }
+    return null;
   }
-} catch (e) {
-  try { console.error('Supabase init error:', e); } catch { }
-  SupabaseClient = null;
 }
+SupabaseClient = initSupabaseClient_();
 
 const PERMISSIONS = [
   'dashboard',
@@ -992,7 +1226,7 @@ async function getMyProfile() {
   if (AppState._myProfileCache && AppState._myProfileCache.userId && AppState._myProfileCache.profile) {
     return AppState._myProfileCache.profile;
   }
-  const { data: auth, error: authErr } = await SupabaseClient.auth.getUser();
+  const { data: auth, error: authErr } = await runAuthOp_(() => SupabaseClient.auth.getUser());
   if (authErr) return null;
   const user = auth?.user;
   if (!user) return null;
@@ -1025,7 +1259,7 @@ function normalizeMissingCoreFields_(it) {
 
 async function reloadCasesFromSupabase_() {
   try {
-    await loadCasesFromDb();
+    await loadCasesFromDb(true);
   } catch { }
 }
 
@@ -1039,8 +1273,31 @@ async function onSupabaseWriteError_(fallbackMsg, e) {
   try { await reloadCasesFromSupabase_(); } catch { }
 }
 
-async function loadCasesFromDb() {
+async function loadCasesFromDb(force = false) {
   if (!SupabaseClient) { AppState.cases = []; return; }
+  try {
+    const lastAt = Number(AppState._casesLoadedAt || 0) || 0;
+    if (!force && lastAt && (Date.now() - lastAt) < 8000 && Array.isArray(AppState.cases) && AppState.cases.length) {
+      return;
+    }
+  } catch { }
+
+  try {
+    const grid = document.getElementById('casesCardsGrid');
+    if (grid) {
+      grid.innerHTML = `
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px">
+          ${Array.from({ length: 6 }).map(() => `
+            <div style="border:1px solid #e5e7eb;border-radius:14px;background:#fff;padding:14px">
+              <div style="height:14px;width:60%;background:#eef2f7;border-radius:8px"></div>
+              <div style="height:10px;width:85%;background:#eef2f7;border-radius:8px;margin-top:10px"></div>
+              <div style="height:10px;width:70%;background:#eef2f7;border-radius:8px;margin-top:8px"></div>
+              <div style="height:10px;width:40%;background:#eef2f7;border-radius:8px;margin-top:12px"></div>
+            </div>`).join('')}
+        </div>`;
+    }
+  } catch { }
+
   const { data, error } = await SupabaseClient
     .from('cases')
     .select('id,data,updated_at')
@@ -1063,12 +1320,13 @@ async function loadCasesFromDb() {
     return out;
   });
   AppState.cases = list;
+  try { AppState._casesLoadedAt = Date.now(); } catch { }
+  try { AppState._casesVersion = (Number(AppState._casesVersion || 0) || 0) + 1; } catch { }
   ensureAssistanceArrays();
   try { ensureCaseNumbers_(); } catch { }
   computeNextCounterFromCases();
   try { renderCasesTable(); } catch { }
-  try { updateDashboardStats(); } catch { }
-  try { generateReportPreview(); } catch { }
+  try { markCasesDerivedDirty_(); } catch { }
   try { updateNavBadges(); } catch { }
 }
 
@@ -1354,12 +1612,31 @@ async function clearAuditLog() {
 document.addEventListener('DOMContentLoaded', () => { init(); loadSettings(); ensureAssistanceArrays(); });
 
 function init() {
+  try { IsRecoveryUrl_ = computeIsRecoveryUrl_(); } catch { IsRecoveryUrl_ = false; }
+  try { AuthBusy_ = false; } catch { }
+  try {
+    window.addEventListener('beforeunload', () => {
+      try {
+        if (!getRememberMe_()) localStorage.removeItem('sb-session');
+      } catch { }
+    });
+  } catch { }
   // login
   document.getElementById('loginForm').addEventListener('submit', onLogin);
   document.getElementById('logoutBtn').addEventListener('click', logout);
+  try {
+    const fp = document.getElementById('forgotPasswordBtn');
+    if (fp) fp.addEventListener('click', sendPasswordResetEmail_);
+  } catch { }
+  try {
+    const rm = document.getElementById('rememberMe');
+    if (rm) rm.checked = getRememberMe_();
+  } catch { }
   const importInput = document.getElementById('importInput'); if (importInput) { importInput.addEventListener('change', onImportFile) }
   const jsonImportInput = document.getElementById('jsonImportInput'); if (jsonImportInput) { jsonImportInput.addEventListener('change', onJSONImportFile) }
   const listImportInput = document.getElementById('listImportInput'); if (listImportInput) { listImportInput.addEventListener('change', onListImportFile) }
+  try { initPasswordToggles_(); } catch { }
+  try { if (IsRecoveryUrl_) void detectRecoveryFlow_(); } catch { }
   try { initDashboardDrilldown(); } catch { }
   // filters options
   setFilterOptions();
@@ -1371,6 +1648,8 @@ function init() {
       SupabaseClient.auth.onAuthStateChange(async (_event, session) => {
         try { clearMyProfileCache_(); } catch { }
         if (!session?.user) return;
+        if (AuthBusy_) return;
+        if (IsRecoveryUrl_) return;
         try {
           await setCurrentUserFromSession_(session.user);
           showMainApp();
@@ -1386,8 +1665,233 @@ function init() {
     }
   } catch { }
   // restore session
-  void restoreSupabaseSession();
+  if (!SessionRecoveryInProgress_) {
+    void restoreSupabaseSession();
+  }
   try { buildUserPermissionsUi_({}); } catch { }
+
+  try { if (!IsRecoveryUrl_) void detectRecoveryFlow_(); } catch { }
+}
+
+async function sendPasswordResetEmail_() {
+  const hint = document.getElementById('loginHint');
+  try { if (hint) { hint.classList.remove('hidden'); hint.textContent = 'جارٍ إرسال رابط إعادة تعيين كلمة المرور...'; } } catch { }
+  if (!SupabaseClient) {
+    try { if (hint) hint.textContent = 'تعذر الاتصال بقاعدة البيانات (Supabase)'; } catch { }
+    return;
+  }
+  try {
+    const raw = (document.getElementById('username')?.value || '').toString().trim();
+    if (!raw) {
+      try { if (hint) hint.textContent = 'اكتب اسم المستخدم أو البريد أولاً'; } catch { }
+      return;
+    }
+    const candidates = [];
+    if (raw.includes('@')) {
+      candidates.push(raw);
+      candidates.push(raw.toLowerCase());
+    } else {
+      candidates.push(`${raw}@app.local`);
+      candidates.push(`${raw.toLowerCase()}@app.local`);
+      try { candidates.push(usernameToEmail(raw)); } catch { }
+    }
+    const uniq = Array.from(new Set(candidates.map(s => (s || '').toString().trim()).filter(Boolean)));
+    const email = uniq[0];
+    if (!email) {
+      try { if (hint) hint.textContent = 'تعذر تحديد البريد الإلكتروني'; } catch { }
+      return;
+    }
+
+    const redirectTo = `${location.origin}${location.pathname}`;
+    const res = await SupabaseClient.auth.resetPasswordForEmail(email, { redirectTo });
+    if (res?.error) throw res.error;
+    try { if (hint) hint.textContent = 'تم إرسال رابط إعادة تعيين كلمة المرور إلى البريد (إن كان موجوداً). افحص البريد الوارد والـSpam.'; } catch { }
+    try { showToast_('تم إرسال رابط إعادة تعيين كلمة المرور (إن كان البريد موجوداً).', 'success'); } catch { }
+    try {
+      const fp = document.getElementById('forgotPasswordBtn');
+      if (fp) fp.style.display = 'none';
+    } catch { }
+  } catch (e) {
+    try { console.error('resetPasswordForEmail error:', e); } catch { }
+    const msg = (e?.message || e?.error_description || '').toString().trim();
+    try { if (hint) hint.textContent = msg ? `تعذر إرسال الرابط: ${msg}` : 'تعذر إرسال رابط إعادة تعيين كلمة المرور'; } catch { }
+  }
+}
+
+async function detectRecoveryFlow_() {
+  if (!SupabaseClient) return;
+  if (SessionRecoveryInProgress_) {
+    return;
+  }
+  SessionRecoveryInProgress_ = true;
+  try {
+  const hash = (location.hash || '').toString();
+  const search = (location.search || '').toString();
+  const raw = `${search}${hash}`;
+  if (!raw) { SessionRecoveryInProgress_ = false; return; }
+  const isRecovery = raw.includes('type=recovery') || raw.includes('access_token=') || raw.includes('code=');
+  if (!isRecovery) { SessionRecoveryInProgress_ = false; return; }
+
+  // Check if there's an error in the URL (e.g., otp_expired)
+  const hasError = raw.includes('error=') || raw.includes('otp_expired') || raw.includes('invalid') || raw.includes('expired');
+  if (hasError) {
+    try {
+      const hint = document.getElementById('loginHint');
+      if (hint) {
+        hint.classList.remove('hidden');
+        hint.textContent = 'رابط إعادة تعيين كلمة المرور منتهي الصلاحية أو غير صالح. يرجى طلب رابط جديد من خلال "نسيت كلمة المرور؟".';
+      }
+      try { IsRecoveryUrl_ = false; } catch { }
+      // Clear the hash to avoid repeated detection
+      try { history.replaceState(null, '', location.pathname); } catch { }
+    } catch { }
+    SessionRecoveryInProgress_ = false;
+    return; // Do not proceed to open modal
+  }
+
+  IsRecoveryUrl_ = true;
+
+  // Open modal immediately without waiting for session activation
+  try { openRecoveryPasswordModal(); } catch { }
+
+  try {
+    const hint = document.getElementById('loginHint');
+    if (hint) {
+      hint.classList.remove('hidden');
+      hint.textContent = 'يرجى تعيين كلمة مرور جديدة لإكمال الاستعادة.';
+    }
+  } catch { }
+
+  try {
+    AuthBusy_ = true;
+    if (SupabaseClient.auth.getSessionFromUrl) {
+      await runAuthOp_(() => SupabaseClient.auth.getSessionFromUrl({ storeSession: true }));
+    } else if (SupabaseClient.auth.exchangeCodeForSession && raw.includes('code=')) {
+      await runAuthOp_(() => SupabaseClient.auth.exchangeCodeForSession(location.href));
+    } else {
+      const h = (location.hash || '').toString().replace(/^#/, '');
+      const p = new URLSearchParams(h);
+      const access_token = (p.get('access_token') || '').toString();
+      const refresh_token = (p.get('refresh_token') || '').toString();
+      if (access_token && refresh_token && SupabaseClient.auth.setSession) {
+        await runAuthOp_(() => SupabaseClient.auth.setSession({ access_token, refresh_token }));
+      }
+    }
+  } catch (e) {
+    try { console.error('exchangeCodeForSession error:', e); } catch { }
+  } finally {
+    AuthBusy_ = false;
+  }
+
+  try {
+    const { data } = await SupabaseClient.auth.getSession();
+    if (data?.session?.user) {
+      SessionRecoveryInProgress_ = false;
+      return;
+    }
+  } catch { }
+
+  // If no session was established, update the hint in the modal
+  try {
+    const hint = document.getElementById('recoveryHint');
+    if (hint) {
+      hint.style.display = 'block';
+      hint.textContent = 'تعذر تفعيل جلسة الاستعادة من الرابط. قد يكون هناك مشكلة في ساعة الجهاز (Clock Skew). تأكد أن ساعة الجهاز وساعة الإنترنت متطابقتان بشكل صحيح، ثم أعد إرسال رابط إعادة تعيين كلمة المرور.';
+    }
+  } catch { }
+  } finally {
+    try { SessionRecoveryInProgress_ = false; } catch { }
+  }
+}
+
+function openRecoveryPasswordModal() {
+  const m = document.getElementById('recoveryPasswordModal');
+  if (!m) return;
+  try { document.getElementById('recoveryNewPassword').value = ''; } catch { }
+  try { document.getElementById('recoveryNewPassword2').value = ''; } catch { }
+  try {
+    const hint = document.getElementById('recoveryHint');
+    if (hint) { hint.style.display = 'none'; hint.textContent = ''; }
+  } catch { }
+  try { document.body.classList.add('modal-open'); } catch { }
+  m.classList.add('show');
+  m.setAttribute('aria-hidden', 'false');
+  try { document.getElementById('recoveryNewPassword')?.focus?.(); } catch { }
+}
+
+function closeRecoveryPasswordModal() {
+  const m = document.getElementById('recoveryPasswordModal');
+  if (!m) return;
+  try {
+    const ae = document.activeElement;
+    if (ae && m.contains(ae) && typeof ae.blur === 'function') ae.blur();
+  } catch { }
+  m.classList.remove('show');
+  m.setAttribute('aria-hidden', 'true');
+  try { document.body.classList.remove('modal-open'); } catch { }
+}
+
+async function applyRecoveryPassword_() {
+  const hint = document.getElementById('recoveryHint');
+  const btn = document.getElementById('recoverySaveBtn');
+  try { if (btn) btn.setAttribute('disabled', 'disabled'); } catch { }
+  try { if (hint) { hint.style.display = 'block'; hint.textContent = 'جارٍ الحفظ...'; } } catch { }
+
+  if (!SupabaseClient) {
+    try { if (hint) hint.textContent = 'تعذر الاتصال بقاعدة البيانات (Supabase)'; } catch { }
+    try { if (btn) btn.removeAttribute('disabled'); } catch { }
+    return;
+  }
+  try {
+    const p1 = (document.getElementById('recoveryNewPassword')?.value || '').toString();
+    const p2 = (document.getElementById('recoveryNewPassword2')?.value || '').toString();
+    if (!p1.trim() || !p2.trim()) {
+      if (hint) hint.textContent = 'أدخل كلمة المرور الجديدة وتأكيدها';
+      return;
+    }
+    if (p1.trim().length < 6) {
+      if (hint) hint.textContent = 'كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل';
+      return;
+    }
+    if (p1 !== p2) {
+      if (hint) hint.textContent = 'كلمة المرور وتأكيدها غير متطابقين';
+      return;
+    }
+
+    const res = await withTimeout_(
+      runAuthOp_(() => SupabaseClient.auth.updateUser({ password: p1 })),
+      15000,
+      'تعذر حفظ كلمة المرور: انتهت المهلة. أعد المحاولة.'
+    );
+    if (res?.error) throw res.error;
+
+    if (hint) hint.textContent = 'تم تحديث كلمة المرور. جارٍ إعادة تحميل الصفحة...';
+    try {
+      const cleanUrl = `${location.origin}${location.pathname}`;
+      history.replaceState(null, '', cleanUrl);
+    } catch { }
+
+    try {
+      void withTimeout_(
+        runAuthOp_(() => SupabaseClient.auth.signOut(), { retryLock: true }),
+        7000,
+        'timeout'
+      );
+    } catch { }
+    try {
+      IsRecoveryUrl_ = false; // Reset flag after successful password change
+      closeRecoveryPasswordModal();
+      showLoginScreen_();
+    } catch { }
+    setTimeout(() => { try { location.reload(); } catch { } }, 900);
+    setTimeout(() => { try { location.reload(); } catch { } }, 5500);
+  } catch (e) {
+    try { console.error('applyRecoveryPassword_ error:', e); } catch { }
+    const msg = (e?.message || e?.error_description || '').toString().trim();
+    if (hint) hint.textContent = msg ? `تعذر حفظ كلمة المرور: ${msg}` : 'تعذر حفظ كلمة المرور';
+  } finally {
+    try { if (btn) btn.removeAttribute('disabled'); } catch { }
+  }
 }
 
 function showMainApp() {
@@ -1420,23 +1924,74 @@ function showLoginScreen_() {
     const err = document.getElementById('loginError');
     if (err) err.classList.add('hidden');
   } catch { }
+  try {
+    const pwd = document.getElementById('password');
+    if (pwd) pwd.value = '';
+  } catch { }
 }
 
 async function onLogin(e) {
   if (e && typeof e.preventDefault === 'function') e.preventDefault();
   const errBox = document.getElementById('loginError');
+  const hintBox = document.getElementById('loginHint');
+  const forgotBtn = document.getElementById('forgotPasswordBtn');
+  const uEl = document.getElementById('username');
+  const pEl = document.getElementById('password');
+  const submitBtn = document.querySelector('#loginForm button[type="submit"]');
   try { if (errBox) errBox.classList.add('hidden'); } catch { }
+  try { if (hintBox) hintBox.classList.add('hidden'); } catch { }
+  try { if (forgotBtn) forgotBtn.style.display = 'none'; } catch { }
+  try { uEl?.classList?.remove?.('control-error'); } catch { }
+  try { pEl?.classList?.remove?.('control-error'); } catch { }
+
+  if (IsRecoveryUrl_) {
+    try {
+      if (hintBox) {
+        hintBox.classList.remove('hidden');
+        hintBox.textContent = 'أكمل تغيير كلمة المرور أولاً من نافذة الاستعادة.';
+      }
+      openRecoveryPasswordModal();
+    } catch { }
+    return;
+  }
+
+  if (AuthBusy_) {
+    try {
+      if (hintBox) {
+        hintBox.classList.remove('hidden');
+        hintBox.textContent = 'النظام مشغول الآن… انتظر ثوانٍ ثم أعد المحاولة.';
+      }
+    } catch { }
+    try {
+      setTimeout(() => {
+        try { AuthBusy_ = false; } catch { }
+      }, 1500);
+    } catch { }
+    return;
+  }
+  AuthBusy_ = true;
 
   const username = (document.getElementById('username')?.value || '').toString().trim();
   const password = (document.getElementById('password')?.value || '').toString();
   if (!username || !password) {
     try { if (errBox) errBox.classList.remove('hidden'); } catch { }
+    AuthBusy_ = false;
+    try { if (submitBtn) submitBtn.removeAttribute('disabled'); } catch { }
     return;
   }
   if (!SupabaseClient) {
-    alert('تعذر الاتصال بقاعدة البيانات (Supabase)');
+    alert('تعذر الاتصال بقاعدة البيانات');
+    AuthBusy_ = false;
+    try { if (submitBtn) submitBtn.removeAttribute('disabled'); } catch { }
     return;
   }
+
+  try { if (submitBtn) submitBtn.setAttribute('disabled', 'disabled'); } catch { }
+
+  try {
+    const rm = !!document.getElementById('rememberMe')?.checked;
+    if (rm !== getRememberMe_()) setRememberMe_(rm);
+  } catch { }
 
   try {
     const unameRaw = (username || '').toString().trim();
@@ -1455,7 +2010,7 @@ async function onLogin(e) {
     let data = null;
     for (const email of uniq) {
       try {
-        const res = await SupabaseClient.auth.signInWithPassword({ email, password });
+        const res = await runAuthOp_(() => SupabaseClient.auth.signInWithPassword({ email, password }));
         if (res?.error) { lastErr = res.error; continue; }
         data = res?.data || null;
         if (data?.user) break;
@@ -1476,6 +2031,9 @@ async function onLogin(e) {
     try { showSection('casesList', 'navCasesBtn'); } catch { }
     try { await loadCasesFromDb(); } catch (loadErr) { try { console.error(loadErr); } catch { } }
     try { document.getElementById('password').value = ''; } catch { }
+    try { uEl?.classList?.remove?.('control-error'); } catch { }
+    try { pEl?.classList?.remove?.('control-error'); } catch { }
+    try { if (forgotBtn) forgotBtn.style.display = 'none'; } catch { }
   } catch (authErr) {
     try { console.error('login error:', authErr); } catch { }
     // Better hint: profile may exist but auth user/password is wrong or user was not created in Supabase Auth.
@@ -1493,30 +2051,85 @@ async function onLogin(e) {
 
       if (profRow && profRow.is_active === false) {
         alert('هذا المستخدم معطّل. راجع الإدارة لإعادة التفعيل.');
+        try {
+          if (forgotBtn) { forgotBtn.style.display = 'block'; }
+          if (hintBox) {
+            hintBox.classList.remove('hidden');
+            hintBox.textContent = 'إذا نسيت كلمة المرور اضغط على "نسيت كلمة المرور؟" لإرسال رابط إعادة التعيين.';
+          }
+        } catch { }
+        try { showToast_('إذا نسيت كلمة المرور اضغط على "نسيت كلمة المرور؟" لإرسال رابط إعادة التعيين.', 'warning'); } catch { }
         return;
       }
       if (profRow) {
         const emailHint = usernameToEmail(unameKey);
         alert('اسم المستخدم موجود، لكن تعذر تسجيل الدخول.\n\nالأسباب الشائعة:\n- كلمة المرور غير صحيحة\n- المستخدم لم يتم إنشاؤه داخل Supabase (Authentication → Users) بنفس البريد\n\nالبريد الذي يتوقعه النظام غالباً: ' + emailHint + '\n\nملاحظة: إذا كان حسابك في Supabase معمول ببريد مختلف (مثل Gmail)، اكتب البريد الكامل في خانة "اسم المستخدم".');
+        try {
+          if (forgotBtn) { forgotBtn.style.display = 'block'; }
+          if (hintBox) {
+            hintBox.classList.remove('hidden');
+            hintBox.textContent = 'إذا نسيت كلمة المرور اضغط على "نسيت كلمة المرور؟" لإرسال رابط إعادة التعيين.';
+          }
+        } catch { }
+        try { showToast_('إذا نسيت كلمة المرور اضغط على "نسيت كلمة المرور؟" لإرسال رابط إعادة التعيين.', 'warning'); } catch { }
         return;
       }
     } catch { }
 
+    try { uEl?.classList?.add?.('control-error'); } catch { }
+    try { pEl?.classList?.add?.('control-error'); } catch { }
+
     try { if (errBox) errBox.classList.remove('hidden'); } catch { }
+    try {
+      if (forgotBtn) { forgotBtn.style.display = 'block'; }
+      if (hintBox) {
+        hintBox.classList.remove('hidden');
+        hintBox.textContent = 'إذا نسيت كلمة المرور اضغط على "نسيت كلمة المرور؟" لإرسال رابط إعادة التعيين.';
+      }
+    } catch { }
+    try { showToast_('بيانات الدخول غير صحيحة', 'error'); } catch { }
+    try { showToast_('إذا نسيت كلمة المرور اضغط على "نسيت كلمة المرور؟" لإرسال رابط إعادة التعيين.', 'warning'); } catch { }
+  } finally {
+    AuthBusy_ = false;
+    try { if (submitBtn) submitBtn.removeAttribute('disabled'); } catch { }
   }
 }
 
 async function logout() {
-  try {
-    if (SupabaseClient?.auth?.signOut) {
-      await SupabaseClient.auth.signOut();
-    }
-  } catch { }
+  // Make UI respond immediately even if signOut is slow.
   try {
     AppState.currentUser = null;
     AppState.isAuthenticated = false;
   } catch { }
-  showLoginScreen_();
+  try { showLoginScreen_(); } catch { }
+  try {
+    const menu = document.getElementById('userMenu');
+    const btn = document.getElementById('userMenuBtn');
+    if (menu) { menu.classList.add('hidden'); menu.setAttribute('aria-hidden', 'true'); }
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+  } catch { }
+  try {
+    AuthBusy_ = false;
+    IsRecoveryUrl_ = false;
+  } catch { }
+  try {
+    if (SupabaseClient?.auth?.signOut) {
+      await withTimeout_(
+        runAuthOp_(() => SupabaseClient.auth.signOut(), { retryLock: true }),
+        7000,
+        'timeout'
+      );
+    }
+  } catch { }
+  // Ensure local persisted session is cleared even if signOut fails.
+  try { localStorage.removeItem('sb-session'); } catch { }
+  try {
+    AppState.currentUser = null;
+    AppState.isAuthenticated = false;
+  } catch { }
+  try { showLoginScreen_(); } catch { }
+  // Avoid requiring a manual reload to make login responsive.
+  try { setTimeout(() => { try { location.reload(); } catch { } }, 200); } catch { }
 }
 
 function showSection(key, navBtnId) {
@@ -1538,6 +2151,34 @@ function showSection(key, navBtnId) {
   const targetId = map[key] || key;
   const target = document.getElementById(targetId);
   if (target) target.classList.remove('hidden');
+
+  try { refreshDerivedViewsIfNeeded_(targetId); } catch { }
+
+  // If user navigates to a derived section after another one cleared the dirty flag,
+  // ensure it still refreshes when cases changed.
+  try {
+    const v = Number(AppState._casesVersion || 0) || 0;
+    if (targetId === 'dashboardSection') {
+      const seen = Number(AppState._dashboardRenderedVersion || 0) || 0;
+      if (v && v !== seen) {
+        try { updateDashboardStats(); } catch { }
+        try { AppState._dashboardRenderedVersion = v; } catch { }
+      }
+    } else if (targetId === 'reportsSection') {
+      const seen = Number(AppState._reportsRenderedVersion || 0) || 0;
+      if (v && v !== seen) {
+        try { generateReportPreview(); } catch { }
+        try { AppState._reportsRenderedVersion = v; } catch { }
+      }
+    } else if (targetId === 'medicalCommitteeSection') {
+      const seen = Number(AppState._medicalRenderedVersion || 0) || 0;
+      if (v && v !== seen) {
+        try { updateMedicalCommitteeStats(); } catch { }
+        try { renderMedicalTable(); } catch { }
+        try { AppState._medicalRenderedVersion = v; } catch { }
+      }
+    }
+  } catch { }
 
   if (targetId === 'settingsSection') {
     try {
@@ -1575,7 +2216,9 @@ function showSection(key, navBtnId) {
 
 async function restoreSupabaseSession() {
   if (!SupabaseClient) return;
-  const { data: sess, error } = await SupabaseClient.auth.getSession();
+  if (AuthBusy_) return;
+  if (IsRecoveryUrl_) return;
+  const { data: sess, error } = await runAuthOp_(() => SupabaseClient.auth.getSession(), { retryLock: false });
   if (error) {
     try { console.error('getSession error:', error); } catch { }
     return;
@@ -3034,8 +3677,7 @@ function openMedicalCommittee() {
       if (s) s.classList.remove('hidden');
     } catch { }
   }
-  try { updateMedicalCommitteeStats(); } catch { }
-  try { renderMedicalTable(); } catch { }
+  try { refreshDerivedViewsIfNeeded_('medicalCommitteeSection'); } catch { }
 }
 
 function setMedicalFilter(key) {
@@ -3408,7 +4050,6 @@ function openBulkSponsorshipModal() {
   if (!m) return;
   try { m.removeAttribute('data-single-case-id'); } catch { }
   try { m.setAttribute('data-target-ids', JSON.stringify(ids)); } catch { }
-  try { console.log('[bulkSponsorship] openBulkSponsorshipModal target ids:', ids, 'count:', ids.length); } catch { }
   try {
     setSponsorScopeUiMode_('locked_selected');
   } catch { }
@@ -3977,7 +4618,6 @@ async function applyBulkSponsorship() {
   const m = document.getElementById('bulkSponsorshipModal');
   const singleId = (m?.getAttribute('data-single-case-id') || '').toString().trim();
   const ids = computeSponsorTargetIds_();
-  try { console.log('[bulkSponsorship] applyBulkSponsorship ids:', ids, 'count:', ids.length, 'singleId:', singleId || ''); } catch { }
   if (!ids.length) { alert('لا توجد حالات مطابقة للنطاق المختار'); return; }
   const startDate = (document.getElementById('sponsorStart')?.value || '').trim();
   const amountRaw = (document.getElementById('sponsorAmount')?.value || '').toString().trim();
@@ -4774,6 +5414,11 @@ function updateDashboardStats() {
 
   try { initDashboardSelectors_(); } catch { }
   try { renderDashboardTable(); } catch { }
+
+  try {
+    const v = Number(AppState._casesVersion || 0) || 0;
+    if (v) AppState._dashboardRenderedVersion = v;
+  } catch { }
 }
 
 function setDashboardGeoMode(mode) {
@@ -4879,15 +5524,23 @@ function renderDashboardTable() {
   } catch { }
 }
 function generateReportPreview() {
-  const total = AppState.cases.length;
-  const done = AppState.cases.filter(c => c.status === 'منفذة').length;
-  const urgent = AppState.cases.filter(c => c.urgency === 'عاجل' || c.urgency === 'عاجل جدًا').length;
-  const medical = AppState.cases.filter(c => c.category === 'عمليات طبية' || c.category === 'كفالات مرضية').length;
+  const host = document.getElementById('reportPreview');
+  if (!host) return;
+  const cases = Array.isArray(AppState.cases) ? AppState.cases : [];
+  if (!cases.length) {
+    host.innerHTML = '<div class="section" style="border-color:#e5e7eb;background:#fff">لا توجد بيانات لعرض التقارير الآن. افتح قائمة الحالات أو انتظر اكتمال التحميل.</div>';
+    return;
+  }
+
+  const total = cases.length;
+  const done = cases.filter(c => c.status === 'منفذة').length;
+  const urgent = cases.filter(c => c.urgency === 'عاجل' || c.urgency === 'عاجل جدًا').length;
+  const medical = cases.filter(c => c.category === 'عمليات طبية' || c.category === 'كفالات مرضية').length;
   const rate = total ? ((done / total) * 100).toFixed(1) : 0;
-  const byGov = {}; AppState.cases.forEach(c => { const g = c.governorate || 'غير محدد'; byGov[g] = (byGov[g] || 0) + 1 });
+  const byGov = {}; cases.forEach(c => { const g = c.governorate || 'غير محدد'; byGov[g] = (byGov[g] || 0) + 1 });
   const topGov = Object.entries(byGov).sort((a, b) => b[1] - a[1]).slice(0, 6)
     .map(([g, n]) => `<div style=\"display:flex;justify-content:space-between\"><span>${g}</span><strong>${n}</strong></div>`).join('');
-  document.getElementById('reportPreview').innerHTML = `
+  host.innerHTML = `
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
       <div class="section"><div style="font-weight:700;font-size:22px">${total}</div>إجمالي الحالات</div>
       <div class="section"><div style="font-weight:700;font-size:22px">${done}</div>الحالات المنفذة</div>
@@ -5240,7 +5893,6 @@ function openCaseDetails(id, mode) {
     alert('تعذر فتح التفاصيل: عنصر caseDetailsModal غير موجود في الصفحة');
     return;
   }
-  try { console.log('[openCaseDetails] opening modal for case:', id); } catch { }
   try { document.body.classList.add('modal-open'); } catch { }
   m.classList.add('show');
   m.setAttribute('aria-hidden', 'false');
@@ -5757,55 +6409,102 @@ async function saveMySettings() {
   if (!SupabaseClient) { alert('تعذر الاتصال بقاعدة البيانات'); return; }
   if (!AppState.currentUser?.id) { alert('لم يتم تسجيل الدخول'); return; }
   const hint = document.getElementById('mySettingsHint');
-  const oldPass = (document.getElementById('myOldPassword')?.value || '').toString();
-  const newPass = (document.getElementById('myNewPassword')?.value || '').toString();
+  const btn = document.querySelector('#settingsSection button[onclick="saveMySettings()"]');
+  let ok = false;
 
-  if (!oldPass.trim()) {
-    if (hint) { hint.style.display = 'block'; hint.textContent = 'أدخل كلمة المرور القديمة'; }
-    else alert('أدخل كلمة المرور القديمة');
-    return;
-  }
-  if (!newPass.trim()) {
-    if (hint) { hint.style.display = 'block'; hint.textContent = 'أدخل كلمة المرور الجديدة'; }
-    else alert('أدخل كلمة المرور الجديدة');
-    return;
-  }
-
-  let email = (AppState.currentUser?.email || '').toString().trim();
-  if (!email) {
+  try {
     try {
-      const u = await SupabaseClient.auth.getUser();
-      email = (u?.data?.user?.email || '').toString().trim();
+      if (btn) btn.setAttribute('disabled', 'disabled');
+      if (hint) { hint.style.display = 'block'; hint.textContent = 'جارٍ الحفظ...'; }
+    } catch { }
+
+    const oldPass = (document.getElementById('myOldPassword')?.value || '').toString();
+    const newPass = (document.getElementById('myNewPassword')?.value || '').toString();
+
+    if (!oldPass.trim()) {
+      if (hint) { hint.style.display = 'block'; hint.textContent = 'أدخل كلمة المرور القديمة'; }
+      else alert('أدخل كلمة المرور القديمة');
+      return;
+    }
+    if (!newPass.trim()) {
+      if (hint) { hint.style.display = 'block'; hint.textContent = 'أدخل كلمة المرور الجديدة'; }
+      else alert('أدخل كلمة المرور الجديدة');
+      return;
+    }
+
+    if (newPass.trim().length < 6) {
+      if (hint) { hint.style.display = 'block'; hint.textContent = 'كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل'; }
+      else alert('كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل');
+      return;
+    }
+
+    if (oldPass.trim() === newPass.trim()) {
+      if (hint) { hint.style.display = 'block'; hint.textContent = 'كلمة المرور الجديدة يجب أن تكون مختلفة عن القديمة'; }
+      else alert('كلمة المرور الجديدة يجب أن تكون مختلفة عن القديمة');
+      return;
+    }
+
+    let email = (AppState.currentUser?.email || '').toString().trim();
+    if (!email) {
+      try {
+        const u = await SupabaseClient.auth.getUser();
+        email = (u?.data?.user?.email || '').toString().trim();
+      } catch { }
+    }
+    if (!email) {
+      if (hint) { hint.style.display = 'block'; hint.textContent = 'تعذر تحديد البريد الإلكتروني للمستخدم'; }
+      else alert('تعذر تحديد البريد الإلكتروني للمستخدم');
+      return;
+    }
+
+    try {
+      const reauth = await SupabaseClient.auth.signInWithPassword({ email, password: oldPass });
+      if (reauth?.error) throw reauth.error;
+    } catch (e) {
+      try { console.error('reauth error:', e); } catch { }
+      const msg = (e?.message || e?.error_description || '').toString().trim();
+      if (hint) { hint.style.display = 'block'; hint.textContent = msg ? `تعذر التحقق من كلمة المرور القديمة: ${msg}` : 'كلمة المرور القديمة غير صحيحة'; }
+      else alert(msg ? `تعذر التحقق من كلمة المرور القديمة: ${msg}` : 'كلمة المرور القديمة غير صحيحة');
+      return;
+    }
+
+    try {
+      const res = await SupabaseClient.auth.updateUser({ password: newPass });
+      if (res?.error) throw res.error;
+      try { document.getElementById('myOldPassword').value = ''; } catch { }
+      try { document.getElementById('myNewPassword').value = ''; } catch { }
+      ok = true;
+    } catch (e) {
+      try { console.error('updateUser error:', e); } catch { }
+      const msg = (e?.message || e?.error_description || '').toString().trim();
+      if (hint) { hint.style.display = 'block'; hint.textContent = msg ? `تعذر تغيير كلمة المرور: ${msg}` : 'تعذر تغيير كلمة المرور'; }
+      else alert(msg ? `تعذر تغيير كلمة المرور: ${msg}` : 'تعذر تغيير كلمة المرور');
+      return;
+    }
+
+    if (hint) { hint.style.display = 'block'; hint.textContent = 'تم تغيير كلمة المرور. جارٍ إعادة تحميل الصفحة...'; }
+    else alert('تم تغيير كلمة المرور');
+
+    // Ensure the UI paints the final message even if other async handlers run.
+    try {
+      await new Promise(r => requestAnimationFrame(() => r()));
+      await new Promise(r => setTimeout(r, 0));
+    } catch { }
+    setTimeout(() => { location.reload(); }, 1500);
+  } catch (e) {
+    try { console.error('saveMySettings unexpected error:', e); } catch { }
+    const msg = (e?.message || e?.error_description || '').toString().trim();
+    if (hint) { hint.style.display = 'block'; hint.textContent = msg ? `حدث خطأ غير متوقع: ${msg}` : 'حدث خطأ غير متوقع'; }
+    else alert(msg ? `حدث خطأ غير متوقع: ${msg}` : 'حدث خطأ غير متوقع');
+  } finally {
+    try { if (btn) btn.removeAttribute('disabled'); } catch { }
+    try {
+      if (ok && hint && (hint.textContent || '').toString().trim() === 'جارٍ الحفظ...') {
+        hint.style.display = 'block';
+        hint.textContent = 'تم تغيير كلمة المرور';
+      }
     } catch { }
   }
-  if (!email) {
-    if (hint) { hint.style.display = 'block'; hint.textContent = 'تعذر تحديد البريد الإلكتروني للمستخدم'; }
-    else alert('تعذر تحديد البريد الإلكتروني للمستخدم');
-    return;
-  }
-
-  try {
-    const reauth = await SupabaseClient.auth.signInWithPassword({ email, password: oldPass });
-    if (reauth?.error) throw reauth.error;
-  } catch {
-    if (hint) { hint.style.display = 'block'; hint.textContent = 'كلمة المرور القديمة غير صحيحة'; }
-    else alert('كلمة المرور القديمة غير صحيحة');
-    return;
-  }
-
-  try {
-    const res = await SupabaseClient.auth.updateUser({ password: newPass });
-    if (res?.error) throw res.error;
-    try { document.getElementById('myOldPassword').value = ''; } catch { }
-    try { document.getElementById('myNewPassword').value = ''; } catch { }
-  } catch {
-    if (hint) { hint.style.display = 'block'; hint.textContent = 'تعذر تغيير كلمة المرور'; }
-    else alert('تعذر تغيير كلمة المرور');
-    return;
-  }
-
-  if (hint) { hint.style.display = 'block'; hint.textContent = 'تم تغيير كلمة المرور'; }
-  else alert('تم تغيير كلمة المرور');
 }
 
 function syncSettingsPermissionsUi_() {
@@ -5875,13 +6574,7 @@ async function renderUsersList() {
   try {
     const list = await listProfiles_();
     if (!list.length) { host.textContent = 'لا يوجد مستخدمون'; return; }
-    const q = (document.getElementById('usersSearch')?.value || '').toString().trim().toLowerCase();
-    const filtered = !q ? list : list.filter(p => {
-      const uname = (p.username || '').toString().toLowerCase();
-      const name = (p.full_name || '').toString().toLowerCase();
-      return uname.includes(q) || name.includes(q);
-    });
-    host.innerHTML = filtered.map(p => {
+    host.innerHTML = list.map(p => {
       const uname = (p.username || '').toString();
       const safe = uname.replace(/"/g, '');
       const active = (p.is_active !== false);
@@ -5889,43 +6582,282 @@ async function renderUsersList() {
       const lastSeenRaw = (p.last_seen_at || '').toString();
       const lastSeen = lastSeenRaw ? lastSeenRaw.replace('T', ' ').replace('Z', '') : '';
       const badge = active ? '<span class="pill ok">مفعل</span>' : '<span class="pill off">معطل</span>';
-      const canManage = hasPerm('users_manage');
-      const toggleBtn = !canManage ? '' : (active
-        ? `<button class="btn" type="button" style="background:#ef4444" onclick="event.stopPropagation(); setUserActiveQuick_('${p.id}', false)">تعطيل</button>`
-        : `<button class="btn" type="button" style="background:#22c55e" onclick="event.stopPropagation(); setUserActiveQuick_('${p.id}', true)">تفعيل</button>`);
-      const editBtn = `<button class="btn" type="button" onclick="event.stopPropagation(); prefillUser('${safe}')">عرض</button>`;
-      return `<div class="user-item" role="button" tabindex="0" onclick="prefillUser('${safe}')">
+      return `<div class="user-item" role="button" tabindex="0" onclick="openUserActionsModal('${escapeHtml(safe)}')">
         <div>
           <div class="title">${escapeHtml(uname || p.id)}</div>
           <div class="meta">${escapeHtml(name || '')}${lastSeen ? ` — آخر ظهور: ${escapeHtml(lastSeen)}` : ''}</div>
         </div>
         <div class="user-item-actions">
           ${badge}
-          <div class="user-item-buttons">
-            ${toggleBtn}
-            ${editBtn}
-          </div>
         </div>
       </div>`;
-    }).join('') || '<div style="color:#64748b;text-align:center;padding:10px">لا توجد نتائج</div>';
+    }).join('') || '<div style="color:#64748b;text-align:center;padding:10px">لا يوجد مستخدمون</div>';
     try { syncSettingsPermissionsUi_(); } catch { }
   } catch {
     host.textContent = 'تعذر تحميل المستخدمين';
   }
 }
 
-// settings: users search
-try {
-  const wireUsersSearch_ = () => {
-    const el = document.getElementById('usersSearch');
-    if (!el) return;
-    if (el.getAttribute('data-wired') === '1') return;
-    el.setAttribute('data-wired', '1');
-    el.addEventListener('input', () => { try { void renderUsersList(); } catch { } });
+function openUserActionsModal(usernameKey) {
+  try {
+    const uname = (usernameKey || '').toString().trim();
+    if (!uname) return;
+    const m = document.getElementById('userActionsModal');
+    if (!m) return;
+    m.setAttribute('data-username', uname);
+    const hint = document.getElementById('userActionsHint');
+    if (hint) { hint.style.display = 'none'; hint.textContent = ''; }
+
+    const eEl = document.getElementById('userActionsEmail');
+    const uEl = document.getElementById('userActionsUsername');
+    const nEl = document.getElementById('userActionsName');
+    if (eEl) eEl.value = '';
+    if (uEl) uEl.value = uname;
+    if (nEl) nEl.value = '';
+    const st = document.getElementById('userActionsStatus');
+    if (st) st.textContent = 'جارٍ التحميل...';
+
+    try { if (eEl) eEl.value = ''; } catch { }
+
+    void (async () => {
+      try {
+        let data = null;
+        let error = null;
+        try {
+          const q1 = await SupabaseClient.from('profiles').select('id,username,full_name,is_active,email').eq('username', uname).maybeSingle();
+          data = q1.data; error = q1.error;
+        } catch (e1) {
+          error = e1;
+        }
+        if (error) {
+          try {
+            const q2 = await SupabaseClient.from('profiles').select('id,username,full_name,is_active').eq('username', uname).maybeSingle();
+            data = q2.data;
+            error = q2.error;
+          } catch (e2) {
+            error = e2;
+          }
+        }
+        if (error) throw error;
+        if (nEl) nEl.value = (data?.full_name || '').toString();
+        try {
+          const email = (data?.email || '').toString().trim();
+          const fall = (uname || '').toString().trim();
+          const finalEmail = email || (fall.includes('@') ? fall : '');
+          if (eEl) eEl.value = finalEmail;
+        } catch { }
+        const active = (data?.is_active !== false);
+        if (st) st.textContent = active ? 'مفعل' : 'معطل';
+        const tbtn = document.getElementById('userActionsToggleBtn');
+        if (tbtn) {
+          tbtn.textContent = active ? 'تعطيل المستخدم' : 'تفعيل المستخدم';
+          tbtn.style.background = active ? '#ef4444' : '#22c55e';
+        }
+      } catch (e) {
+        try { console.error('openUserActionsModal load error:', e); } catch { }
+        if (st) st.textContent = 'تعذر التحميل';
+      }
+    })();
+
+    try { document.body.classList.add('modal-open'); } catch { }
+    m.classList.add('show');
+    m.setAttribute('aria-hidden', 'false');
+    try { document.getElementById('userActionsToggleBtn')?.focus?.(); } catch { }
+  } catch { }
+}
+
+function closeUserActionsModal() {
+  const m = document.getElementById('userActionsModal');
+  if (!m) return;
+  try {
+    const ae = document.activeElement;
+    if (ae && m.contains(ae) && typeof ae.blur === 'function') ae.blur();
+  } catch { }
+  m.classList.remove('show');
+  m.setAttribute('aria-hidden', 'true');
+  try { document.body.classList.remove('modal-open'); } catch { }
+  try {
+    const fallback = document.getElementById('usersList') || document.getElementById('userMgmtUsername') || document.getElementById('navSettingsBtn');
+    fallback?.focus?.();
+  } catch { }
+}
+
+async function userActionsToggleActive_() {
+  if (!hasPerm('users_manage')) { alert('لا تملك صلاحية إدارة المستخدمين'); return; }
+  const m = document.getElementById('userActionsModal');
+  if (!m) return;
+  const uname = (m.getAttribute('data-username') || '').toString().trim();
+  if (!uname) return;
+  try {
+    const { data, error } = await SupabaseClient.from('profiles').select('id,is_active').eq('username', uname).maybeSingle();
+    if (error) throw error;
+    const current = (data?.is_active !== false);
+    await setUserActiveQuick_(data.id, !current);
+    try { await renderUsersList(); } catch { }
+    closeUserActionsModal();
+  } catch (e) {
+    try { console.error('userActionsToggleActive_ error:', e); } catch { }
+    const hint = document.getElementById('userActionsHint');
+    if (hint) { hint.style.display = 'block'; hint.textContent = 'تعذر تغيير حالة المستخدم'; }
+  }
+}
+
+async function userActionsEditPermissions_() {
+  const m = document.getElementById('userActionsModal');
+  if (!m) return;
+  const uname = (m.getAttribute('data-username') || '').toString().trim();
+  if (!uname) return;
+  try { await openUserPermissionsModal_(uname); } catch { }
+}
+
+function closeUserPermissionsModal() {
+  const m = document.getElementById('userPermissionsModal');
+  if (!m) return;
+  try {
+    const ae = document.activeElement;
+    if (ae && m.contains(ae) && typeof ae.blur === 'function') ae.blur();
+  } catch { }
+  m.classList.remove('show');
+  m.setAttribute('aria-hidden', 'true');
+  try { document.body.classList.remove('modal-open'); } catch { }
+}
+
+function buildUserPermsModalUi_(selected) {
+  const host = document.getElementById('userPermPermissions');
+  if (!host) return;
+  const perms = selected && typeof selected === 'object' ? selected : {};
+  const rendered = new Set();
+  const mkItem = (k) => {
+    rendered.add(k);
+    const checked = perms[k] ? 'checked' : '';
+    return `<label class="perm-item"><input type="checkbox" class="perm-box" data-perm="${escapeHtml(k)}" ${checked}> <span>${escapeHtml(permissionLabel(k))}</span></label>`;
   };
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wireUsersSearch_);
-  else wireUsersSearch_();
-} catch { }
+  const groupsHtml = (PERMISSION_GROUPS || []).map(g => {
+    const items = (g.items || []).filter(k => (PERMISSIONS || []).includes(k));
+    if (!items.length) return '';
+    const inner = items.map(mkItem).join('');
+    return `<details class="perm-group" open>
+      <summary class="perm-group-title">${escapeHtml(g.title || '')}</summary>
+      <div class="perm-group-grid">${inner}</div>
+    </details>`;
+  }).join('');
+  const others = (PERMISSIONS || []).filter(k => !rendered.has(k));
+  const othersHtml = others.length ? `<details class="perm-group" open>
+      <summary class="perm-group-title">أخرى</summary>
+      <div class="perm-group-grid">${others.map(mkItem).join('')}</div>
+    </details>` : '';
+  host.innerHTML = groupsHtml + othersHtml;
+}
+
+async function openUserPermissionsModal_(uname) {
+  if (!SupabaseClient) return;
+  if (!hasPerm('users_manage')) { alert('لا تملك صلاحية إدارة المستخدمين'); return; }
+  const m = document.getElementById('userPermissionsModal');
+  if (!m) return;
+  m.setAttribute('data-username', (uname || '').toString().trim());
+  const meta = document.getElementById('userPermMeta');
+  const hint = document.getElementById('userPermHint');
+  const btn = document.getElementById('userPermSaveBtn');
+  if (hint) { hint.style.display = 'none'; hint.textContent = ''; }
+  if (meta) meta.textContent = 'جارٍ التحميل...';
+  try { if (btn) btn.setAttribute('disabled', 'disabled'); } catch { }
+  try { buildUserPermsModalUi_({}); } catch { }
+
+  try {
+    const { data, error } = await SupabaseClient.from('profiles').select('id,username,permissions').eq('username', uname).maybeSingle();
+    if (error) throw error;
+    const p = data?.permissions && typeof data.permissions === 'object' ? data.permissions : {};
+    if (meta) meta.textContent = `المستخدم: ${uname}`;
+    try { buildUserPermsModalUi_(p); } catch { }
+  } catch (e) {
+    try { console.error('openUserPermissionsModal_ error:', e); } catch { }
+    if (meta) meta.textContent = `المستخدم: ${uname}`;
+    if (hint) { hint.style.display = 'block'; hint.textContent = 'تعذر تحميل الصلاحيات'; }
+  } finally {
+    try { if (btn) btn.removeAttribute('disabled'); } catch { }
+  }
+
+  closeUserActionsModal();
+  try { document.body.classList.add('modal-open'); } catch { }
+  m.classList.add('show');
+  m.setAttribute('aria-hidden', 'false');
+  try { document.getElementById('userPermSaveBtn')?.focus?.(); } catch { }
+}
+
+async function saveUserPermissions_() {
+  if (!SupabaseClient) { alert('تعذر الاتصال بقاعدة البيانات'); return; }
+  if (!hasPerm('users_manage')) { alert('لا تملك صلاحية إدارة المستخدمين'); return; }
+  const m = document.getElementById('userPermissionsModal');
+  if (!m) return;
+  const uname = (m.getAttribute('data-username') || '').toString().trim();
+  if (!uname) return;
+  const hint = document.getElementById('userPermHint');
+  const btn = document.getElementById('userPermSaveBtn');
+  if (hint) { hint.style.display = 'none'; hint.textContent = ''; }
+  try { if (btn) btn.setAttribute('disabled', 'disabled'); } catch { }
+
+  try {
+    const host = document.getElementById('userPermPermissions');
+    const permissions = {};
+    Array.from(host?.querySelectorAll('input.perm-box') || []).forEach(b => {
+      const k = (b.getAttribute('data-perm') || '').toString();
+      if (!k) return;
+      permissions[k] = !!b.checked;
+    });
+
+    const { data: existing, error: exErr } = await SupabaseClient.from('profiles').select('id').eq('username', uname).maybeSingle();
+    if (exErr || !existing?.id) throw (exErr || new Error('not found'));
+    const { error } = await SupabaseClient.from('profiles').update({ permissions }).eq('id', existing.id);
+    if (error) throw error;
+    try { await logAction('تحديث صلاحيات مستخدم', '', `target: ${uname}`); } catch { }
+    try { await renderUsersList(); } catch { }
+    closeUserPermissionsModal();
+    try { showToast_('تم حفظ الصلاحيات', 'success'); } catch { }
+  } catch (e) {
+    try { console.error('saveUserPermissions_ error:', e); } catch { }
+    if (hint) { hint.style.display = 'block'; hint.textContent = 'تعذر حفظ الصلاحيات'; }
+  } finally {
+    try { if (btn) btn.removeAttribute('disabled'); } catch { }
+  }
+}
+
+async function userActionsDelete_() {
+  if (!hasPerm('users_manage')) { alert('لا تملك صلاحية إدارة المستخدمين'); return; }
+  if (!SupabaseClient) { alert('تعذر الاتصال بقاعدة البيانات'); return; }
+  const m = document.getElementById('userActionsModal');
+  if (!m) return;
+  const uname = (m.getAttribute('data-username') || '').toString().trim();
+  if (!uname) return;
+  const ok = confirm(`حذف المستخدم نهائياً من ملفه (profiles): ${uname} ؟\n\nملاحظة: هذا لا يحذف مستخدم Supabase Auth إلا إذا كان لديك وظيفة مخصصة لذلك.`);
+  if (!ok) return;
+  const hint = document.getElementById('userActionsHint');
+  if (hint) { hint.style.display = 'none'; hint.textContent = ''; }
+  try {
+    const { data: existing, error: exErr } = await SupabaseClient.from('profiles').select('id').eq('username', uname).maybeSingle();
+    if (exErr || !existing?.id) throw (exErr || new Error('not found'));
+    const { error } = await SupabaseClient.from('profiles').delete().eq('id', existing.id);
+    if (error) throw error;
+    try { await logAction('حذف مستخدم', '', `username: ${uname}`); } catch { }
+    try { await renderUsersList(); } catch { }
+    closeUserActionsModal();
+    try { showToast_('تم حذف المستخدم', 'success'); } catch { }
+  } catch (e) {
+    try { console.error('userActionsDelete_ error:', e); } catch { }
+    if (hint) { hint.style.display = 'block'; hint.textContent = 'تعذر حذف المستخدم'; }
+  }
+}
+
+async function userActionsResetPasswordLink_() {
+  if (!hasPerm('users_manage')) { alert('لا تملك صلاحية إدارة المستخدمين'); return; }
+  const m = document.getElementById('userActionsModal');
+  if (!m) return;
+  const uname = (m.getAttribute('data-username') || '').toString().trim();
+  if (!uname) return;
+  try {
+    document.getElementById('userMgmtUsername').value = uname;
+  } catch { }
+  try { await generateResetPasswordLinkForSelectedUser(); } catch { }
+}
 
 async function prefillUser(usernameKey) {
   if (!SupabaseClient) return;
