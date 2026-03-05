@@ -6,7 +6,7 @@
   <title>لجنة أسرة كريمة – جمعية خواطر أحلى شباب</title>
   <link rel="icon" type="image/png" href="assets/images/logo 2.png">
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=20260303_1200">
+  <link rel="stylesheet" href="assets/css/style.css?v=20260305_1325">
 </head>
 <body>
   <!-- Login -->
@@ -87,6 +87,9 @@
           </div>
           <div class="logo"><span class="logo-text">لجنة أسرة كريمة</span></div>
           <div class="header-actions">
+            <button id="mobileNavToggle" class="btn light mobile-nav-toggle" type="button" onclick="toggleMobileNav()" aria-expanded="false" aria-controls="mainNavWrap" title="القائمة" style="color:#fff;border-color:rgba(255,255,255,.55)">
+              ☰
+            </button>
             <div class="dropdown" id="userDropdown">
               <button id="userMenuBtn" class="btn light" type="button">
                 <span id="userRole" style="display:none"></span>
@@ -105,6 +108,7 @@
           </div>
         </div>
 
+        <div id="mainNavWrap" class="nav-wrap">
         <nav class="nav" id="mainNav">
           <button id="quickAddBtn" class="nav-btn cta" type="button" onclick="showSection('newCase')">➕ إضافة حالة</button>
           <button id="navCasesBtn" class="nav-btn" type="button" onclick="showSection('casesList')">
@@ -120,6 +124,7 @@
           <button id="auditBtn" class="nav-btn" type="button" onclick="showSection('audit')">🧾 سجل الإجراءات</button>
           <button id="settingsBtn" class="nav-btn" type="button" onclick="showSection('settings')">⚙️ الإعدادات</button>
         </nav>
+        </div>
       </div>
     </header>
 
@@ -190,6 +195,12 @@
           <div style="color:#64748b">اضغط على "عرض التفاصيل" لفتح ملف الأسرة</div>
         </div>
         <div id="casesCardsGrid" class="cases-cards-grid"></div>
+        <div id="casesListPager" class="section" style="margin-top:10px;background:#f8fafc;border-color:#e5e7eb;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <div id="casesListMeta" style="color:#64748b">—</div>
+          <div style="display:flex;gap:8px;justify-content:flex-start;flex-wrap:wrap">
+            <button id="casesLoadMoreBtn" class="btn light" type="button" onclick="loadMoreCases()" style="color:#1f2937;border-color:#e5e7eb">تحميل المزيد</button>
+          </div>
+        </div>
         <div id="noCasesMessage" class="hidden" style="text-align:center;margin-top:8px">لا توجد حالات مطابقة</div>
       </section>
 
@@ -347,6 +358,8 @@
               <select id="assistanceType" class="control" onchange="onAssistanceTypeChange()">
                 <option value="">اختر</option>
                 <option value="sponsorship">كفالة</option>
+                <option value="ramadan_bags">شنط رمضان</option>
+                <option value="in_kind">مساعدات عينية</option>
                 <option value="تجهيز عرائس">تجهيز عرائس</option>
                 <option value="رعاية صحية">رعاية صحية</option>
                 <option value="أجهزة">أجهزة</option>
@@ -588,6 +601,49 @@
         <h2>التقارير والتصدير</h2>
 
         <div class="section" style="background:#f8fafc;margin-bottom:12px">
+          <h3 style="margin-bottom:8px">الفترة</h3>
+          <div class="grid" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px">
+            <div class="form-group" style="margin:0;grid-column:1/3">
+              <label class="label">من تاريخ</label>
+              <input id="reportsFromDate" type="date" class="control" onchange="generateReportPreview()" />
+            </div>
+            <div class="form-group" style="margin:0;grid-column:3/5">
+              <label class="label">إلى تاريخ</label>
+              <input id="reportsToDate" type="date" class="control" onchange="generateReportPreview()" />
+            </div>
+          </div>
+          <div style="margin-top:10px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:10px;padding:6px 10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff">
+              <input id="reportsAchievementsOnly" type="checkbox" onchange="generateReportPreview()" style="width:18px;height:18px" />
+              <span style="font-weight:700">عرض الإنجازات فقط (بدون جدول الحالات)</span>
+            </label>
+            <button class="btn mini light" type="button" onclick="copyReportsAchievementsText()" style="color:#1f2937;border-color:#e5e7eb">📋 نسخ نص الإنجازات</button>
+          </div>
+
+          <div class="tabs" style="margin-top:8px;flex-wrap:wrap">
+            <button id="reportsTypeAllBtn" class="btn mini" type="button" onclick="setReportsTypeFilter('all')">الكل</button>
+            <button id="reportsTypeSponsorshipBtn" class="btn mini light" type="button" onclick="setReportsTypeFilter('sponsorship')" style="color:#1f2937;border-color:#e5e7eb">كفالات مالية</button>
+            <button id="reportsTypeRamadanBtn" class="btn mini light" type="button" onclick="setReportsTypeFilter('ramadan_bags')" style="color:#1f2937;border-color:#e5e7eb">شنط رمضان</button>
+            <button id="reportsTypeInKindBtn" class="btn mini light" type="button" onclick="setReportsTypeFilter('in_kind')" style="color:#1f2937;border-color:#e5e7eb">مساعدات عينية</button>
+            <button id="reportsTypeBridesBtn" class="btn mini light" type="button" onclick="setReportsTypeFilter('تجهيز عرائس')" style="color:#1f2937;border-color:#e5e7eb">تجهيز عرائس</button>
+            <button id="reportsTypeMedicalBtn" class="btn mini light" type="button" onclick="setReportsTypeFilter('medical')" style="color:#1f2937;border-color:#e5e7eb">عمليات طبية</button>
+          </div>
+
+          <div class="tabs" style="margin-top:8px;flex-wrap:wrap">
+            <button class="btn mini light" type="button" onclick="copyReportsTemplate('whatsapp')" style="color:#1f2937;border-color:#e5e7eb">📋 قالب واتساب</button>
+            <button class="btn mini light" type="button" onclick="copyReportsTemplate('facebook')" style="color:#1f2937;border-color:#e5e7eb">📋 قالب فيسبوك</button>
+            <button class="btn mini light" type="button" onclick="copyReportsTemplate('formal')" style="color:#1f2937;border-color:#e5e7eb">📋 خطاب رسمي</button>
+          </div>
+          <div class="tabs" style="margin-top:8px">
+            <button class="btn" type="button" onclick="exportReportsRangeToExcel()">📄 Excel (حسب الفترة)</button>
+            <button class="btn light" type="button" onclick="captureReportsScreenshot()" style="color:#1f2937;border-color:#e5e7eb">📸 Screenshot</button>
+            <button class="btn light" type="button" onclick="exportReportsToWord()" style="color:#1f2937;border-color:#e5e7eb">📝 Word</button>
+            <button class="btn light" type="button" onclick="exportMedicalReportToExcel()" style="color:#1f2937;border-color:#e5e7eb">🩺 Excel (تقرير طبي)</button>
+          </div>
+          <div id="reportsRangeHint" class="settings-hint" style="display:none;margin-top:10px"></div>
+        </div>
+
+        <div class="section" style="background:#f8fafc;margin-bottom:12px">
           <h3 style="margin-bottom:8px">إجراءات</h3>
           <div class="tabs" style="margin-top:8px">
             <button class="btn" type="button" onclick="exportToExcel()">📊 تصدير Excel</button>
@@ -598,6 +654,57 @@
         <div class="tabs" style="margin-top:8px">
           <button class="btn" onclick="printReport()">🖨️ طباعة التقرير</button>
         </div>
+
+        <div id="reportsDashWrap" class="section" style="margin-top:12px">
+          <div class="dash-head" style="margin-bottom:0">
+            <div>
+              <h3 style="margin:0">لوحة التقارير (ملخص + رسوم)</h3>
+              <div class="dash-sub">تتغير تلقائياً حسب الفترة/النوع</div>
+            </div>
+          </div>
+
+          <div class="dash-kpis" style="margin-top:12px">
+            <div class="kpi"><div class="kpi-title">عدد الحالات</div><div class="kpi-value" id="repKpiTotal">0</div><div class="kpi-meta" id="repKpiRange">—</div></div>
+            <div class="kpi"><div class="kpi-title">المنفذة</div><div class="kpi-value" id="repKpiDone">0</div><div class="kpi-meta">ضمن الفترة</div></div>
+            <div class="kpi"><div class="kpi-title">نسبة الإنجاز</div><div class="kpi-value" id="repKpiRate">0%</div><div class="kpi-meta">من إجمالي الفترة</div></div>
+            <div class="kpi kpi-accent"><div class="kpi-title">إجمالي احتياج الفترة</div><div class="kpi-value" id="repKpiNeed">0</div><div class="kpi-meta">التقديري - المنفذ</div></div>
+            <div class="kpi"><div class="kpi-title">الكفالات</div><div class="kpi-value" id="repKpiSpons">0</div><div class="kpi-meta">عدد العمليات</div></div>
+            <div class="kpi"><div class="kpi-title">مساعدات أخرى</div><div class="kpi-value" id="repKpiOther">0</div><div class="kpi-meta">عدد العمليات</div></div>
+          </div>
+
+          <div class="dash-grid" style="margin-top:12px">
+            <div class="dash-card">
+              <div class="dash-card-head">
+                <div>
+                  <div class="dash-card-title">توزيع حسب النوع</div>
+                  <div class="dash-card-sub">من واقع الحالات داخل الفترة</div>
+                </div>
+              </div>
+              <div class="dash-chart"><canvas id="repChartByType" height="160"></canvas></div>
+            </div>
+
+            <div class="dash-card">
+              <div class="dash-card-head">
+                <div>
+                  <div class="dash-card-title">توزيع حسب التقييم</div>
+                  <div class="dash-card-sub">A / B / C</div>
+                </div>
+              </div>
+              <div class="dash-chart"><canvas id="repChartByGrade" height="160"></canvas></div>
+            </div>
+
+            <div class="dash-card" style="grid-column:1/-1">
+              <div class="dash-card-head">
+                <div>
+                  <div class="dash-card-title">أفضل المحافظات</div>
+                  <div class="dash-card-sub">أعلى 10</div>
+                </div>
+              </div>
+              <div class="dash-chart"><canvas id="repChartGeo" height="200"></canvas></div>
+            </div>
+          </div>
+        </div>
+
         <div id="reportPreview" class="section" style="margin-top:12px"></div>
       </section>
 
@@ -812,7 +919,7 @@
                 </div>
               </div>
               <div class="settings-card-body">
-                <div class="settings-card" style="margin-bottom:12px">
+                <div class="settings-card" style="margin-bottom:12px;display:none">
                   <div class="settings-card-header">
                     <div>
                       <h3>إضافة مستخدم جديد</h3>
@@ -820,20 +927,22 @@
                     </div>
                   </div>
                   <div class="settings-card-body" style="padding:12px">
-                    <div class="grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
-                      <div class="form-group" style="grid-column:1/-1"><label class="label">البريد الإلكتروني *</label><input id="newUserEmail" class="control" autocomplete="username" placeholder="example@gmail.com"></div>
-                      <div class="form-group" style="grid-column:1/-1"><label class="label">اسم المستخدم (اختياري)</label><input id="newUserUsername" class="control" placeholder="يُترك فارغاً لاستخدام البريد كاسم مستخدم"></div>
-                      <div class="form-group" style="grid-column:1/-1"><label class="label">الاسم المعروض</label><input id="newUserName" class="control" placeholder="الاسم داخل النظام"></div>
-                      <div class="form-group" style="grid-column:1/-1"><label class="label">كلمة مرور مؤقتة (اختياري)</label><input id="newUserTempPassword" type="password" class="control" autocomplete="new-password" placeholder="لو لديك Edge Function للإنشاء"></div>
-                    </div>
-                    <div style="display:flex;gap:8px;justify-content:flex-start;margin-top:10px;flex-wrap:wrap">
-                      <button type="button" class="btn" onclick="createUserFromUi_()">إنشاء المستخدم</button>
-                    </div>
-                    <div id="newUserHint" class="settings-hint" style="display:none;margin-top:10px"></div>
+                    <form id="newUserForm" onsubmit="createUserFromUi_(); return false;">
+                      <div class="grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+                        <div class="form-group" style="grid-column:1/-1"><label class="label">البريد الإلكتروني *</label><input id="newUserEmail" class="control" autocomplete="username" placeholder="example@gmail.com"></div>
+                        <div class="form-group" style="grid-column:1/-1"><label class="label">اسم المستخدم (اختياري)</label><input id="newUserUsername" class="control" placeholder="يُترك فارغاً لاستخدام البريد كاسم مستخدم"></div>
+                        <div class="form-group" style="grid-column:1/-1"><label class="label">الاسم المعروض</label><input id="newUserName" class="control" placeholder="الاسم داخل النظام"></div>
+                        <div class="form-group" style="grid-column:1/-1"><label class="label">كلمة مرور مؤقتة (اختياري)</label><input id="newUserTempPassword" type="password" class="control" autocomplete="new-password" placeholder="لو لديك Edge Function للإنشاء"></div>
+                      </div>
+                      <div style="display:flex;gap:8px;justify-content:flex-start;margin-top:10px;flex-wrap:wrap">
+                        <button type="submit" class="btn">إنشاء المستخدم</button>
+                      </div>
+                      <div id="newUserHint" class="settings-hint" style="display:none;margin-top:10px"></div>
+                    </form>
                   </div>
                 </div>
                 <div id="usersList" class="users-list"></div>
-                <div class="settings-hint">لإضافة مستخدم جديد: أنشئه من لوحة Supabase (Authentication → Users). سيتم إنشاء ملفه تلقائياً ثم يمكنك إعطاؤه الصلاحيات من هنا.</div>
+                <div class="settings-hint" style="display:none">لإضافة مستخدم جديد: أنشئه من لوحة Supabase (Authentication → Users). سيتم إنشاء ملفه تلقائياً ثم يمكنك إعطاؤه الصلاحيات من هنا.</div>
               </div>
             </div>
 
@@ -850,6 +959,16 @@
                   <div class="grid cols-2">
                     <div class="form-group"><label class="label">اسم المستخدم</label><input id="userMgmtUsername" class="control" placeholder="مثال: explorer2"></div>
                     <div class="form-group"><label class="label">الاسم</label><input id="userMgmtName" class="control" placeholder="الاسم للعرض"></div>
+                    <div class="form-group"><label class="label">الدور (Role)</label>
+                      <select id="userMgmtRole" class="control" onchange="saveUserMgmtForm_(true)">
+                        <option value="admin">إدارة (Admin)</option>
+                        <option value="supervisor">مشرف (Supervisor)</option>
+                        <option value="data_entry">مدخل بيانات (Data Entry)</option>
+                        <option value="auditor">مراجع/سجل (Auditor)</option>
+                        <option value="viewer">مشاهد (Viewer)</option>
+                        <option value="custom">مخصص (Custom)</option>
+                      </select>
+                    </div>
                     <div class="form-group"><label class="label">حالة المستخدم</label>
                       <label class="toggle">
                         <input id="userMgmtIsActive" type="checkbox" checked />
@@ -897,7 +1016,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script defer src="assets/js/app.js?v=20260304_1440"></script>
+  <script defer src="assets/js/app.js?v=20260305_1325"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </body>
 </html>

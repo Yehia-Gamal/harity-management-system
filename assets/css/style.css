@@ -1,12 +1,14 @@
 :root {
-    --primary: #2c3e50;
-    --secondary: #3498db;
+    --primary: #0f172a;
+    --secondary: #2563eb;
     --success: #27ae60;
     --warning: #f39c12;
     --danger: #e74c3c;
     --white: #fff;
-    --shadow: 0 2px 10px rgba(0, 0, 0, .1);
-    --radius: 10px
+    --shadow: 0 10px 28px rgba(15, 23, 42, .10);
+    --radius: 12px;
+    --accent: #7c3aed;
+    --ring: rgba(37, 99, 235, .18)
 }
 
 * {
@@ -22,6 +24,12 @@ body {
     direction: rtl;
     text-align: right;
     overflow-x: hidden
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    body {
+        scroll-behavior: smooth
+    }
 }
 
 body.modal-open {
@@ -41,6 +49,18 @@ body.modal-open {
     top: 0;
     z-index: 10;
     box-shadow: var(--shadow)
+}
+
+.header:before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(800px 180px at 10% 0%, rgba(124, 58, 237, .22), transparent 60%), radial-gradient(700px 160px at 90% 0%, rgba(14, 165, 233, .22), transparent 55%);
+    pointer-events: none
+}
+
+.header .container {
+    position: relative
 }
 
 .header .wrap {
@@ -125,8 +145,14 @@ body.modal-open {
     border-radius: 999px;
     padding: 8px 12px;
     cursor: pointer;
-    transition: .15s;
+    transition: .18s;
     white-space: nowrap
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .nav-btn {
+        transform: translateZ(0)
+    }
 }
 
 .nav-btn:hover {
@@ -141,8 +167,8 @@ body.modal-open {
 }
 
 .nav-btn:focus {
-    outline: 2px solid rgba(255, 255, 255, .7);
-    outline-offset: 2px
+    outline: none;
+    box-shadow: 0 0 0 4px var(--ring)
 }
 
 .nav-btn.cta {
@@ -259,6 +285,19 @@ body.modal-open {
     .header-actions .control {
         max-width: 100% !important
     }
+
+    .nav {
+        gap: 6px;
+        padding: 8px 0 10px;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch
+    }
+
+    .nav-btn {
+        padding: 8px 10px;
+        font-size: .92rem;
+        scroll-snap-align: start
+    }
 }
 
 .btn {
@@ -267,9 +306,24 @@ body.modal-open {
     border-radius: 8px;
     padding: 10px 16px;
     cursor: pointer;
-    transition: .2s;
+    transition: .18s;
     background: var(--secondary);
     color: #fff
+}
+
+.btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px var(--ring)
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .btn:hover {
+        transform: translateY(-1px)
+    }
+
+    .btn:active {
+        transform: translateY(0)
+    }
 }
 
 .btn:disabled {
@@ -407,6 +461,14 @@ body.modal-open {
     padding: 20px;
     margin: 16px 0;
     max-width: 100%
+}
+
+@media (max-width:768px) {
+    .section {
+        padding: 14px;
+        margin: 12px 0;
+        border-radius: 14px
+    }
 }
 
 .section h2 {
@@ -849,6 +911,7 @@ body.modal-open {
 }
 
 @media (max-width:768px) {
+
     .dash-table-filters {
         grid-template-columns: 1fr;
         gap: 8px;
@@ -900,6 +963,55 @@ body.modal-open {
     overflow: auto
 }
 
+@media (max-width:768px) {
+    .modal {
+        padding: 10px;
+        align-items: flex-start;
+        justify-content: center;
+        overflow: hidden
+    }
+
+    .modal-card {
+        max-width: 96vw !important;
+        width: 96vw !important;
+        padding: 12px;
+        border-radius: 16px;
+        max-height: calc(100dvh - 20px);
+        height: auto;
+        overscroll-behavior: contain
+    }
+
+    .modal-head h3 {
+        font-size: 1.05rem
+    }
+
+    .close-btn {
+        width: 42px;
+        height: 42px
+    }
+}
+
+@media (max-width:420px) {
+    .modal-card {
+        width: 98vw !important;
+        max-width: 98vw !important;
+        padding: 10px;
+        border-radius: 16px
+    }
+}
+
+@media (max-width:768px) {
+    .modal-head {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: rgba(255, 255, 255, .92);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        padding-bottom: 10px
+    }
+}
+
 .modal-head {
     display: flex;
     justify-content: space-between;
@@ -933,6 +1045,94 @@ body.modal-open {
     flex-direction: column;
     overflow: hidden;
     padding: 16px
+}
+
+@media (max-width:768px) {
+    #caseDetailsModal .modal-card {
+        padding: 12px;
+        max-height: calc(100dvh - 20px);
+        height: calc(100dvh - 20px)
+    }
+
+    #caseDetailsModal .modal-footer-actions {
+        gap: 8px;
+        padding: 10px;
+        position: sticky;
+        bottom: 0;
+        padding-bottom: calc(10px + env(safe-area-inset-bottom))
+    }
+}
+
+@media (max-width:420px) {
+    #caseDetailsModal .modal-footer-actions .btn {
+        width: 100%
+    }
+}
+
+/* Mobile: cases list filters become stacked and readable */
+@media (max-width:768px) {
+    .cases-list-filters-grid {
+        grid-template-columns: 1fr !important
+    }
+
+    #casesCardsToolbar {
+        position: sticky;
+        top: 64px;
+        z-index: 9;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+        gap: 8px !important;
+        padding: 8px !important;
+        margin: 8px 0 !important;
+        width: 100% !important;
+        border-radius: 16px !important;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, .10) !important;
+        background: rgba(255, 255, 255, .96) !important;
+        border-color: #e5e7eb !important;
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px)
+    }
+
+    #casesCardsToolbar > div:first-child {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        gap: 8px !important;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch
+    }
+
+    #casesCardsToolbar > div:last-child {
+        font-size: .9rem;
+        color: #64748b;
+        display: none;
+    }
+
+    #casesCardsToolbar .btn {
+        padding: 8px 10px !important;
+        font-size: .92rem
+    }
+
+    #casesCardsToolbar label {
+        padding: 6px 8px !important;
+        border-radius: 12px !important;
+        white-space: nowrap
+    }
+}
+
+@media (max-width:768px) {
+    body.cases-toolbar-fixed #casesCardsToolbar {
+        position: fixed !important;
+        top: 64px !important;
+        left: 0;
+        right: 0;
+        width: auto !important;
+        margin: 0 16px !important
+    }
+
+    body.cases-toolbar-fixed #casesCardsGrid {
+        padding-top: 84px
+    }
 }
 
 #caseDetailsModal #caseDetailsBody {

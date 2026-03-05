@@ -1,5 +1,5 @@
 // State
-const APP_VERSION = '20260304_1440';
+const APP_VERSION = '20260305_1325';
 
 let LastToastSig_ = '';
 let LastToastAt_ = 0;
@@ -23,6 +23,78 @@ function getDefaultNewUserPermissions_() {
   };
 }
 
+function buildCaseDiffText_(before, after) {
+  const diffParts = [];
+  try {
+    const a0 = before && typeof before === 'object' ? before : {};
+    const b0 = after && typeof after === 'object' ? after : {};
+    const eq = (a, b) => {
+      try { return JSON.stringify(a ?? null) === JSON.stringify(b ?? null); } catch { return (a ?? '') === (b ?? ''); }
+    };
+    const add = (label, a, b) => {
+      if (eq(a, b)) return;
+      const aa = (a == null ? '' : String(a));
+      const bb = (b == null ? '' : String(b));
+      diffParts.push(`${label}: "${aa}" → "${bb}"`);
+    };
+
+    add('التقييم', a0.caseGrade, b0.caseGrade);
+    add('اسم الحالة', a0.familyHead, b0.familyHead);
+    add('الهاتف', a0.phone, b0.phone);
+    add('واتساب', a0.whatsapp, b0.whatsapp);
+    add('الحالة الاجتماعية', a0.maritalStatus, b0.maritalStatus);
+    add('العنوان', a0.address, b0.address);
+    add('المحافظة', a0.governorate, b0.governorate);
+    add('المنطقة', a0.area, b0.area);
+    add('عدد أفراد الأسرة', a0.familyCount, b0.familyCount);
+    add('الفئة', a0.category, b0.category);
+    add('الاستعجال', a0.urgency, b0.urgency);
+    add('المستكشف', a0.explorerName, b0.explorerName);
+    add('تاريخ البحث', a0.date, b0.date);
+    add('منفذ (مبلغ)', a0.deliveredAmount, b0.deliveredAmount);
+    add('وسوم', Array.isArray(a0.tags) ? a0.tags.join(', ') : '', Array.isArray(b0.tags) ? b0.tags.join(', ') : '');
+
+    add('عمل الأب', a0.jobs?.father, b0.jobs?.father);
+    add('عمل الأم', a0.jobs?.mother, b0.jobs?.mother);
+
+    add('وصف السكن', a0.housing?.housingDesc, b0.housing?.housingDesc);
+    add('عدد الغرف', a0.housing?.roomsCount, b0.housing?.roomsCount);
+    add('حمام', a0.housing?.bathroomType, b0.housing?.bathroomType);
+    add('مياه', a0.housing?.waterExists, b0.housing?.waterExists);
+    add('سقف', a0.housing?.roofExists, b0.housing?.roofExists);
+    add('نوع المنطقة', a0.housing?.areaType, b0.housing?.areaType);
+
+    add('هل توجد ديون', a0.debts?.enabled ? 'نعم' : 'لا', b0.debts?.enabled ? 'نعم' : 'لا');
+    add('قيمة الدين', a0.debts?.amount, b0.debts?.amount);
+    add('جهة الدين', a0.debts?.owner, b0.debts?.owner);
+    add('حكم قضائي', a0.debts?.hasCourtOrder, b0.debts?.hasCourtOrder);
+    add('سبب الدين', a0.debts?.reason, b0.debts?.reason);
+
+    add('إجمالي الدخل', a0.income?.total, b0.income?.total);
+    add('ملاحظات الدخل', a0.income?.notes, b0.income?.notes);
+    add('إجمالي المصروفات', a0.expenses?.total, b0.expenses?.total);
+    add('ملاحظات المصروفات', a0.expenses?.notes, b0.expenses?.notes);
+    add('صافي شهري', a0.netMonthly, b0.netMonthly);
+
+    add('زواج: مفعل', a0.marriage?.enabled ? 'نعم' : 'لا', b0.marriage?.enabled ? 'نعم' : 'لا');
+    add('اسم العروسة', a0.marriage?.brideName, b0.marriage?.brideName);
+    add('اسم العريس', a0.marriage?.groomName, b0.marriage?.groomName);
+    add('مهنة العريس', a0.marriage?.groomJob, b0.marriage?.groomJob);
+    add('تاريخ كتب الكتاب', a0.marriage?.contractDate, b0.marriage?.contractDate);
+    add('تاريخ الزواج', a0.marriage?.weddingDate, b0.marriage?.weddingDate);
+
+    add('مشروع: مفعل', a0.project?.enabled ? 'نعم' : 'لا', b0.project?.enabled ? 'نعم' : 'لا');
+    add('نوع المشروع', a0.project?.type, b0.project?.type);
+    add('خبرة المشروع', a0.project?.experience, b0.project?.experience);
+    add('احتياجات المشروع', a0.project?.needs, b0.project?.needs);
+
+    if (!eq(a0.medicalCases || [], b0.medicalCases || [])) {
+      diffParts.push('تم تعديل الجانب الطبي');
+    }
+  } catch { }
+  return diffParts;
+}
+
 async function createUserFromUi_() {
   if (!hasPerm('users_manage')) { alert('لا تملك صلاحية إدارة المستخدمين'); return; }
   if (!SupabaseClient) { alert('تعذر الاتصال بقاعدة البيانات'); return; }
@@ -41,43 +113,28 @@ async function createUserFromUi_() {
 
   const permissions = getDefaultNewUserPermissions_();
 
-  // Attempt to create Auth user via Edge Function if available.
-  let createdAuth = false;
+  // Create user via Edge Function ONLY (bypass RLS).
   try {
-    if (SupabaseClient?.functions?.invoke) {
-      const { data, error } = await SupabaseClient.functions.invoke('create-user', {
-        body: { email, password: tempPassword || null, username, full_name: name || null }
-      });
-      if (!error && (data?.id || data?.user?.id)) createdAuth = true;
+    if (!SupabaseClient?.functions?.invoke) {
+      throw new Error('Edge Functions غير مفعلة/غير متاحة');
     }
-  } catch { }
+    const { data, error } = await SupabaseClient.functions.invoke('create-user', {
+      body: { email, password: tempPassword || null, username, full_name: name || null, permissions }
+    });
+    if (error) {
+      const msg = (error?.message || '').toString();
+      throw new Error(msg || 'تعذر تنفيذ create-user');
+    }
+    if (!data?.ok) {
+      const err = (data?.error || '').toString();
+      throw new Error(err || 'create-user لم يرجع ok');
+    }
 
-  // Ensure profile row exists/updated with default permissions.
-  try {
-    const { data: existing, error: exErr } = await SupabaseClient.from('profiles').select('id').eq('username', username).maybeSingle();
-    if (exErr) throw exErr;
-    if (existing?.id) {
-      const { error } = await SupabaseClient.from('profiles').update({ full_name: name, permissions, is_active: true, email }).eq('id', existing.id);
-      if (error) {
-        const { error: e2 } = await SupabaseClient.from('profiles').update({ full_name: name, permissions, is_active: true }).eq('id', existing.id);
-        if (e2) throw e2;
-      }
-    } else {
-      const payload = { username, full_name: name || '', permissions, is_active: true, email };
-      const { error } = await SupabaseClient.from('profiles').insert(payload);
-      if (error) {
-        const payload2 = { username, full_name: name || '', permissions, is_active: true };
-        const { error: e2 } = await SupabaseClient.from('profiles').insert(payload2);
-        if (e2) throw e2;
-      }
-    }
     try { await logAction('إنشاء مستخدم (واجهة)', '', `username: ${username} | email: ${email}`); } catch { }
     try { await renderUsersList(); } catch { }
     if (hint) {
       hint.style.display = 'block';
-      hint.textContent = createdAuth
-        ? 'تم إنشاء المستخدم وتسجيله في النظام بصلاحيات مبدئية.'
-        : 'تم إنشاء ملف المستخدم بصلاحيات مبدئية. إذا لم يتم إنشاء المستخدم في Auth، أنشئه من لوحة Supabase أو وفّر Edge Function create-user.';
+      hint.textContent = 'تم إنشاء المستخدم بنجاح.';
     }
     try { document.getElementById('newUserEmail').value = ''; } catch { }
     try { document.getElementById('newUserUsername').value = ''; } catch { }
@@ -85,7 +142,15 @@ async function createUserFromUi_() {
     try { document.getElementById('newUserTempPassword').value = ''; } catch { }
   } catch (e) {
     try { console.error('createUserFromUi_ error:', e); } catch { }
-    if (hint) { hint.style.display = 'block'; hint.textContent = 'تعذر إنشاء المستخدم'; }
+    const msg = (e?.message || '').toString().trim();
+    if (hint) {
+      hint.style.display = 'block';
+      if (msg.toLowerCase().includes('cors') || msg.toLowerCase().includes('failed to fetch')) {
+        hint.textContent = 'تعذر إنشاء المستخدم: مشكلة CORS في Edge Function create-user. تأكد أن الكود موجود في ملف entrypoint (index.ts) وتم Deploy، وأن الـFunction ترد على OPTIONS وتضيف Access-Control-Allow-Origin.';
+      } else {
+        hint.textContent = msg ? `تعذر إنشاء المستخدم: ${msg}` : 'تعذر إنشاء المستخدم';
+      }
+    }
   }
 }
 
@@ -152,6 +217,106 @@ function showToast_(message, type = 'info', duration = 4000) {
       try { toast.remove(); } catch { }
     }, duration);
   } catch { }
+}
+
+function toggleMobileNav(forceOpen) {
+  try {
+    const wrap = document.getElementById('mainNavWrap');
+    const btn = document.getElementById('mobileNavToggle');
+    if (!wrap || !btn) return;
+    const isOpen = wrap.classList.contains('open');
+    const open = typeof forceOpen === 'boolean' ? forceOpen : !isOpen;
+    if (open) wrap.classList.add('open'); else wrap.classList.remove('open');
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  } catch { }
+}
+
+function closeMobileNav() {
+  try { toggleMobileNav(false); } catch { }
+}
+
+try {
+  window.addEventListener('click', (e) => {
+    const wrap = document.getElementById('mainNavWrap');
+    const btn = document.getElementById('mobileNavToggle');
+    if (!wrap || !btn) return;
+    if (!wrap.classList.contains('open')) return;
+    const t = e?.target;
+    if (wrap.contains(t) || btn.contains(t)) return;
+    closeMobileNav();
+  });
+} catch { }
+
+try {
+  window.addEventListener('resize', () => {
+    try {
+      if ((window.innerWidth || 0) > 768) closeMobileNav();
+    } catch { }
+  });
+} catch { }
+
+async function renderCaseChangeLog_() {
+  const panel = document.getElementById('casePanelChangeLog');
+  if (!panel) return;
+  const id = (AppState.currentCaseId || '').toString();
+  if (!id) { panel.innerHTML = '—'; return; }
+  if (!SupabaseClient) {
+    panel.innerHTML = '<div style="color:#64748b">تعذر الاتصال بقاعدة البيانات</div>';
+    return;
+  }
+
+  try { panel.innerHTML = '<div style="color:#64748b">جارٍ تحميل السجل...</div>'; } catch { }
+
+  try {
+    const { data, error } = await SupabaseClient
+      .from('audit_log')
+      .select('created_at,action,details,created_by')
+      .eq('case_id', id)
+      .order('created_at', { ascending: false })
+      .limit(200);
+    if (error) throw error;
+
+    // Best-effort resolve usernames (optional)
+    const ids = Array.from(new Set((data || []).map(x => (x.created_by || '').toString()).filter(Boolean)));
+    const map = {};
+    if (ids.length) {
+      try {
+        const q = await SupabaseClient.from('profiles').select('id,username,full_name').in('id', ids).limit(2000);
+        (q.data || []).forEach(p => { map[(p.id || '').toString()] = (p.username || p.full_name || '').toString(); });
+      } catch { }
+    }
+
+    const rows = (data || []).map(x => {
+      const t = (x.created_at || '').toString().replace('T', ' ').replace('Z', '');
+      const user = map[(x.created_by || '').toString()] || '';
+      const action = (x.action || '').toString();
+      const details = (x.details || '').toString();
+      return `
+        <tr>
+          <td>${escapeHtml(t)}</td>
+          <td>${escapeHtml(user)}</td>
+          <td>${escapeHtml(action)}</td>
+          <td style="max-width:520px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${escapeHtml(details)}">${escapeHtml(details)}</td>
+        </tr>`;
+    }).join('');
+
+    panel.innerHTML = `
+      <div style="overflow:auto;border:1px solid #e5e7eb;border-radius:12px;background:#fff">
+        <table class="table" style="min-width:900px">
+          <thead>
+            <tr>
+              <th>الوقت</th>
+              <th>المستخدم</th>
+              <th>الإجراء</th>
+              <th>تفاصيل</th>
+            </tr>
+          </thead>
+          <tbody>${rows || '<tr><td colspan="4" style="text-align:center">لا يوجد سجل لهذه الحالة بعد</td></tr>'}</tbody>
+        </table>
+      </div>`;
+  } catch {
+    panel.innerHTML = '<div style="color:#64748b">تعذر تحميل السجل</div>';
+  }
 }
 
 function initPasswordToggles_() {
@@ -1091,7 +1256,12 @@ async function saveUserMgmtForm_(silent) {
   if (!uname) return;
 
   const isActive = !!document.getElementById('userMgmtIsActive')?.checked;
-  const permissions = readUserPermissionsUi_();
+  const role = (document.getElementById('userMgmtRole')?.value || 'custom').toString().trim() || 'custom';
+  let permissions = readUserPermissionsUi_();
+  try { permissions.__role = role; } catch { }
+  if (role && role !== 'custom') {
+    permissions = { ...getRolePresetPermissions_(role), ...permissions, __role: role };
+  }
 
   const { data: existing, error: exErr } = await SupabaseClient.from('profiles').select('id').eq('username', uname).maybeSingle();
   if (exErr || !existing?.id) return;
@@ -1168,10 +1338,65 @@ function readUserPermissionsUi_() {
   });
   return out;
 }
+
+function getRolePresetPermissions_(roleKey) {
+  const k = (roleKey || '').toString();
+  const allow = (items) => {
+    const obj = {};
+    (items || []).forEach(p => { obj[p] = true; });
+    return obj;
+  };
+  if (k === 'admin') {
+    return allow(PERMISSIONS);
+  }
+  if (k === 'supervisor') {
+    return allow([
+      'dashboard', 'reports', 'settings', 'audit',
+      'cases_read', 'cases_create', 'cases_edit', 'case_status_change'
+    ]);
+  }
+  if (k === 'data_entry') {
+    return allow([
+      'dashboard', 'reports',
+      'cases_read', 'cases_create', 'cases_edit'
+    ]);
+  }
+  if (k === 'auditor') {
+    return allow([
+      'dashboard', 'reports', 'audit',
+      'cases_read'
+    ]);
+  }
+  if (k === 'viewer') {
+    return allow([
+      'dashboard', 'reports',
+      'cases_read'
+    ]);
+  }
+  return {};
+}
+
+function getUserRoleFromPermissions_(perms) {
+  const p = perms && typeof perms === 'object' ? perms : {};
+  const raw = (p.__role || p._role || '').toString().trim();
+  return raw || 'custom';
+}
+
+function getEffectivePermissions_(perms) {
+  const p = perms && typeof perms === 'object' ? perms : {};
+  const role = getUserRoleFromPermissions_(p);
+  if (!role || role === 'custom') {
+    return { ...p };
+  }
+  const preset = getRolePresetPermissions_(role);
+  return { ...preset, ...p };
+}
+
 function hasPerm(perm) {
   const p = AppState.currentUser?.permissions;
   if (!p || typeof p !== 'object') return false;
-  return !!p[perm];
+  const eff = getEffectivePermissions_(p);
+  return !!eff[perm];
 }
 
 async function setCurrentUserFromSession_(user) {
@@ -2143,6 +2368,9 @@ function showSection(key, navBtnId) {
     userManagement: 'userManagementSection',
     medicalCommittee: 'medicalCommitteeSection'
   };
+
+  try { closeMobileNav(); } catch { }
+
   const all = Object.values(map);
   all.forEach(id => {
     const el = document.getElementById(id);
@@ -2151,6 +2379,10 @@ function showSection(key, navBtnId) {
   const targetId = map[key] || key;
   const target = document.getElementById(targetId);
   if (target) target.classList.remove('hidden');
+
+  try {
+    document.body.classList.toggle('cases-toolbar-fixed', targetId === 'casesListSection');
+  } catch { }
 
   try { refreshDerivedViewsIfNeeded_(targetId); } catch { }
 
@@ -2518,6 +2750,7 @@ function clearCasesListFilters() {
   } catch { }
   try { renderCasesTable(); } catch { }
   try { updateCasesListUiState_(); } catch { }
+  try { resetCasesListPager_(); } catch { }
 }
 
 function exportFilteredCasesToExcel() {
@@ -3889,10 +4122,12 @@ function getFilteredCases() {
 }
 
 function renderCasesTable() {
-  const list = getFilteredCases();
+  const list = getFilteredCasesCached_();
   const grid = document.getElementById('casesCardsGrid');
   if (!grid) return;
-  const cards = list.map(x => {
+  const limit = Number(AppState._casesListLimit || 60) || 60;
+  const visible = list.slice(0, Math.max(0, limit));
+  const cards = visible.map(x => {
     if (!Array.isArray(x.sponsorships)) x.sponsorships = [];
     if (!Array.isArray(x.assistanceHistory)) x.assistanceHistory = [];
     const lastSponsor = getLastSponsorship(x);
@@ -3951,6 +4186,15 @@ function renderCasesTable() {
   });
   try { onCaseSelectionChange(); } catch { }
   try { updateCasesListUiState_(); } catch { }
+
+  try {
+    const meta = document.getElementById('casesListMeta');
+    if (meta) meta.textContent = `يعرض ${Math.min(visible.length, list.length)} من ${list.length}`;
+  } catch { }
+  try {
+    const btn = document.getElementById('casesLoadMoreBtn');
+    if (btn) btn.style.display = (visible.length < list.length) ? 'inline-flex' : 'none';
+  } catch { }
 }
 
 function setFilterOptions() {
@@ -4089,8 +4333,13 @@ function setCaseDetailsTab(tabKey) {
   AppState.caseDetailsTab = k;
   const details = document.getElementById('casePanelDetails');
   const payments = document.getElementById('casePanelPayments');
+  const logPanel = document.getElementById('casePanelChangeLog');
   if (details) details.classList.toggle('hidden', k !== 'details');
   if (payments) payments.classList.toggle('hidden', k !== 'payments');
+  if (logPanel) logPanel.classList.toggle('hidden', k !== 'changelog');
+  if (k === 'changelog') {
+    try { void renderCaseChangeLog_(); } catch { }
+  }
   try { syncCaseDetailsButtons(); } catch { }
 }
 
@@ -4098,6 +4347,7 @@ function syncCaseDetailsButtons() {
   const k = (AppState.caseDetailsTab || 'details').toString();
   const detailsBtn = document.getElementById('caseTabDetails');
   const payBtn = document.getElementById('caseTabPayments');
+  const logBtn = document.getElementById('caseTabChangeLog');
   if (detailsBtn) {
     detailsBtn.classList.toggle('light', k !== 'details');
     if (k === 'details') {
@@ -4112,6 +4362,14 @@ function syncCaseDetailsButtons() {
       try { payBtn.removeAttribute('style'); } catch { }
     } else {
       try { payBtn.style.color = '#1f2937'; payBtn.style.borderColor = '#e5e7eb'; } catch { }
+    }
+  }
+  if (logBtn) {
+    logBtn.classList.toggle('light', k !== 'changelog');
+    if (k === 'changelog') {
+      try { logBtn.removeAttribute('style'); } catch { }
+    } else {
+      try { logBtn.style.color = '#1f2937'; logBtn.style.borderColor = '#e5e7eb'; } catch { }
     }
   }
 
@@ -5024,8 +5282,64 @@ function escapeHtml(str) {
     .replaceAll("'", '&#39;');
 }
 function filterCases() {
+  try { resetCasesListPager_(); } catch { }
+  try { scheduleCasesListRender_(); } catch {
+    renderCasesTable();
+    try { updateCasesListUiState_(); } catch { }
+  }
+}
+
+let CasesListRenderTimer_ = null;
+function scheduleCasesListRender_() {
+  try { if (CasesListRenderTimer_) clearTimeout(CasesListRenderTimer_); } catch { }
+  CasesListRenderTimer_ = setTimeout(() => {
+    renderCasesTable();
+    try { updateCasesListUiState_(); } catch { }
+  }, 220);
+}
+
+function resetCasesListPager_() {
+  try { AppState._casesListLimit = 60; } catch { }
+}
+
+function loadMoreCases() {
+  try {
+    const cur = Number(AppState._casesListLimit || 60) || 60;
+    AppState._casesListLimit = cur + 60;
+  } catch { }
   renderCasesTable();
-  try { updateCasesListUiState_(); } catch { }
+}
+
+function makeCasesFilterKey_() {
+  const gov = window.filterGovernorate ? (filterGovernorate.value || '') : '';
+  const areaTxt = window.filterArea ? filterArea.value.trim() : '';
+  const grade = window.filterCaseGrade ? filterCaseGrade.value : '';
+  const q = window.caseSearch ? caseSearch.value.trim() : '';
+  const explorerQ = window.filterExplorer ? filterExplorer.value.trim() : '';
+  let cats = '';
+  try {
+    const catsHost = window.filterCategoriesGroup ? filterCategoriesGroup : null;
+    const selectedCats = catsHost ? Array.from(catsHost.querySelectorAll('input[type="checkbox"]')).filter(b => b.checked).map(b => b.value) : [];
+    cats = selectedCats.sort().join(',');
+  } catch { }
+  const dashKey = (AppState.dashboardFilter?.key || '').toString();
+  const v = Number(AppState._casesVersion || 0) || 0;
+  return [v, gov, areaTxt, grade, q, explorerQ, cats, dashKey].join('||');
+}
+
+function getFilteredCasesCached_() {
+  const key = makeCasesFilterKey_();
+  try {
+    if (AppState._filteredCasesCacheKey === key && Array.isArray(AppState._filteredCasesCache)) {
+      return AppState._filteredCasesCache;
+    }
+  } catch { }
+  const list = getFilteredCases();
+  try {
+    AppState._filteredCasesCacheKey = key;
+    AppState._filteredCasesCache = list;
+  } catch { }
+  return list;
 }
 function updateCaseStatus(id, val) {
   if (!hasPerm('case_status_change')) { alert('لا تملك صلاحية تغيير الحالة'); return; }
@@ -5532,24 +5846,910 @@ function generateReportPreview() {
     return;
   }
 
-  const total = cases.length;
-  const done = cases.filter(c => c.status === 'منفذة').length;
-  const urgent = cases.filter(c => c.urgency === 'عاجل' || c.urgency === 'عاجل جدًا').length;
-  const medical = cases.filter(c => c.category === 'عمليات طبية' || c.category === 'كفالات مرضية').length;
+  const range = getReportsRange_();
+  const achievementsOnly = !!document.getElementById('reportsAchievementsOnly')?.checked;
+  const list = range.active ? cases.filter(c => {
+    const dv = getCaseDateValue_(c);
+    if (!dv) return false;
+    if (range.from && dv < range.from) return false;
+    if (range.to && dv > range.to) return false;
+    return true;
+  }) : cases.slice();
+
+  const sumNum = (v) => Number(v ?? 0) || 0;
+  const needOf = (c) => Math.max(0, sumNum(c.estimatedAmount) - sumNum(c.deliveredAmount));
+
+  const total = list.length;
+  const done = list.filter(c => c.status === 'منفذة').length;
+  const urgent = list.filter(c => c.urgency === 'عاجل' || c.urgency === 'عاجل جدًا').length;
+  const medical = list.filter(c => c.category === 'عمليات طبية' || c.category === 'كفالات مرضية').length;
   const rate = total ? ((done / total) * 100).toFixed(1) : 0;
-  const byGov = {}; cases.forEach(c => { const g = c.governorate || 'غير محدد'; byGov[g] = (byGov[g] || 0) + 1 });
+  const byGov = {}; list.forEach(c => { const g = c.governorate || 'غير محدد'; byGov[g] = (byGov[g] || 0) + 1 });
   const topGov = Object.entries(byGov).sort((a, b) => b[1] - a[1]).slice(0, 6)
-    .map(([g, n]) => `<div style=\"display:flex;justify-content:space-between\"><span>${g}</span><strong>${n}</strong></div>`).join('');
+    .map(([g, n]) => `<div style=\"display:flex;justify-content:space-between\"><span>${escapeHtml(g)}</span><strong>${escapeHtml(n)}</strong></div>`).join('');
+
+  const flatAssists = flattenAssistanceInRange_(list, range);
+  const spons = flatAssists.filter(x => (x?.type || '') === 'sponsorship');
+  const other = flatAssists.filter(x => (x?.type || '') && (x?.type || '') !== 'sponsorship');
+  const sponsTotal = spons.reduce((a, x) => a + (Number(x?.amount ?? 0) || 0), 0);
+  const otherTotal = other.reduce((a, x) => a + (Number(x?.amount ?? 0) || 0), 0);
+
+  const rangeLabel = range.active ? `الفترة: ${escapeHtml(range.label)}` : 'الفترة: كل البيانات';
+
+  const typeFilter = (AppState._reportsTypeFilter || 'all').toString();
+  try { syncReportsTypeTabsUi_(); } catch { }
+
+  try { renderReportsDashboard_(list, range, typeFilter, flatAssists); } catch { }
+
+  const achievementsText = buildReportsAchievementsText_(list, range, typeFilter);
+  const previewTable = achievementsOnly ? '' : renderReportsCasesTable_(list, needOf);
+
+  const topAreasHtml = renderReportsTopAreas_(list, range, typeFilter);
+  const byExecutorHtml = renderReportsByExecutor_(list, range, typeFilter);
+  const medicalHtml = renderReportsMedicalPro_(list, range);
+
   host.innerHTML = `
+    <div class="section" style="border-color:#e5e7eb;background:#fff;margin-bottom:12px">
+      <div style="font-weight:800;margin-bottom:6px">${rangeLabel}</div>
+      <div style="color:#64748b">عدد الحالات المعروضة: <strong>${escapeHtml(total)}</strong></div>
+    </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
-      <div class="section"><div style="font-weight:700;font-size:22px">${total}</div>إجمالي الحالات</div>
-      <div class="section"><div style="font-weight:700;font-size:22px">${done}</div>الحالات المنفذة</div>
-      <div class="section"><div style="font-weight:700;font-size:22px">${rate}%</div>نسبة الإنجاز</div>
-      <div class="section"><div style="font-weight:700;font-size:22px">${urgent}</div>العاجلة</div>
-      <div class="section"><div style="font-weight:700;font-size:22px">${medical}</div>الطبية</div>
+      <div class="section"><div style="font-weight:700;font-size:22px">${escapeHtml(total)}</div>إجمالي الحالات</div>
+      <div class="section"><div style="font-weight:700;font-size:22px">${escapeHtml(done)}</div>الحالات المنفذة</div>
+      <div class="section"><div style="font-weight:700;font-size:22px">${escapeHtml(rate)}%</div>نسبة الإنجاز</div>
+      <div class="section"><div style="font-weight:700;font-size:22px">${escapeHtml(urgent)}</div>العاجلة</div>
+      <div class="section"><div style="font-weight:700;font-size:22px">${escapeHtml(medical)}</div>الطبية</div>
       <div class="section"><div style="font-weight:700;margin-bottom:6px">حسب المحافظة</div>${topGov || 'لا بيانات'}</div>
-    </div>`
+      <div class="section"><div style="font-weight:700;font-size:22px">${escapeHtml(spons.length)}</div>عمليات كفالة داخل الفترة</div>
+      <div class="section"><div style="font-weight:700;font-size:22px">${escapeHtml(Math.round(sponsTotal).toLocaleString('en-US'))}</div>إجمالي الكفالات داخل الفترة</div>
+      <div class="section"><div style="font-weight:700;font-size:22px">${escapeHtml(other.length)}</div>مساعدات أخرى داخل الفترة</div>
+      <div class="section"><div style="font-weight:700;font-size:22px">${escapeHtml(Math.round(otherTotal).toLocaleString('en-US'))}</div>إجمالي المساعدات الأخرى</div>
+    </div>
+    <div class="section" style="margin-top:12px">
+      <div style="font-weight:800;margin-bottom:10px">الإنجازات</div>
+      <pre id="reportsAchievementsText" style="white-space:pre-wrap;margin:0;font-family:inherit;line-height:1.75">${escapeHtml(achievementsText || 'لا توجد إنجازات داخل الفترة وفقاً للبيانات الحالية.')}</pre>
+    </div>
+    <div class="section" style="margin-top:12px">
+      <div style="font-weight:800;margin-bottom:10px">أفضل 10 مناطق إنجازًا</div>
+      ${topAreasHtml}
+    </div>
+    <div class="section" style="margin-top:12px">
+      <div style="font-weight:800;margin-bottom:10px">الإنجازات حسب المنفّذ</div>
+      ${byExecutorHtml}
+    </div>
+    <div class="section" style="margin-top:12px">
+      <div style="font-weight:800;margin-bottom:10px">تقرير طبي (احترافي)</div>
+      ${medicalHtml}
+    </div>
+    ${achievementsOnly ? '' : `
+      <div class="section" style="margin-top:12px">
+        <div style="font-weight:800;margin-bottom:10px">تفاصيل الحالات</div>
+        ${previewTable}
+      </div>`}
+    `;
+
+  try { updateReportsRangeHint_(range, total); } catch { }
   try { renderAuditLog(); } catch { }
+}
+
+function renderReportsDashboard_(casesInRange, range, typeFilter, flatAssists) {
+  const list = Array.isArray(casesInRange) ? casesInRange : [];
+  const sumNum = (v) => Number(v ?? 0) || 0;
+  const fmt = (n) => (Math.round((Number(n) || 0) * 100) / 100).toLocaleString('en-US');
+  const needOf = (c) => Math.max(0, sumNum(c.estimatedAmount) - sumNum(c.deliveredAmount));
+
+  const rangeLabel = range?.active ? `الفترة: ${range.label}` : 'الفترة: كل البيانات';
+  const total = list.length;
+  const done = list.filter(c => c.status === 'منفذة').length;
+  const rate = total ? `${((done / total) * 100).toFixed(1)}%` : '0%';
+  const totalNeed = list.reduce((a, c) => a + needOf(c), 0);
+
+  // assistance counts based on filter
+  const assistsAll = Array.isArray(flatAssists) ? flatAssists : flattenAssistanceInRange_(list, range);
+  const assists = filterAssistsByReportsType_(assistsAll, typeFilter);
+  const spons = assists.filter(x => (x?.type || '') === 'sponsorship');
+  const other = assists.filter(x => (x?.type || '') && (x?.type || '') !== 'sponsorship');
+
+  try { document.getElementById('repKpiTotal').textContent = fmt(total); } catch { }
+  try { document.getElementById('repKpiDone').textContent = fmt(done); } catch { }
+  try { document.getElementById('repKpiRate').textContent = rate; } catch { }
+  try { document.getElementById('repKpiNeed').textContent = fmt(totalNeed); } catch { }
+  try { document.getElementById('repKpiSpons').textContent = fmt(spons.length); } catch { }
+  try { document.getElementById('repKpiOther').textContent = fmt(other.length); } catch { }
+  try { document.getElementById('repKpiRange').textContent = rangeLabel; } catch { }
+
+  // Aggregate charts
+  const byType = {};
+  const byGrade = { A: 0, B: 0, C: 0, other: 0 };
+  const byGov = {};
+  const inc = (obj, key) => { obj[key] = (obj[key] || 0) + 1; };
+  const getType = (c) => {
+    const cat = (c?.category || '').toString().trim();
+    if (!cat) return 'غير محدد';
+    const parts = cat.split(',').map(s => s.trim()).filter(Boolean);
+    return parts[0] || cat;
+  };
+  list.forEach(c => {
+    inc(byType, getType(c));
+    const gr = String(c.caseGrade || '').trim().toUpperCase();
+    if (gr === 'A') byGrade.A += 1;
+    else if (gr === 'B') byGrade.B += 1;
+    else if (gr === 'C') byGrade.C += 1;
+    else byGrade.other += 1;
+    inc(byGov, String(c.governorate || 'غير محدد').trim() || 'غير محدد');
+  });
+
+  const topEntries = (obj, limit = 10) => Object.entries(obj).sort((a, b) => b[1] - a[1]).slice(0, limit);
+  const chartLabels = (entries) => entries.map(x => x[0]);
+  const chartValues = (entries) => entries.map(x => x[1]);
+
+  const upsert = (key, canvasId, config) => {
+    try {
+      if (!window.Chart) return;
+      AppState._repCharts = AppState._repCharts || {};
+      const ctx = document.getElementById(canvasId);
+      if (!ctx) return;
+      if (AppState._repCharts[key]) {
+        try { AppState._repCharts[key].destroy(); } catch { }
+      }
+      AppState._repCharts[key] = new Chart(ctx, config);
+    } catch { }
+  };
+
+  try {
+    const entries = topEntries(byType, 8);
+    const labels = chartLabels(entries);
+    const values = chartValues(entries);
+    upsert('type', 'repChartByType', {
+      type: 'doughnut',
+      data: { labels, datasets: [{ data: values, backgroundColor: ['#2563eb', '#16a34a', '#f59e0b', '#9333ea', '#0ea5e9', '#dc2626', '#334155', '#059669'] }] },
+      options: {
+        plugins: {
+          legend: { position: 'bottom', labels: { font: { family: 'Tajawal' } } },
+          tooltip: { rtl: true }
+        }
+      }
+    });
+  } catch { }
+
+  try {
+    const labels = ['A', 'B', 'C'];
+    const values = [byGrade.A, byGrade.B, byGrade.C];
+    upsert('grade', 'repChartByGrade', {
+      type: 'pie',
+      data: { labels: ['A (حرجة)', 'B (متوسطة)', 'C (أقل أولوية)'], datasets: [{ data: values, backgroundColor: ['#dc2626', '#f59e0b', '#16a34a'] }] },
+      options: {
+        plugins: {
+          legend: { position: 'bottom', labels: { font: { family: 'Tajawal' } } },
+          tooltip: { rtl: true }
+        }
+      }
+    });
+  } catch { }
+
+  try {
+    const entries = topEntries(byGov, 10);
+    const labels = chartLabels(entries);
+    const values = chartValues(entries);
+    upsert('geo', 'repChartGeo', {
+      type: 'bar',
+      data: { labels, datasets: [{ data: values, backgroundColor: '#2563eb' }] },
+      options: {
+        indexAxis: 'y',
+        plugins: {
+          legend: { display: false },
+          tooltip: { rtl: true }
+        },
+        scales: {
+          x: { ticks: { font: { family: 'Tajawal' } } },
+          y: { ticks: { font: { family: 'Tajawal' } } }
+        }
+      }
+    });
+  } catch { }
+}
+
+function buildReportsAchievementsText_(cases, range, typeFilter) {
+  const list = Array.isArray(cases) ? cases : [];
+  const safeRange = range?.active ? `الفترة: ${range.label}` : 'الفترة: كل البيانات';
+  const lines = [];
+  lines.push(`تقرير الإنجازات`);
+  lines.push(safeRange);
+  if (typeFilter && typeFilter !== 'all') {
+    lines.push(`نوع التقرير: ${escapeHtml(getReportsTypeLabel_(typeFilter))}`);
+  }
+  lines.push('');
+
+  const totalCases = list.length;
+  const addedCases = list.filter(c => {
+    const dv = getCaseDateValue_(c);
+    if (!dv) return false;
+    if (range?.active) {
+      if (range?.from && dv < range.from) return false;
+      if (range?.to && dv > range.to) return false;
+    }
+    return true;
+  }).length;
+  if (totalCases) {
+    lines.push(`- تم التعامل مع عدد ${totalCases} حالة داخل النظام${range?.active ? ' ضمن الفترة المحددة' : ''}.`);
+  }
+  if (addedCases && range?.active) {
+    lines.push(`- تم إضافة/تسجيل ${addedCases} حالة بتاريخ ضمن الفترة.`);
+  }
+
+  const assistsAll = flattenAssistanceInRange_(list, range);
+  const assists = filterAssistsByReportsType_(assistsAll, typeFilter);
+  if (assists.length) {
+    lines.push('');
+    lines.push('إنجازات المساعدات/الكفالات:');
+
+    const fmtMoney = (n) => Math.round(Number(n || 0)).toLocaleString('en-US');
+
+    // group by (gov, area, type)
+    const keyOf = (x) => `${(x?.governorate || 'غير محدد').trim()}||${(x?.area || 'غير محدد').trim()}||${(x?.type || 'غير محدد').trim()}`;
+    const groups = {};
+    assists.forEach(x => {
+      const k = keyOf(x);
+      groups[k] = groups[k] || { gov: (x?.governorate || 'غير محدد').trim(), area: (x?.area || 'غير محدد').trim(), type: (x?.type || 'غير محدد').trim(), count: 0, total: 0, names: [] };
+      groups[k].count += 1;
+      groups[k].total += Number(x?.amount ?? 0) || 0;
+      const nm = (x?.familyHead || '').toString().trim();
+      if (nm) groups[k].names.push(nm);
+    });
+
+    const sorted = Object.values(groups).sort((a, b) => (b.total - a.total) || (b.count - a.count));
+    sorted.slice(0, 20).forEach(g => {
+      const typeLabel = g.type === 'sponsorship' ? 'كفالة مالية' : g.type;
+      const place = `${g.gov}${g.area ? ` - ${g.area}` : ''}`;
+      const moneyPart = g.total ? ` بإجمالي ${fmtMoney(g.total)} جنيه` : '';
+      lines.push(`- تم تنفيذ ${typeLabel} في ${place} بعدد ${g.count}${moneyPart}.`);
+
+      // For small groups, include sample names
+      const uniq = Array.from(new Set((g.names || []).filter(Boolean)));
+      if (uniq.length && uniq.length <= 8) {
+        lines.push(`  الأسماء: ${uniq.join('، ')}`);
+      }
+    });
+  }
+
+  // Category highlights within list
+  const byCat = {};
+  list.forEach(c => {
+    const cat = (c?.category || 'غير محدد').toString().trim();
+    byCat[cat] = (byCat[cat] || 0) + 1;
+  });
+  const topCats = Object.entries(byCat).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  if (topCats.length) {
+    lines.push('');
+    lines.push('توزيع الإنجازات حسب الفئة:');
+    topCats.forEach(([cat, n]) => {
+      lines.push(`- ${cat}: ${n} حالة`);
+    });
+  }
+
+  return lines.join('\n');
+}
+
+function getReportsTypeLabel_(t) {
+  const v = (t || 'all').toString();
+  if (v === 'sponsorship') return 'كفالات مالية';
+  if (v === 'ramadan_bags') return 'شنط رمضان';
+  if (v === 'in_kind') return 'مساعدات عينية';
+  if (v === 'medical') return 'عمليات طبية';
+  if (v === 'all') return 'الكل';
+  return v;
+}
+
+function filterAssistsByReportsType_(assists, typeFilter) {
+  const list = Array.isArray(assists) ? assists : [];
+  const t = (typeFilter || 'all').toString();
+  if (!t || t === 'all') return list;
+  if (t === 'medical') {
+    // medical achievements are case-based, not assistance-based
+    return list.filter(x => {
+      const type = (x?.type || '').toString();
+      return type === 'عمليات طبية' || type === 'كفالات مرضية' || type === 'رعاية صحية';
+    });
+  }
+  return list.filter(x => (x?.type || '').toString() === t);
+}
+
+function setReportsTypeFilter(type) {
+  try { AppState._reportsTypeFilter = (type || 'all').toString(); } catch { }
+  try { syncReportsTypeTabsUi_(); } catch { }
+  try { generateReportPreview(); } catch { }
+}
+
+function syncReportsTypeTabsUi_() {
+  const current = (AppState._reportsTypeFilter || 'all').toString();
+  const all = [
+    { id: 'reportsTypeAllBtn', key: 'all' },
+    { id: 'reportsTypeSponsorshipBtn', key: 'sponsorship' },
+    { id: 'reportsTypeRamadanBtn', key: 'ramadan_bags' },
+    { id: 'reportsTypeInKindBtn', key: 'in_kind' },
+    { id: 'reportsTypeBridesBtn', key: 'تجهيز عرائس' },
+    { id: 'reportsTypeMedicalBtn', key: 'medical' }
+  ];
+  all.forEach(x => {
+    const btn = document.getElementById(x.id);
+    if (!btn) return;
+    const active = x.key === current;
+    btn.classList.toggle('light', !active);
+  });
+}
+
+function renderReportsTopAreas_(cases, range, typeFilter) {
+  const list = Array.isArray(cases) ? cases : [];
+  const assistsAll = flattenAssistanceInRange_(list, range);
+  const assists = filterAssistsByReportsType_(assistsAll, typeFilter);
+  const fmtMoney = (n) => Math.round(Number(n || 0)).toLocaleString('en-US');
+
+  const groups = {};
+  assists.forEach(x => {
+    const gov = (x?.governorate || 'غير محدد').toString().trim();
+    const area = (x?.area || 'غير محدد').toString().trim();
+    const k = `${gov}||${area}`;
+    groups[k] = groups[k] || { gov, area, count: 0, total: 0 };
+    groups[k].count += 1;
+    groups[k].total += Number(x?.amount ?? 0) || 0;
+  });
+
+  const sorted = Object.values(groups).sort((a, b) => (b.total - a.total) || (b.count - a.count)).slice(0, 10);
+  const rows = sorted.map((g, idx) => `
+    <tr>
+      <td>${escapeHtml(idx + 1)}</td>
+      <td>${escapeHtml(g.gov)}</td>
+      <td>${escapeHtml(g.area)}</td>
+      <td>${escapeHtml(g.count)}</td>
+      <td>${escapeHtml(fmtMoney(g.total))}</td>
+    </tr>`).join('');
+
+  return `
+    <div style="overflow:auto;border:1px solid #e5e7eb;border-radius:12px;background:#fff">
+      <table class="table" style="min-width:760px">
+        <thead><tr><th>#</th><th>المحافظة</th><th>المنطقة</th><th>عدد العمليات</th><th>إجمالي المبالغ</th></tr></thead>
+        <tbody>${rows || '<tr><td colspan="5" style="text-align:center">لا توجد بيانات</td></tr>'}</tbody>
+      </table>
+    </div>`;
+}
+
+function renderReportsByExecutor_(cases, range, typeFilter) {
+  const list = Array.isArray(cases) ? cases : [];
+  const assistsAll = flattenAssistanceInRange_(list, range);
+  const assists = filterAssistsByReportsType_(assistsAll, typeFilter);
+  const fmtMoney = (n) => Math.round(Number(n || 0)).toLocaleString('en-US');
+
+  const groups = {};
+  assists.forEach(x => {
+    const by = (x?.by || x?.byName || x?.byUser || 'غير محدد').toString().trim() || 'غير محدد';
+    groups[by] = groups[by] || { by, count: 0, total: 0 };
+    groups[by].count += 1;
+    groups[by].total += Number(x?.amount ?? 0) || 0;
+  });
+  const sorted = Object.values(groups).sort((a, b) => (b.total - a.total) || (b.count - a.count)).slice(0, 15);
+  const rows = sorted.map((g, idx) => `
+    <tr>
+      <td>${escapeHtml(idx + 1)}</td>
+      <td>${escapeHtml(g.by)}</td>
+      <td>${escapeHtml(g.count)}</td>
+      <td>${escapeHtml(fmtMoney(g.total))}</td>
+    </tr>`).join('');
+
+  return `
+    <div style="overflow:auto;border:1px solid #e5e7eb;border-radius:12px;background:#fff">
+      <table class="table" style="min-width:680px">
+        <thead><tr><th>#</th><th>المنفّذ</th><th>عدد العمليات</th><th>إجمالي المبالغ</th></tr></thead>
+        <tbody>${rows || '<tr><td colspan="4" style="text-align:center">لا توجد بيانات</td></tr>'}</tbody>
+      </table>
+    </div>`;
+}
+
+function renderReportsMedicalPro_(cases, range) {
+  const list = Array.isArray(cases) ? cases : [];
+  const medicalCases = list.filter(c => {
+    const cat = (c?.category || '').toString();
+    return cat === 'عمليات طبية' || cat === 'كفالات مرضية' || (Array.isArray(c?.medicalCases) && c.medicalCases.length);
+  });
+  if (!medicalCases.length) {
+    return '<div style="color:#64748b">لا توجد حالات طبية داخل الفترة.</div>';
+  }
+
+  const sumNum = (v) => Number(v ?? 0) || 0;
+  const needOf = (c) => Math.max(0, sumNum(c.estimatedAmount) - sumNum(c.deliveredAmount));
+
+  const rows = [];
+  medicalCases.forEach(c => {
+    const meds = Array.isArray(c.medicalCases) && c.medicalCases.length ? c.medicalCases : [c.medicalInfo || {}];
+    meds.forEach(m => {
+      const disease = (m?.diseaseType || m?.name || '').toString();
+      const specialty = (m?.specialty || '').toString();
+      const hospital = (m?.hospital || '').toString();
+      const doctor = (m?.doctor || '').toString();
+      const cost = (m?.estimatedCost ?? '').toString();
+      rows.push({
+        caseNo: (c?.caseNo ?? '').toString(),
+        id: (c?.id ?? '').toString(),
+        familyHead: (c?.familyHead ?? '').toString(),
+        governorate: (c?.governorate ?? '').toString(),
+        area: (c?.area ?? '').toString(),
+        disease,
+        specialty,
+        hospital,
+        doctor,
+        cost,
+        remainingNeed: String(needOf(c))
+      });
+    });
+  });
+
+  const htmlRows = rows.slice(0, 250).map(r => `
+    <tr>
+      <td>${escapeHtml(r.caseNo)}</td>
+      <td>${escapeHtml(r.familyHead)}</td>
+      <td>${escapeHtml(r.governorate)}</td>
+      <td>${escapeHtml(r.area)}</td>
+      <td>${escapeHtml(r.disease)}</td>
+      <td>${escapeHtml(r.specialty)}</td>
+      <td>${escapeHtml(r.hospital)}</td>
+      <td>${escapeHtml(r.doctor)}</td>
+      <td>${escapeHtml(r.cost)}</td>
+      <td>${escapeHtml(r.remainingNeed)}</td>
+    </tr>`).join('');
+
+  return `
+    <div style="overflow:auto;border:1px solid #e5e7eb;border-radius:12px;background:#fff">
+      <table class="table" style="min-width:1200px">
+        <thead>
+          <tr>
+            <th>رقم</th>
+            <th>اسم الحالة</th>
+            <th>المحافظة</th>
+            <th>المنطقة</th>
+            <th>المرض/الحالة</th>
+            <th>التخصص/الخطورة</th>
+            <th>المستشفى</th>
+            <th>الطبيب</th>
+            <th>التكلفة التقديرية</th>
+            <th>الاحتياج المتبقي (عام)</th>
+          </tr>
+        </thead>
+        <tbody>${htmlRows || '<tr><td colspan="10" style="text-align:center">لا توجد بيانات</td></tr>'}</tbody>
+      </table>
+    </div>
+    <div style="color:#64748b;font-size:.9rem;margin-top:8px">يعرض ${escapeHtml(Math.min(rows.length, 250))} من ${escapeHtml(rows.length)} سجل طبي</div>`;
+}
+
+function exportMedicalReportToExcel() {
+  const range = getReportsRange_();
+  const cases = Array.isArray(AppState.cases) ? AppState.cases : [];
+  const list = range.active ? cases.filter(c => {
+    const dv = getCaseDateValue_(c);
+    if (!dv) return false;
+    if (range.from && dv < range.from) return false;
+    if (range.to && dv > range.to) return false;
+    return true;
+  }) : cases.slice();
+
+  const medicalCases = list.filter(c => {
+    const cat = (c?.category || '').toString();
+    return cat === 'عمليات طبية' || cat === 'كفالات مرضية' || (Array.isArray(c?.medicalCases) && c.medicalCases.length);
+  });
+  if (!medicalCases.length) { alert('لا توجد حالات طبية للتصدير داخل الفترة'); return; }
+
+  const sumNum = (v) => Number(v ?? 0) || 0;
+  const needOf = (c) => Math.max(0, sumNum(c.estimatedAmount) - sumNum(c.deliveredAmount));
+
+  const headers = [
+    'رقم الحالة',
+    'اسم الحالة',
+    'الرقم القومي',
+    'المحافظة',
+    'المنطقة',
+    'الفئة',
+    'تاريخ البحث',
+    'المرض/الحالة',
+    'التخصص/الخطورة',
+    'المستشفى',
+    'الطبيب',
+    'التقرير',
+    'التكلفة التقديرية',
+    'الاحتياج المتبقي (عام)'
+  ];
+  const rows = [headers];
+
+  medicalCases.forEach(c => {
+    const meds = Array.isArray(c.medicalCases) && c.medicalCases.length ? c.medicalCases : [c.medicalInfo || {}];
+    meds.forEach(m => {
+      rows.push([
+        String(c.caseNo ?? ''),
+        String(c.familyHead ?? ''),
+        String(c.id ?? ''),
+        String(c.governorate ?? ''),
+        String(c.area ?? ''),
+        String(c.category ?? ''),
+        String(c.date ?? ''),
+        String(m?.diseaseType || m?.name || ''),
+        String(m?.specialty || ''),
+        String(m?.hospital || ''),
+        String(m?.doctor || ''),
+        String(m?.report || m?.medicalReport || ''),
+        String(m?.estimatedCost ?? ''),
+        String(needOf(c))
+      ]);
+    });
+  });
+
+  const fname = `medical-report-${new Date().toISOString().slice(0, 10)}.xlsx`;
+  try {
+    if (!window.XLSX) throw new Error('XLSX missing');
+    const wb = window.XLSX.utils.book_new();
+    const ws = window.XLSX.utils.aoa_to_sheet(rows);
+    ws['!sheetViews'] = [{ rightToLeft: true }];
+    window.XLSX.utils.book_append_sheet(wb, ws, 'Medical');
+    wb.Workbook = wb.Workbook || {};
+    wb.Workbook.Views = [{ RTL: true }];
+    window.XLSX.writeFile(wb, fname);
+    try { logAction('تصدير تقرير طبي Excel', '', `range: ${range.label} | rows: ${rows.length - 1}`); } catch { }
+  } catch {
+    alert('تعذر تصدير تقرير طبي (XLSX غير متاح)');
+  }
+}
+
+function copyReportsTemplate(kind) {
+  try {
+    const range = getReportsRange_();
+    const pre = document.getElementById('reportsAchievementsText');
+    const raw = (pre?.textContent || '').toString().trim();
+    const t = (AppState._reportsTypeFilter || 'all').toString();
+    const title = range?.active ? `تقرير الإنجازات (${range.label})` : 'تقرير الإنجازات';
+    const typeLine = t && t !== 'all' ? `\nنوع التقرير: ${getReportsTypeLabel_(t)}\n` : '\n';
+
+    let out = '';
+    if ((kind || '').toString() === 'whatsapp') {
+      out = `${title}${typeLine}${raw}`;
+    } else if ((kind || '').toString() === 'facebook') {
+      out = `${title}\n${range?.active ? `الفترة: ${range.label}\n` : ''}${t !== 'all' ? `نوع التقرير: ${getReportsTypeLabel_(t)}\n` : ''}\n${raw}\n\n#خواطر_أحلى_شباب`;
+    } else {
+      out = `خطاب رسمي\n${title}\n${range?.active ? `الفترة: ${range.label}\n` : ''}${t !== 'all' ? `نوع التقرير: ${getReportsTypeLabel_(t)}\n` : ''}\n${raw}\n`;
+    }
+    void (async () => {
+      try {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(out);
+          alert('تم نسخ القالب');
+          return;
+        }
+      } catch { }
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = out;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+        alert('تم نسخ القالب');
+      } catch {
+        alert('تعذر النسخ');
+      }
+    })();
+  } catch {
+    alert('تعذر تجهيز القالب');
+  }
+}
+
+async function copyReportsAchievementsText() {
+  try {
+    const pre = document.getElementById('reportsAchievementsText');
+    const txt = (pre?.textContent || '').toString();
+    if (!txt.trim()) { alert('لا يوجد نص لنسخه'); return; }
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(txt);
+      alert('تم نسخ نص الإنجازات');
+      return;
+    }
+  } catch { }
+
+  try {
+    const pre = document.getElementById('reportsAchievementsText');
+    const txt = (pre?.textContent || '').toString();
+    const ta = document.createElement('textarea');
+    ta.value = txt;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+    alert('تم نسخ نص الإنجازات');
+  } catch {
+    alert('تعذر النسخ');
+  }
+}
+
+function getReportsRange_() {
+  const fromRaw = (document.getElementById('reportsFromDate')?.value || '').toString().trim();
+  const toRaw = (document.getElementById('reportsToDate')?.value || '').toString().trim();
+  const from = fromRaw ? normalizeISODateValue_(fromRaw) : 0;
+  const to = toRaw ? normalizeISODateValue_(toRaw) : 0;
+  const active = !!(fromRaw || toRaw);
+  const label = `${fromRaw || '...'} - ${toRaw || '...'}`;
+  return { fromRaw, toRaw, from: from || 0, to: to || 0, active, label };
+}
+
+function normalizeISODateValue_(iso) {
+  const s = (iso || '').toString().trim();
+  if (!s) return 0;
+  const ms = Date.parse(s);
+  if (!Number.isFinite(ms)) return 0;
+  return ms;
+}
+
+function getCaseDateValue_(c) {
+  const raw = (c?.date ?? '').toString().trim();
+  if (!raw) return 0;
+  if (raw.includes('/')) {
+    const iso = parseDDMMYYYYToISO(raw);
+    return normalizeISODateValue_(iso);
+  }
+  return normalizeISODateValue_(raw);
+}
+
+function getAssistanceDateValue_(raw) {
+  const s = (raw ?? '').toString().trim();
+  if (!s) return 0;
+  if (s.includes('/')) {
+    const iso = parseDDMMYYYYToISO(s);
+    return normalizeISODateValue_(iso);
+  }
+  return normalizeISODateValue_(s);
+}
+
+function flattenAssistanceInRange_(cases, range) {
+  const list = Array.isArray(cases) ? cases : [];
+  const out = [];
+  list.forEach(c => {
+    const hist = Array.isArray(c?.assistanceHistory) ? c.assistanceHistory : [];
+    hist.forEach(x => {
+      const dv = getAssistanceDateValue_(x?.date || '');
+      if (!dv) return;
+      if (range?.active) {
+        if (range?.from && dv < range.from) return;
+        if (range?.to && dv > range.to) return;
+      }
+      const byName = (x?.byName ?? '').toString().trim();
+      const byUser = (x?.byUser ?? '').toString().trim();
+      const by = ((x?.by ?? '').toString().trim() || byName || byUser || '').toString().trim();
+      out.push({
+        caseId: (c?.id ?? '').toString(),
+        caseNo: (c?.caseNo ?? '').toString(),
+        familyHead: (c?.familyHead ?? '').toString(),
+        governorate: (c?.governorate ?? '').toString(),
+        area: (c?.area ?? '').toString(),
+        type: (x?.type ?? '').toString(),
+        date: (x?.date ?? '').toString(),
+        amount: Number(x?.amount ?? 0) || 0,
+        by,
+        byName,
+        byUser,
+        notes: (x?.notes ?? '').toString()
+      });
+    });
+  });
+  return out;
+}
+
+function renderReportsCasesTable_(list, needOf) {
+  const rows = (Array.isArray(list) ? list : []).slice();
+  rows.sort((a, b) => getCaseDateValue_(b) - getCaseDateValue_(a));
+  const top = rows.slice(0, 200);
+  const fmt = (n) => (Math.round((Number(n) || 0) * 100) / 100).toLocaleString('en-US');
+  const tr = top.map(c => {
+    const name = (c?.familyHead || '').toString().trim() || (c?.id || '').toString();
+    const nid = (c?.id || '').toString();
+    const gov = (c?.governorate || '').toString();
+    const area = (c?.area || '').toString();
+    const cat = (c?.category || '').toString();
+    const st = (c?.status || '').toString();
+    const urg = (c?.urgency || '').toString();
+    const grade = (c?.caseGrade || '').toString();
+    const d = (c?.date || '').toString();
+    const need = needOf ? needOf(c) : '';
+    const btn = `<button class=\"btn mini\" type=\"button\" onclick=\"openCaseDetails('${escapeHtml(nid)}')\">عرض</button>`;
+    return `
+      <tr>
+        <td>${escapeHtml(c?.caseNo ?? '')}</td>
+        <td>${escapeHtml(name)}</td>
+        <td>${escapeHtml(nid)}</td>
+        <td>${escapeHtml(gov)}</td>
+        <td>${escapeHtml(area)}</td>
+        <td>${escapeHtml(cat)}</td>
+        <td>${escapeHtml(st)}</td>
+        <td>${escapeHtml(urg)}</td>
+        <td>${escapeHtml(grade)}</td>
+        <td>${escapeHtml(d)}</td>
+        <td>${escapeHtml(fmt(need))}</td>
+        <td>${btn}</td>
+      </tr>`;
+  }).join('');
+
+  return `
+    <div style="overflow:auto;border:1px solid #e5e7eb;border-radius:12px;background:#fff">
+      <table class="table" style="min-width:1100px">
+        <thead>
+          <tr>
+            <th>رقم</th>
+            <th>اسم الحالة</th>
+            <th>الرقم القومي</th>
+            <th>المحافظة</th>
+            <th>المنطقة</th>
+            <th>الفئة</th>
+            <th>الحالة</th>
+            <th>الاستعجال</th>
+            <th>التقييم</th>
+            <th>تاريخ البحث</th>
+            <th>الاحتياج</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${tr || '<tr><td colspan="12" style="text-align:center">لا توجد بيانات</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+    <div style="color:#64748b;font-size:.9rem;margin-top:8px">يعرض ${escapeHtml(top.length)} من ${escapeHtml(rows.length)} حالة (الأحدث أولاً)</div>`;
+}
+
+function updateReportsRangeHint_(range, total) {
+  const el = document.getElementById('reportsRangeHint');
+  if (!el) return;
+  el.style.display = 'block';
+  if (range?.active) {
+    el.textContent = `يعرض النتائج حسب الفترة: ${range.label} | عدد الحالات: ${total}`;
+  } else {
+    el.textContent = `يعرض كل البيانات | عدد الحالات: ${total}`;
+  }
+}
+
+function exportReportsRangeToExcel() {
+  const range = getReportsRange_();
+  const cases = Array.isArray(AppState.cases) ? AppState.cases : [];
+  const list = range.active ? cases.filter(c => {
+    const dv = getCaseDateValue_(c);
+    if (!dv) return false;
+    if (range.from && dv < range.from) return false;
+    if (range.to && dv > range.to) return false;
+    return true;
+  }) : cases.slice();
+  if (!list.length) { alert('لا توجد بيانات للتصدير حسب الفترة'); return; }
+
+  const sumNum = (v) => Number(v ?? 0) || 0;
+  const needOf = (c) => Math.max(0, sumNum(c.estimatedAmount) - sumNum(c.deliveredAmount));
+
+  const casesHeaders = [
+    'رقم الحالة', 'اسم الحالة', 'الرقم القومي', 'المحافظة', 'المنطقة', 'الفئة', 'الحالة', 'الاستعجال', 'التقييم', 'تاريخ البحث',
+    'مبلغ تقديري', 'مبلغ منفذ', 'الاحتياج',
+    'عدد الكفالات المسجلة', 'إجمالي الكفالات المسجلة', 'تاريخ آخر كفالة',
+    'عدد المساعدات (غير الكفالة)', 'إجمالي المساعدات (غير الكفالة)'
+  ];
+  const casesRows = [casesHeaders];
+  list.forEach(c => {
+    const hist = Array.isArray(c.assistanceHistory) ? c.assistanceHistory : [];
+    const spons = hist.filter(x => (x?.type || '') === 'sponsorship');
+    const other = hist.filter(x => (x?.type || '') && (x?.type || '') !== 'sponsorship');
+    const sponsCount = spons.length;
+    const sponsTotal = spons.reduce((a, x) => a + (Number(x?.amount ?? 0) || 0), 0);
+    const lastSponsDate = spons.length ? String(spons.map(x => x?.date || '').sort().slice(-1)[0] || '') : '';
+    const otherCount = other.length;
+    const otherTotal = other.reduce((a, x) => a + (Number(x?.amount ?? 0) || 0), 0);
+    casesRows.push([
+      String(c.caseNo ?? ''),
+      String(c.familyHead ?? ''),
+      String(c.id ?? ''),
+      String(c.governorate ?? ''),
+      String(c.area ?? ''),
+      String(c.category ?? ''),
+      String(c.status ?? ''),
+      String(c.urgency ?? ''),
+      String(c.caseGrade ?? ''),
+      String(c.date ?? ''),
+      String(c.estimatedAmount ?? ''),
+      String(c.deliveredAmount ?? ''),
+      String(needOf(c)),
+      String(sponsCount),
+      String(sponsTotal),
+      String(lastSponsDate),
+      String(otherCount),
+      String(otherTotal)
+    ]);
+  });
+
+  const assists = flattenAssistanceInRange_(list, range);
+  const assistsHeaders = ['رقم الحالة', 'الرقم القومي', 'اسم الحالة', 'المحافظة', 'المنطقة', 'النوع', 'التاريخ', 'المبلغ', 'بواسطة', 'ملاحظات'];
+  const assistsRows = [assistsHeaders];
+  assists.forEach(x => {
+    assistsRows.push([
+      String(x.caseNo ?? ''),
+      String(x.caseId ?? ''),
+      String(x.familyHead ?? ''),
+      String(x.governorate ?? ''),
+      String(x.area ?? ''),
+      String(x.type ?? ''),
+      String(x.date ?? ''),
+      String(x.amount ?? ''),
+      String(x.by ?? ''),
+      String(x.notes ?? '')
+    ]);
+  });
+
+  const fname = `reports-${new Date().toISOString().slice(0, 10)}.xlsx`;
+  try {
+    if (!window.XLSX) throw new Error('XLSX missing');
+    const wb = window.XLSX.utils.book_new();
+    const ws1 = window.XLSX.utils.aoa_to_sheet(casesRows);
+    ws1['!sheetViews'] = [{ rightToLeft: true }];
+    window.XLSX.utils.book_append_sheet(wb, ws1, 'Cases');
+    const ws2 = window.XLSX.utils.aoa_to_sheet(assistsRows);
+    ws2['!sheetViews'] = [{ rightToLeft: true }];
+    window.XLSX.utils.book_append_sheet(wb, ws2, 'Assistance');
+    wb.Workbook = wb.Workbook || {};
+    wb.Workbook.Views = [{ RTL: true }];
+    window.XLSX.writeFile(wb, fname);
+    try { logAction('تصدير تقرير Excel', '', `range: ${range.label} | cases: ${list.length} | assists: ${assists.length}`); } catch { }
+    return;
+  } catch {
+    alert('تعذر تصدير Excel (XLSX غير متاح)');
+  }
+}
+
+function captureReportsScreenshot() {
+  try {
+    const wrap = document.getElementById('reportPreview');
+    if (!wrap) { alert('تعذر العثور على محتوى التقرير'); return; }
+    if (!window.html2canvas) { alert('تعذر إنشاء لقطة شاشة (html2canvas غير محمّل).'); return; }
+
+    const temp = document.createElement('div');
+    temp.style.position = 'fixed';
+    temp.style.left = '-9999px';
+    temp.style.top = '0';
+    temp.style.width = '1200px';
+    temp.style.background = '#ffffff';
+    const cloned = wrap.cloneNode(true);
+    temp.appendChild(cloned);
+    document.body.appendChild(temp);
+
+    window.html2canvas(temp, { backgroundColor: '#ffffff', scale: 2 }).then(canvas => {
+      const url = canvas.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `report-${new Date().toISOString().slice(0, 10)}.png`;
+      a.click();
+      try { temp.remove(); } catch { }
+      try { logAction('لقطة شاشة للتقرير', '', ''); } catch { }
+    }).catch(() => {
+      try { temp.remove(); } catch { }
+      alert('تعذر إنشاء لقطة شاشة');
+    });
+  } catch {
+    alert('تعذر إنشاء لقطة شاشة');
+  }
+}
+
+function exportReportsToWord() {
+  try {
+    const host = document.getElementById('reportPreview');
+    if (!host) { alert('تعذر العثور على محتوى التقرير'); return; }
+    const range = getReportsRange_();
+    const title = range?.active ? `تقرير الفترة: ${range.label}` : 'تقرير شامل';
+    const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${escapeHtml(title)}</title></head><body><h2>${escapeHtml(title)}</h2>${host.innerHTML}</body></html>`;
+    const blob = new Blob([html], { type: 'application/msword;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `report-${new Date().toISOString().slice(0, 10)}.doc`;
+    a.click();
+    URL.revokeObjectURL(url);
+    try { logAction('تصدير تقرير Word', '', `range: ${range.label}`); } catch { }
+  } catch {
+    alert('تعذر تصدير Word');
+  }
 }
 function exportToCSV() {
   const headers = ['رقم الحالة', 'الرقم القومي', 'اسم رب الأسرة', 'الهاتف', 'العنوان', 'المحافظة', 'المنطقة', 'عدد الأفراد', 'الفئة', 'الاستعجال', 'الوصف', 'المستكشف', 'التاريخ', 'حالة الطلب', 'عمل الأب', 'عمل الأم', 'المرضي', 'احتياجاتهم (مختصر)', 'إجمالي الدخل', 'المستشفى', 'الطبيب', 'التقرير الطبي', 'التكلفة الطبية التقديرية', 'مبلغ تقديري', 'مبلغ منفذ', 'مصدر التمويل', 'وسوم', 'الحالات الطبية'];
@@ -5721,13 +6921,16 @@ function openCaseDetails(id, mode) {
       ${importSection}
     `;
     const paymentsHtml = renderPaymentsTabHtml_(it);
+    const logHtml = `<div id="casePanelChangeLog" class="hidden" style="grid-column:1/-1"><div style="color:#64748b">اختر تبويب السجل لعرض التغييرات.</div></div>`;
     body.innerHTML = `
       <div style="grid-column:1/-1;display:flex;gap:8px;justify-content:flex-start;flex-wrap:wrap;margin-bottom:10px">
         <button id="caseTabDetails" type="button" class="btn" onclick="setCaseDetailsTab('details')">تفاصيل الحالة</button>
         <button id="caseTabPayments" type="button" class="btn light" onclick="setCaseDetailsTab('payments')" style="color:#1f2937;border-color:#e5e7eb">المدفوعات/المساعدات</button>
+        <button id="caseTabChangeLog" type="button" class="btn light" onclick="setCaseDetailsTab('changelog')" style="color:#1f2937;border-color:#e5e7eb">سجل التغييرات</button>
       </div>
       <div id="casePanelDetails" style="grid-column:1/-1">${detailsHtml}</div>
       <div id="casePanelPayments" class="hidden" style="grid-column:1/-1">${paymentsHtml}</div>
+      ${logHtml}
     `;
     try { setCaseDetailsTab(AppState.caseDetailsTab || 'details'); } catch { }
   } else {
@@ -5856,13 +7059,16 @@ function openCaseDetails(id, mode) {
   `;
 
   const paymentsHtml = renderPaymentsTabHtml_(it);
+  const logHtml = `<div id="casePanelChangeLog" class="hidden" style="grid-column:1/-1"><div style="color:#64748b">اختر تبويب السجل لعرض التغييرات.</div></div>`;
   body.innerHTML = `
     <div style="grid-column:1/-1;display:flex;gap:8px;justify-content:flex-start;flex-wrap:wrap;margin-bottom:10px">
       <button id="caseTabDetails" type="button" class="btn" onclick="setCaseDetailsTab('details')">تفاصيل الحالة</button>
       <button id="caseTabPayments" type="button" class="btn light" onclick="setCaseDetailsTab('payments')" style="color:#1f2937;border-color:#e5e7eb">المدفوعات/المساعدات</button>
+      <button id="caseTabChangeLog" type="button" class="btn light" onclick="setCaseDetailsTab('changelog')" style="color:#1f2937;border-color:#e5e7eb">سجل التغييرات</button>
     </div>
     <div id="casePanelDetails" class="grid cols-2" style="grid-column:1/-1">${detailsFormHtml}</div>
     <div id="casePanelPayments" class="hidden" style="grid-column:1/-1">${paymentsHtml}</div>
+    ${logHtml}
   `;
 
   const existing = Array.isArray(it.medicalCases) ? it.medicalCases : [];
@@ -6224,6 +7430,15 @@ function saveCaseEdits() {
     researcherReport: q('d_researcherReport')?.value || '',
     medicalCases
   };
+
+  // build diff BEFORE mutating `it`
+  let diffMsg = 'تم تعديل البيانات';
+  try {
+    const before = (AppState.caseDetailsOriginal && typeof AppState.caseDetailsOriginal === 'object') ? AppState.caseDetailsOriginal : old;
+    const parts = buildCaseDiffText_(before, updated);
+    if (Array.isArray(parts) && parts.length) diffMsg = parts.slice(0, 40).join(' | ');
+  } catch { }
+
   Object.assign(it, updated);
   try { AppState.caseDetailsDirty = false; } catch { }
   try { AppState.caseDetailsMode = 'view'; } catch { }
@@ -6231,7 +7446,7 @@ function saveCaseEdits() {
   try { void upsertCaseToDb(it); } catch { }
   renderCasesTable(); updateDashboardStats(); generateReportPreview();
   try { updateNavBadges(); } catch { }
-  logAction('تعديل حالة', it.id, 'تم تعديل البيانات');
+  try { logAction('تعديل حالة', it.id, diffMsg); } catch { logAction('تعديل حالة', it.id, 'تم تعديل البيانات'); }
   closeCaseDetails();
   alert('تم حفظ التعديلات');
 }
@@ -6872,8 +8087,38 @@ async function prefillUser(usernameKey) {
   document.getElementById('userMgmtName').value = p.full_name || '';
   const act = document.getElementById('userMgmtIsActive');
   if (act) act.checked = (p.is_active !== false);
-  try { buildUserPermissionsUi_(p.permissions || {}); } catch { }
+  try {
+    const perms = p.permissions || {};
+    const role = getUserRoleFromPermissions_(perms);
+    const roleSel = document.getElementById('userMgmtRole');
+    if (roleSel) roleSel.value = role || 'custom';
+    buildUserPermissionsUi_(getEffectivePermissions_(perms));
+    try { syncUserMgmtRoleLockUi_(); } catch { }
+  } catch { }
   try { syncSettingsPermissionsUi_(); } catch { }
+}
+
+function syncUserMgmtRoleLockUi_() {
+  const role = (document.getElementById('userMgmtRole')?.value || 'custom').toString();
+  const host = document.getElementById('userMgmtPermissions');
+  if (!host) return;
+  const boxes = Array.from(host.querySelectorAll('input.perm-box'));
+  if (role && role !== 'custom') {
+    const preset = getRolePresetPermissions_(role);
+    boxes.forEach(b => {
+      const k = (b.getAttribute('data-perm') || '').toString();
+      if (!k) return;
+      b.checked = !!preset[k];
+      b.disabled = true;
+    });
+  } else {
+    boxes.forEach(b => { b.disabled = false; });
+  }
+}
+
+function onUserMgmtRoleChange_() {
+  try { syncUserMgmtRoleLockUi_(); } catch { }
+  try { void saveUserMgmtForm_(true); } catch { }
 }
 
 async function addOrUpdateUser() {
@@ -6884,7 +8129,12 @@ async function addOrUpdateUser() {
   if (!uname) { alert('اسم المستخدم مطلوب'); return; }
 
   const isActive = !!document.getElementById('userMgmtIsActive')?.checked;
-  const permissions = readUserPermissionsUi_();
+  const role = (document.getElementById('userMgmtRole')?.value || 'custom').toString().trim() || 'custom';
+  let permissions = readUserPermissionsUi_();
+  try { permissions.__role = role; } catch { }
+  if (role && role !== 'custom') {
+    permissions = { ...getRolePresetPermissions_(role), ...permissions, __role: role };
+  }
 
   const { data: existing, error: exErr } = await SupabaseClient
     .from('profiles')
@@ -6911,6 +8161,8 @@ async function addOrUpdateUser() {
   try {
     const afterPerms = permissions && typeof permissions === 'object' ? permissions : {};
     const beforePerms = before.permissions || {};
+    const beforeRole = getUserRoleFromPermissions_(beforePerms);
+    const afterRole = getUserRoleFromPermissions_(afterPerms);
     const allKeys = new Set([...(Object.keys(beforePerms)), ...(Object.keys(afterPerms))]);
     const added = [];
     const removed = [];
@@ -6923,6 +8175,7 @@ async function addOrUpdateUser() {
     const parts = [];
     if (before.full_name !== name) parts.push(`الاسم: "${before.full_name}" → "${name}"`);
     if (before.is_active !== isActive) parts.push(`الحالة: ${before.is_active ? 'مفعل' : 'معطل'} → ${isActive ? 'مفعل' : 'معطل'}`);
+    if (beforeRole !== afterRole) parts.push(`الدور: ${beforeRole} → ${afterRole}`);
     if (added.length) parts.push(`صلاحيات مضافة: ${added.join(', ')}`);
     if (removed.length) parts.push(`صلاحيات محذوفة: ${removed.join(', ')}`);
     await logAction('تحديث صلاحيات/مستخدم', '', `target: ${uname} | ${parts.join(' | ')}`);
@@ -6930,6 +8183,14 @@ async function addOrUpdateUser() {
   try { await renderUsersList(); } catch { }
   alert('تم حفظ المستخدم');
 }
+
+try {
+  const roleSel = document.getElementById('userMgmtRole');
+  if (roleSel && !roleSel.getAttribute('data-wired')) {
+    roleSel.setAttribute('data-wired', '1');
+    roleSel.addEventListener('change', onUserMgmtRoleChange_);
+  }
+} catch { }
 
 async function generateResetPasswordLinkForSelectedUser() {
   if (!SupabaseClient) { alert('تعذر الاتصال بقاعدة البيانات'); return; }
@@ -6970,7 +8231,98 @@ function sendUpdateCaseToSheets(c) {
   postWithRetry(url, payload, 2).catch(() => enqueue({ type: 'updateCase', payload }));
 }
 function exportToExcel() { exportToCSV() }
-function printReport() { window.print() }
+async function printReport() {
+  try { generateReportPreview(); } catch { }
+
+  const dash = document.getElementById('reportsDashWrap');
+  const pre = document.getElementById('reportPreview');
+  if (!dash && !pre) { try { window.print(); } catch { } return; }
+
+  const clone = document.createElement('div');
+  clone.dir = 'rtl';
+  clone.style.fontFamily = 'Tajawal, sans-serif';
+  clone.style.padding = '12px';
+
+  try {
+    if (dash) clone.appendChild(dash.cloneNode(true));
+    if (pre) {
+      const preClone = pre.cloneNode(true);
+      try { preClone.style.marginTop = '12px'; } catch { }
+      clone.appendChild(preClone);
+    }
+  } catch { }
+
+  // Convert canvases to images so charts appear in print/PDF
+  try {
+    const canvases = Array.from(clone.querySelectorAll('canvas'));
+    canvases.forEach((cv) => {
+      try {
+        const original = document.getElementById(cv.id);
+        if (!original) return;
+        const dataUrl = original.toDataURL('image/png', 1.0);
+        if (!dataUrl) return;
+        const img = document.createElement('img');
+        img.src = dataUrl;
+        img.style.maxWidth = '100%';
+        img.style.height = 'auto';
+        img.alt = '';
+        cv.replaceWith(img);
+      } catch { }
+    });
+  } catch { }
+
+  let w = null;
+  try { w = window.open('', '_blank'); } catch { w = null; }
+  if (!w) { try { window.print(); } catch { } return; }
+
+  const cssHref = (() => {
+    try {
+      const link = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+        .find(x => (x.getAttribute('href') || '').includes('assets/css/style.css'));
+      return link ? link.href : '';
+    } catch { return ''; }
+  })();
+
+  const html = `<!doctype html>
+  <html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>طباعة التقرير</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    ${cssHref ? `<link rel="stylesheet" href="${cssHref}">` : ''}
+    <style>
+      body{background:#fff;margin:0;padding:0}
+      .header,.nav{display:none !important}
+      .section{box-shadow:none !important}
+      @page{margin:12mm}
+    </style>
+  </head>
+  <body></body>
+  </html>`;
+
+  try {
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+  } catch {
+    try { w.close(); } catch { }
+    try { window.print(); } catch { }
+    return;
+  }
+
+  try {
+    w.document.body.appendChild(clone);
+  } catch { }
+
+  try {
+    setTimeout(() => {
+      try { w.focus(); } catch { }
+      try { w.print(); } catch { }
+      try { w.close(); } catch { }
+    }, 250);
+  } catch { }
+}
 
 function addDetailsMedicalRow(row, disAttr) {
   const tb = document.getElementById('d_medicalBody');
