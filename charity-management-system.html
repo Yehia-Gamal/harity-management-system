@@ -119,6 +119,7 @@
               <span id="casesMedicalBadge" class="mini-badge ok hidden">طبي 0</span>
             </span>
           </button>
+          <button id="medicalCommitteeBtn" class="nav-btn" type="button" onclick="openMedicalCommittee()">🩺 لجنة العمليات الطبية</button>
           <button id="dashboardBtn" class="nav-btn" type="button" onclick="showSection('dashboard')">📊 الإحصائيات</button>
           <button id="reportsBtn" class="nav-btn" type="button" onclick="showSection('reports')">📈 التقارير</button>
           <button id="auditBtn" class="nav-btn" type="button" onclick="showSection('audit')">🧾 سجل الإجراءات</button>
@@ -253,6 +254,15 @@
             <button class="close-btn" type="button" onclick="closeUserPermissionsModal()">×</button>
           </div>
           <div id="userPermMeta" style="color:#64748b">—</div>
+          <div class="preset-actions" style="margin-top:10px">
+            <button type="button" class="btn mini" onclick="applyPermPresetModal_('explorer')">قالب مستكشف</button>
+            <button type="button" class="btn mini" onclick="applyPermPresetModal_('manager')">قالب مدير</button>
+            <button type="button" class="btn mini" onclick="applyPermPresetModal_('super_admin')">قالب مدير رئيسي</button>
+            <button type="button" class="btn mini" onclick="applyPermPresetModal_('doctor')">قالب دكتور</button>
+            <button type="button" class="btn mini" onclick="applyPermPresetModal_('hidden_super_admin')">قالب سوبر أدمن خفي</button>
+            <button type="button" class="btn mini light" onclick="setAllPermsModalUi_(true)" style="color:#1f2937;border-color:#e5e7eb">تحديد الكل</button>
+            <button type="button" class="btn mini light" onclick="setAllPermsModalUi_(false)" style="color:#1f2937;border-color:#e5e7eb">إلغاء الكل</button>
+          </div>
           <div id="userPermPermissions" class="perms-grid" style="margin-top:10px"></div>
           <div style="display:flex;gap:8px;justify-content:flex-start;margin-top:12px;flex-wrap:wrap">
             <button id="userPermSaveBtn" type="button" class="btn" onclick="saveUserPermissions_()">حفظ الإعدادات</button>
@@ -953,13 +963,13 @@
                   <div class="settings-card-subtitle">تعديل الاسم، الحالة، والصلاحيات</div>
                 </div>
               </div>
-              <div class="settings-card-body">
+              <div class="settings-card-body" style="display:none">
                 <div id="userMgmtReadonlyHint" class="settings-hint" style="display:none;margin-top:0;margin-bottom:10px"></div>
                 <form onsubmit="return false" autocomplete="on">
                   <div class="grid cols-2">
                     <div class="form-group"><label class="label">اسم المستخدم</label><input id="userMgmtUsername" class="control" placeholder="مثال: explorer2"></div>
                     <div class="form-group"><label class="label">الاسم</label><input id="userMgmtName" class="control" placeholder="الاسم للعرض"></div>
-                    <div class="form-group"><label class="label">الدور (Role)</label>
+                    <div class="form-group" style="display:none"><label class="label">الدور (Role)</label>
                       <select id="userMgmtRole" class="control" onchange="saveUserMgmtForm_(true)">
                         <option value="admin">إدارة (Admin)</option>
                         <option value="supervisor">مشرف (Supervisor)</option>
@@ -977,7 +987,7 @@
                     </div>
                   </div>
 
-                <div class="settings-card" style="box-shadow:none;border:1px solid #e5e7eb;margin-top:10px">
+                <div class="settings-card" style="box-shadow:none;border:1px solid #e5e7eb;margin-top:10px;display:none">
                   <div class="settings-card-header" style="padding:12px">
                     <div>
                       <h3 style="font-size:1rem">الصلاحيات</h3>
