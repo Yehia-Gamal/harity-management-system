@@ -1014,7 +1014,9 @@ body.modal-open {
 }
 
 .modal.show {
-    display: flex
+    display: flex;
+    width: 100%;
+    height: 100%;
 }
 
 .modal-card {
@@ -1025,7 +1027,8 @@ body.modal-open {
     max-width: 520px;
     padding: 18px;
     max-height: calc(100vh - 28px);
-    overflow: auto
+    overflow: auto;
+    margin: auto;
 }
 
 @media (max-width:768px) {
@@ -1058,8 +1061,8 @@ body.modal-open {
 
 @media (max-width:420px) {
     .modal-card {
-        width: 98vw !important;
-        max-width: 98vw !important;
+        width: 85vw !important;
+        max-width: 85vw !important;
         padding: 10px;
         border-radius: 16px
     }
@@ -1087,18 +1090,23 @@ body.modal-open {
 .close-btn {
     background: transparent;
     border: none;
-    font-size: 22px;
+    font-size: 30px;
     cursor: pointer;
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
     display: inline-flex;
     align-items: center;
-    justify-content: center
+    justify-content: center;
+    border: 2px red solid;
+    color: #fff;
+    background-color: #ff00008c;
 }
 
 .close-btn:hover {
-    background: #f3f4f6
+    background: #f3f4f6;
+    color: red;
+
 }
 
 #editPaymentModal {
@@ -1109,14 +1117,16 @@ body.modal-open {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    padding: 16px
+    padding: 16px;
+    height: 70%;
+    width: 80%;
 }
 
 @media (max-width:768px) {
     #caseDetailsModal .modal-card {
         padding: 12px;
-        max-height: calc(100dvh - 20px);
-        height: calc(100dvh - 20px)
+        max-height: calc(75dvh - 20px);
+        height: calc(75dvh - 20px);
     }
 
     #caseDetailsModal .modal-footer-actions {
@@ -1246,11 +1256,16 @@ body.modal-open {
     }
 }
 
+
 #caseDetailsModal #caseDetailsBody {
     flex: 1;
     min-height: 0;
     overflow: auto;
     padding-bottom: 10px
+}
+
+.caseDetailsBodyBtnAdd {
+    display: block !important;
 }
 
 #caseDetailsModal .modal-footer-actions {
@@ -1288,12 +1303,20 @@ body.modal-open {
 
 @media (max-width:420px) {
     #caseDetailsModal .modal-footer-actions {
-        gap: 8px
+        gap: 8px;
+        padding: 0;
     }
 
     #caseDetailsModal .modal-footer-actions .btn {
         width: 100%
     }
+}
+
+
+.modal-footer-actions.descpr {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
 }
 
 /* Cases cards */
@@ -1768,6 +1791,7 @@ section#newCaseSection h2 {
     color: #ed143d;
 }
 
+
 @media (max-width:768px) {
     .container {
         padding: 0 12px
@@ -1903,7 +1927,9 @@ section#newCaseSection h2 {
     }
 
     .modal {
-        padding: 10px
+        padding: 10px;
+        width: 90%;
+        margin: auto;
     }
 
     .modal-card {
@@ -2108,6 +2134,14 @@ section#newCaseSection h2 {
         gap: 6px !important;
         padding: 8px !important
     }
+
+    .modal-footer-actions #printCaseBtn {
+        display: none !important;
+    }
+
+    #caseDetailsModal .modal-footer-actions .btn {
+        width: fit-content;
+    }
 }
 
 @media (max-width:420px) {
@@ -2215,5 +2249,31 @@ section#newCaseSection h2 {
         grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)) !important;
         gap: 4px !important;
         padding: 6px !important
+    }
+}
+
+.modal-footer-actions-2 {
+    width: fit-content;
+}
+
+
+@media (max-width:320px) {
+    #caseDetailsModal .modal-footer-actions {
+        gap: 8px;
+        padding: 0;
+    }
+
+    #caseDetailsModal .modal-footer-actions .btn {
+        width: 100%;
+    }
+
+    .modal-footer-actions.descpr {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+
+    .modal-footer-actions-2 {
+        width: 100%;
     }
 }

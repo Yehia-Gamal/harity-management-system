@@ -1496,6 +1496,18 @@ async function getMyProfile() {
   return out;
 }
 
+async function getMyAuthUserId_() {
+  if (!SupabaseClient) return null;
+  try {
+    const { data: auth, error } = await runAuthOp_(() => SupabaseClient.auth.getUser());
+    if (error) return null;
+    const id = auth?.user?.id;
+    return id ? String(id) : null;
+  } catch {
+    return null;
+  }
+}
+
 function clearMyProfileCache_() {
   try { delete AppState._myProfileCache; } catch { }
 }
@@ -1594,12 +1606,13 @@ async function upsertCaseToDb(caseObj) {
   if (!SupabaseClient) throw new Error('Supabase not configured');
   if (!caseObj || !caseObj.id) throw new Error('Missing case id');
   const prof = await getMyProfile();
+  const actorId = (prof?.id || (await getMyAuthUserId_()) || null);
   const now = new Date().toISOString();
   const row = {
     id: String(caseObj.id),
     data: caseObj,
-    created_by: prof?.id || null,
-    updated_by: prof?.id || null,
+    created_by: actorId,
+    updated_by: actorId,
     updated_at: now
   };
   const { data, error } = await SupabaseClient.from('cases').upsert(row).select('id,data,updated_at');
@@ -6994,7 +7007,7 @@ function openCaseDetails(id, mode) {
     };
 
     const isDefaultMissing = (v) => (v ?? '').toString().trim() === 'غير محدد';
-    const coreIdentity = `<div style="grid-column:1/-1">${viewSection('القسم 1: بيانات أساسية', [
+    const coreIdentity = `<div style="grid-column:1/-1">${viewSection('بيانات أساسية', [
       viewBox('رقم الحالة', it.caseNo ?? ''),
       viewBox('اسم الحالة', it.familyHead || ''),
       viewBox('الرقم القومي', it.id || ''),
@@ -7007,13 +7020,13 @@ function openCaseDetails(id, mode) {
       viewBox('تقييم الحالة', normalizeCaseGrade_(it.caseGrade || ''))
     ].join(''))}</div>`;
 
-    const adminClassify = `<div style="grid-column:1/-1">${viewSection('القسم 2: التصنيف الإداري', [
+    const adminClassify = `<div style="grid-column:1/-1">${viewSection('التصنيف الإداري', [
       viewBox('نوع الحالة', it.category || ''),
-      viewBox('أولوية الحالة', it.urgency || ''),
-      viewBox('حالة الطلب', it.status || '')
+      //viewBox('أولوية الحالة', it.urgency || ''),
+      //viewBox('حالة الطلب', it.status || '')
     ].join(''))}</div>`;
 
-    const incomeExpensesHtml = `<div style="grid-column:1/-1">${viewSection('القسم 3: الدخل والمصروفات', [
+    const incomeExpensesHtml = `<div style="grid-column:1/-1">${viewSection('الدخل والمصروفات', [
       viewBox('إجمالي الدخل', income.total ?? ''),
       viewBox('ملاحظات الدخل', income.notes || ''),
       viewBox('إجمالي المصروفات', expenses.total ?? ''),
@@ -7021,7 +7034,7 @@ function openCaseDetails(id, mode) {
       viewBox('صافي شهري', it.netMonthly ?? '')
     ].join(''))}</div>`;
 
-    const housingHtml = `<div style="grid-column:1/-1">${viewSection('القسم 5: السكن', [
+    const housingHtml = `<div style="grid-column:1/-1">${viewSection('السكن', [
       viewBox('عدد الغرف', housing.roomsCount ?? ''),
       viewBox('نوع السقف', housing.roofExists || ''),
       viewBox('مياه', housing.waterExists || ''),
@@ -7031,7 +7044,7 @@ function openCaseDetails(id, mode) {
     ].join(''))}</div>`;
 
     const hasDebts = !!debts.enabled || !!(debts.amount ?? '') || !!(debts.owner || '').toString().trim() || !!(debts.reason || '').toString().trim() || !!(debts.hasCourtOrder || '').toString().trim();
-    const debtsHtml = `<div style="grid-column:1/-1">${viewSection('القسم 6: الديون', [
+    const debtsHtml = `<div style="grid-column:1/-1">${viewSection('الديون', [
       viewBox('قيمة الدين', debts.amount ?? ''),
       viewBox('سبب الدين', debts.reason || ''),
       viewBox('جهة الدين', debts.owner || ''),
@@ -7040,7 +7053,7 @@ function openCaseDetails(id, mode) {
     ].join(''))}</div>`;
 
     const medicalCases = Array.isArray(it.medicalCases) ? it.medicalCases : [];
-    const medicalHtml = `<div style="grid-column:1/-1">${viewSection('القسم 7: الجانب الطبي', medicalCases.length
+    const medicalHtml = `<div style="grid-column:1/-1">${viewSection('الجانب الطبي', medicalCases.length
       ? medicalCases.map((m, i) => viewBox(`حالة طبية #${i + 1}`, [
         `الاسم: ${m?.name || ''}`,
         `نوع المرض: ${m?.diseaseType || ''}`,
@@ -7051,12 +7064,12 @@ function openCaseDetails(id, mode) {
       ].filter(Boolean).join('\n'))).join('')
       : viewBox('لا توجد بيانات طبية', '—'))}</div>`;
 
-    const needsHtml = `<div style="grid-column:1/-1">${viewSection('القسم 8: الاحتياجات', [
+    const needsHtml = `<div style="grid-column:1/-1">${viewSection('الاحتياجات', [
       viewBox('احتياجات مصنفة', it.category || ''),
       viewBox('وصف احتياجات إضافي', [it.needsShort || '', it.familyNeeds || ''].filter(Boolean).join('\n'))
     ].join(''))}</div>`;
 
-    const reportHtml = `<div style="grid-column:1/-1">${viewSection('القسم 9: تقرير الباحث', [
+    const reportHtml = `<div style="grid-column:1/-1">${viewSection('تقرير الباحث', [
       viewBox('ملخص الحالة', it.description || ''),
       viewBox('التوصية النهائية', ''),
       viewBox('سبب التوصية', ''),
@@ -7082,7 +7095,7 @@ function openCaseDetails(id, mode) {
     const paymentsHtml = renderPaymentsTabHtml_(it);
     const logHtml = `<div id="casePanelChangeLog" class="hidden" style="grid-column:1/-1"><div style="color:#64748b">اختر تبويب السجل لعرض التغييرات.</div></div>`;
     body.innerHTML = `
-      <div style="grid-column:1/-1;display:flex;gap:8px;justify-content:flex-start;flex-wrap:wrap;margin-bottom:10px">
+      <div  class="caseDetailsBodyBtnAdd" style="grid-column:1/-1;display:flex;gap:8px;justify-content:flex-start;flex-wrap:wrap;margin-bottom:10px">
         <button id="caseTabDetails" type="button" class="btn" onclick="setCaseDetailsTab('details')">تفاصيل الحالة</button>
         <button id="caseTabPayments" type="button" class="btn light" onclick="setCaseDetailsTab('payments')" style="color:#1f2937;border-color:#e5e7eb">المدفوعات/المساعدات</button>
         <button id="caseTabChangeLog" type="button" class="btn light" onclick="setCaseDetailsTab('changelog')" style="color:#1f2937;border-color:#e5e7eb">سجل التغييرات</button>

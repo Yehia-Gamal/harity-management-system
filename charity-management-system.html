@@ -229,18 +229,20 @@
             <button class="close-btn" type="button" onclick="closeCaseDetails()">×</button>
           </div>
           <div id="caseDetailsBody" class="grid cols-2"></div>
-          <div class="modal-footer-actions">
-            <button id="printCaseBtn" type="button" class="btn light" onclick="onCaseDetailsPrintClick()"
-              style="color:#1f2937;border-color:#e5e7eb">🖨️ طباعة</button>
-            <button id="caseDetailsScreenshotBtn" type="button" class="btn light"
-              onclick="captureCaseDetailsScreenshot()" style="color:#1f2937;border-color:#e5e7eb">📸 لقطة شاشة</button>
-            <button id="paymentsScreenshotBtn" type="button" class="btn light hidden"
-              onclick="capturePaymentsScreenshot()" style="color:#1f2937;border-color:#e5e7eb">📸 لقطة شاشة</button>
-            <button id="caseEditToggleBtn" type="button" class="btn" onclick="toggleCaseEditSave()">✏️ تعديل</button>
+          <div class="modal-footer-actions descpr">
+            <div class="modal-footer-actions-2">
+              <button id="printCaseBtn" type="button" class="btn light" onclick="onCaseDetailsPrintClick()"
+                style="color:#1f2937;border-color:#e5e7eb">🖨️ طباعة</button>
+              <button id="caseDetailsScreenshotBtn" type="button" class="btn light"
+                onclick="captureCaseDetailsScreenshot()" style="color:#1f2937;border-color:#e5e7eb">📸 لقطة
+                شاشة</button>
+              <button id="paymentsScreenshotBtn" type="button" class="btn light hidden"
+                onclick="capturePaymentsScreenshot()" style="color:#1f2937;border-color:#e5e7eb">📸 لقطة شاشة</button>
+              <button id="caseEditToggleBtn" type="button" class="btn" onclick="toggleCaseEditSave()">✏️ تعديل</button>
+            </div>
             <button id="deleteCaseBtn" type="button" class="btn" onclick="deleteCurrentCase()"
               style="background:#dc2626">🗑️ حذف الحالة</button>
-            <button type="button" class="btn light" onclick="closeCaseDetails()"
-              style="color:#1f2937;border-color:#e5e7eb">إغلاق</button>
+
           </div>
         </div>
       </div>
@@ -256,7 +258,7 @@
                 id="userActionsEmail" class="control" disabled></div>
             <div class="form-group" style="grid-column:1/-1"><label class="label">(userName)</label><input
                 id="userActionsUsername" class="control" disabled></div>
-            
+
             <div class="form-group" style="grid-column:1/-1"><label class="label">الحالة</label>
               <div id="userActionsStatus" style="color:#64748b">—</div>
             </div>
