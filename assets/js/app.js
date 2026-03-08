@@ -401,7 +401,7 @@ function renderNewCaseForm_() {
 
   host.innerHTML = `
     <div class="grid cols-2">
-      <div class="form-group"><label class="label">رقم الحالة</label><input id="d_caseNo" class="control" disabled style="width:58px;height:58px;border-radius:999px;text-align:center;font-weight:900;padding:0"></div>
+      <div class="form-group ScaseNo"><label class="label">رقم الحالة</label><input id="d_caseNo" class="control" disabled style="width:58px;height:58px;border-radius:999px;text-align:center;font-weight:900;padding:0"></div>
       <div class="form-group">
         <div class="grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
           <div class="form-group"><label class="label">إضافة اسم المستكشف</label><input id="d_explorerName" class="control" style="max-width:200px"></div>

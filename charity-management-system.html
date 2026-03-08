@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,15 +9,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css?v=20260305_1325">
 </head>
+
 <body>
   <!-- Login -->
   <div id="loginScreen" class="auth">
     <div class="container">
+      <h2 class="loginScreen-h2">جمعية خواطر أحلى شباب</h2>
+
       <div class="card">
         <div style="text-align:center;margin-bottom:12px">
-          <img src="assets/images/logo.png" alt="لوجو جمعية خواطر أحلى شباب" style="max-width:120px;margin:0 auto 10px;display:block;border-radius:8px;" />
+          <img src="assets/images/logo.png" alt="لوجو جمعية خواطر أحلى شباب"
+            style="max-width:120px;margin:0 auto 10px;display:block;border-radius:8px;" />
           <h2>لجنة أسرة كريمة</h2>
-          <div>جمعية خواطر أحلى شباب</div>
         </div>
         <form id="loginForm">
           <div class="form-group">
@@ -27,14 +31,9 @@
             <label class="label" for="password">كلمة المرور</label>
             <div class="password-field">
               <input id="password" type="password" class="control" autocomplete="current-password" required />
-              <button class="pw-toggle" type="button" data-pw-target="password" aria-label="إظهار كلمة المرور">👁</button>
+              <button class="pw-toggle" type="button" data-pw-target="password"
+                aria-label="إظهار كلمة المرور">👁</button>
             </div>
-          </div>
-          <div class="form-group" style="margin-top:-6px">
-            <label style="display:flex;align-items:center;gap:10px;padding:6px 10px;border:1px solid #e5e7eb;border-radius:10px;background:#f8fafc">
-              <input id="rememberMe" type="checkbox" style="width:18px;height:18px" />
-              <span style="font-weight:700">تذكرني</span>
-            </label>
           </div>
           <div class="form-group" style="display:none">
             <label class="label" for="role">نوع المستخدم</label>
@@ -48,10 +47,14 @@
             </select>
           </div>
           <button class="btn" type="submit" style="width:100%">تسجيل الدخول</button>
-          <button id="forgotPasswordBtn" class="btn light" type="button" style="display:none;width:100%;margin-top:8px;color:#1f2937;border-color:#e5e7eb">نسيت كلمة المرور؟</button>
+          <button id="forgotPasswordBtn" class="btn light" type="button"
+            style="display:none;width:100%;margin-top:8px;color:#1f2937;border-color:#e5e7eb">نسيت كلمة المرور؟</button>
         </form>
-        <div id="loginError" class="section hidden" style="margin-top:12px;background:#fee2e2;color:#991b1b">بيانات الدخول غير صحيحة</div>
-        <div id="loginHint" class="section hidden" style="margin-top:12px;background:#f8fafc;color:#334155;border:1px dashed #e5e7eb;border-radius:12px;padding:10px"></div>
+        <div id="loginError" class="section hidden" style="margin-top:12px;background:#fee2e2;color:#991b1b">بيانات
+          الدخول غير صحيحة</div>
+        <div id="loginHint" class="section hidden"
+          style="margin-top:12px;background:#f8fafc;color:#334155;border:1px dashed #e5e7eb;border-radius:12px;padding:10px">
+        </div>
       </div>
     </div>
   </div>
@@ -63,14 +66,24 @@
         <button class="close-btn" type="button" onclick="closeRecoveryPasswordModal()">×</button>
       </div>
       <form id="recoveryForm" onsubmit="applyRecoveryPassword_(); return false;">
-        <input type="text" name="username" autocomplete="username" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden" tabindex="-1">
+        <input type="text" name="username" autocomplete="username"
+          style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden" tabindex="-1">
         <div class="grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
-          <div class="form-group" style="grid-column:1/-1"><label class="label">كلمة المرور الجديدة</label><div class="password-field"><input id="recoveryNewPassword" type="password" class="control" autocomplete="new-password" placeholder="أدخل كلمة المرور الجديدة"><button class="pw-toggle" type="button" data-pw-target="recoveryNewPassword" aria-label="إظهار كلمة المرور">👁</button></div></div>
-          <div class="form-group" style="grid-column:1/-1"><label class="label">تأكيد كلمة المرور الجديدة</label><div class="password-field"><input id="recoveryNewPassword2" type="password" class="control" autocomplete="new-password" placeholder="أعد كتابة كلمة المرور الجديدة"><button class="pw-toggle" type="button" data-pw-target="recoveryNewPassword2" aria-label="إظهار كلمة المرور">👁</button></div></div>
+          <div class="form-group" style="grid-column:1/-1"><label class="label">كلمة المرور الجديدة</label>
+            <div class="password-field"><input id="recoveryNewPassword" type="password" class="control"
+                autocomplete="new-password" placeholder="أدخل كلمة المرور الجديدة"><button class="pw-toggle"
+                type="button" data-pw-target="recoveryNewPassword" aria-label="إظهار كلمة المرور">👁</button></div>
+          </div>
+          <div class="form-group" style="grid-column:1/-1"><label class="label">تأكيد كلمة المرور الجديدة</label>
+            <div class="password-field"><input id="recoveryNewPassword2" type="password" class="control"
+                autocomplete="new-password" placeholder="أعد كتابة كلمة المرور الجديدة"><button class="pw-toggle"
+                type="button" data-pw-target="recoveryNewPassword2" aria-label="إظهار كلمة المرور">👁</button></div>
+          </div>
         </div>
         <div style="display:flex;gap:8px;justify-content:flex-start;margin-top:10px;flex-wrap:wrap">
           <button id="recoverySaveBtn" type="submit" class="btn">حفظ كلمة المرور</button>
-          <button type="button" class="btn light" onclick="closeRecoveryPasswordModal()" style="color:#1f2937;border-color:#e5e7eb">إغلاق</button>
+          <button type="button" class="btn light" onclick="closeRecoveryPasswordModal()"
+            style="color:#1f2937;border-color:#e5e7eb">إغلاق</button>
         </div>
         <div id="recoveryHint" class="settings-hint" style="display:none;margin-top:10px"></div>
       </form>
@@ -82,49 +95,33 @@
     <header class="header">
       <div class="container">
         <div class="wrap">
+          <div class="logo"><span class="logo-text">لجنة أسرة كريمة</span></div>
           <div class="brand">
             <img class="brand-logo" src="assets/images/logo 2.png" alt="أحلى شباب" />
-          </div>
-          <div class="logo"><span class="logo-text">لجنة أسرة كريمة</span></div>
-          <div class="header-actions">
-            <button id="mobileNavToggle" class="btn light mobile-nav-toggle" type="button" onclick="toggleMobileNav()" aria-expanded="false" aria-controls="mainNavWrap" title="القائمة" style="color:#fff;border-color:rgba(255,255,255,.55)">
-              ☰
-            </button>
-            <div class="dropdown" id="userDropdown">
-              <button id="userMenuBtn" class="btn light" type="button">
-                <span id="userRole" style="display:none"></span>
-                <span id="userNameInline" style="margin-inline:8px"></span>
-                ⌄
-              </button>
-              <div id="userMenu" class="menu hidden" role="menu" aria-hidden="true">
-                <div class="menu-info">
-                  <div id="userMenuName" style="font-weight:700"></div>
-                  <div id="userMenuMeta" style="opacity:.85"></div>
-                </div>
-                <button id="userSettingsBtn" class="menu-item" type="button" onclick="showSection('settings')">⚙️ الإعدادات</button>
-                <button id="logoutBtn" class="menu-item" type="button">تسجيل الخروج</button>
-              </div>
-            </div>
           </div>
         </div>
 
         <div id="mainNavWrap" class="nav-wrap">
-        <nav class="nav" id="mainNav">
-          <button id="quickAddBtn" class="nav-btn cta" type="button" onclick="showSection('newCase')">➕ إضافة حالة</button>
-          <button id="navCasesBtn" class="nav-btn" type="button" onclick="showSection('casesList')">
-            📋 قائمة الحالات
-            <span class="nav-badges">
-              <span id="casesTotalBadge" class="mini-badge">0</span>
-              <span id="casesUrgentBadge" class="mini-badge warn hidden">عاجل 0</span>
-              <span id="casesMedicalBadge" class="mini-badge ok hidden">طبي 0</span>
-            </span>
-          </button>
-          <button id="medicalCommitteeBtn" class="nav-btn" type="button" onclick="openMedicalCommittee()">🩺 لجنة العمليات الطبية</button>
-          <button id="dashboardBtn" class="nav-btn" type="button" onclick="showSection('dashboard')">📊 الإحصائيات</button>
-          <button id="reportsBtn" class="nav-btn" type="button" onclick="showSection('reports')">📈 التقارير</button>
-          <button id="auditBtn" class="nav-btn" type="button" onclick="showSection('audit')">🧾 سجل الإجراءات</button>
-          <button id="settingsBtn" class="nav-btn" type="button" onclick="showSection('settings')">⚙️ الإعدادات</button>
-        </nav>
+          <nav class="nav" id="mainNav">
+            <button id="quickAddBtn" class="nav-btn cta" type="button" onclick="showSection('newCase')">➕ إضافة
+              حالة</button>
+            <button id="navCasesBtn" class="nav-btn" type="button" onclick="showSection('casesList')">
+              📋 قائمة الحالات
+              <span class="nav-badges">
+                <span id="casesTotalBadge" class="mini-badge">0</span>
+                <span id="casesUrgentBadge" class="mini-badge warn hidden">عاجل 0</span>
+                <span id="casesMedicalBadge" class="mini-badge ok hidden">طبي 0</span>
+              </span>
+            </button>
+            <button id="medicalCommitteeBtn" class="nav-btn" type="button" onclick="openMedicalCommittee()">🩺 لجنة
+              العمليات الطبية</button>
+            <button id="dashboardBtn" class="nav-btn" type="button" onclick="showSection('dashboard')">📊
+              الإحصائيات</button>
+            <button id="reportsBtn" class="nav-btn" type="button" onclick="showSection('reports')">📈 التقارير</button>
+            <button id="auditBtn" class="nav-btn" type="button" onclick="showSection('audit')">🧾 سجل الإجراءات</button>
+            <button id="settingsBtn" class="nav-btn" type="button" onclick="showSection('settings')">⚙️
+              الإعدادات</button>
+          </nav>
         </div>
       </div>
     </header>
@@ -137,20 +134,24 @@
 
       <section id="casesListSection" class="section hidden">
         <h2>قائمة الحالات</h2>
-        <div id="casesListActiveFilter" class="section hidden" style="background:#f8fafc;margin:8px 0;display:flex;justify-content:space-between;align-items:center;gap:12px">
+        <div id="casesListActiveFilter" class="section hidden"
+          style="background:#f8fafc;margin:8px 0;display:flex;justify-content:space-between;align-items:center;gap:12px">
           <div>
             <strong>فلتر الإحصائيات:</strong>
             <span id="casesListActiveFilterLabel"></span>
           </div>
-          <button type="button" class="btn light" onclick="clearDashboardFilter()" style="color:#1f2937;border-color:#e5e7eb">إلغاء الفلتر</button>
+          <button type="button" class="btn light" onclick="clearDashboardFilter()"
+            style="color:#1f2937;border-color:#e5e7eb">إلغاء الفلتر</button>
         </div>
-        <div id="bulkActionsBar" class="section hidden" style="background:#f1f5f9;margin:8px 0;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px">
+        <div id="bulkActionsBar" class="section hidden"
+          style="background:#f1f5f9;margin:8px 0;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px">
           <div style="display:flex;align-items:center;gap:10px">
             <strong>المحدد:</strong>
             <span id="bulkSelectedCount">0</span>
           </div>
           <div style="display:flex;gap:8px;justify-content:flex-start">
-            <button id="bulkClearSelectionBtn" type="button" class="btn light" onclick="clearBulkSelection()" style="color:#1f2937;border-color:#e5e7eb">إلغاء التحديد</button>
+            <button id="bulkClearSelectionBtn" type="button" class="btn light" onclick="clearBulkSelection()"
+              style="color:#1f2937;border-color:#e5e7eb">إلغاء التحديد</button>
           </div>
         </div>
         <div class="tabs" style="margin:8px 0;align-items:flex-start">
@@ -158,24 +159,31 @@
           <details style="border:1px solid #e5e7eb;border-radius:10px;padding:6px 10px;background:#fff">
             <summary style="cursor:pointer;user-select:none">⬇️ تنزيلات</summary>
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-              <button class="btn light" type="button" onclick="downloadCasesImportTemplate()" style="color:#1f2937;border-color:#e5e7eb">تحميل نموذج الاستيراد</button>
-              <button class="btn light" type="button" onclick="downloadSampleCasesExcel()" style="color:#1f2937;border-color:#e5e7eb">تحميل بيانات تجريبية (100 حالة)</button>
+              <button class="btn light" type="button" onclick="downloadCasesImportTemplate()"
+                style="color:#1f2937;border-color:#e5e7eb">تحميل نموذج الاستيراد</button>
+              <button class="btn light" type="button" onclick="downloadSampleCasesExcel()"
+                style="color:#1f2937;border-color:#e5e7eb">تحميل بيانات تجريبية (100 حالة)</button>
             </div>
           </details>
         </div>
-        <div class="grid cases-list-filters-grid" style="margin:8px 0;display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+        <div class="grid cases-list-filters-grid"
+          style="margin:8px 0;display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
           <input id="caseSearch" class="control" placeholder="بحث سريع" oninput="filterCases()" />
           <input id="filterExplorer" class="control" placeholder="المستكشف" oninput="filterCases()" />
           <select id="filterGovernorate" class="control" onchange="filterCases()"></select>
           <input id="filterArea" class="control" placeholder="المنطقة" oninput="filterCases()" />
 
           <div class="form-group" style="margin:0;grid-column:1/4">
-            <div class="cases-filter-cats-head" style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+            <div class="cases-filter-cats-head"
+              style="display:flex;justify-content:space-between;align-items:center;gap:8px">
               <label class="label" style="margin:0 0 6px">فئات الحالة (اختيار متعدد)</label>
-              <button id="toggleCasesCatsBtn" type="button" class="btn light mobile-only" onclick="toggleCasesListCategoriesMobile()" style="color:#1f2937;border-color:#e5e7eb;padding:6px 10px">إظهار</button>
+              <button id="toggleCasesCatsBtn" type="button" class="btn light mobile-only"
+                onclick="toggleCasesListCategoriesMobile()"
+                style="color:#1f2937;border-color:#e5e7eb;padding:6px 10px">إظهار</button>
             </div>
             <div class="cases-filter-cats-body">
-              <div id="filterCategoriesGroup" class="control" style="padding:8px;display:flex;flex-wrap:wrap;gap:8px" onchange="filterCases()"></div>
+              <div id="filterCategoriesGroup" class="control" style="padding:8px;display:flex;flex-wrap:wrap;gap:8px"
+                onchange="filterCases()"></div>
             </div>
           </div>
           <div class="form-group" style="margin:0;align-self:start">
@@ -183,23 +191,31 @@
             <select id="filterCaseGrade" class="control" onchange="filterCases()"></select>
           </div>
         </div>
-        <div id="casesCardsToolbar" style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin:10px 0;padding:10px;border:1px solid #eef2f7;border-radius:12px;background:#fff">
+        <div id="casesCardsToolbar"
+          style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin:10px 0;padding:10px;border:1px solid #eef2f7;border-radius:12px;background:#fff">
           <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-            <label style="display:flex;align-items:center;gap:10px;padding:6px 10px;border:1px solid #e5e7eb;border-radius:10px;background:#f8fafc">
-              <input id="casesSelectAll" type="checkbox" onclick="toggleSelectAllCases(this.checked)" style="width:18px;height:18px" />
+            <label
+              style="display:flex;align-items:center;gap:10px;padding:6px 10px;border:1px solid #e5e7eb;border-radius:10px;background:#f8fafc">
+              <input id="casesSelectAll" type="checkbox" onclick="toggleSelectAllCases(this.checked)"
+                style="width:18px;height:18px" />
               <span style="font-weight:700">تحديد الكل</span>
             </label>
-            <button id="casesSponsorshipBtn" class="btn" type="button" onclick="openSponsorshipFromToolbar()">💳 تسليم كفالة</button>
-            <button id="casesClearFiltersBtn" class="btn light hidden" type="button" onclick="clearCasesListFilters()" style="color:#1f2937;border-color:#e5e7eb">إلغاء الفلتر</button>
-            <button id="casesExportFilteredBtn" class="btn light" type="button" onclick="exportFilteredCasesToExcel()" style="color:#1f2937;border-color:#e5e7eb">📄 Excel (الحالات المعروضة)</button>
+            <button id="casesSponsorshipBtn" class="btn" type="button" onclick="openSponsorshipFromToolbar()">💳 تسليم
+              كفالة</button>
+            <button id="casesClearFiltersBtn" class="btn light hidden" type="button" onclick="clearCasesListFilters()"
+              style="color:#1f2937;border-color:#e5e7eb">إلغاء الفلتر</button>
+            <button id="casesExportFilteredBtn" class="btn light" type="button" onclick="exportFilteredCasesToExcel()"
+              style="color:#1f2937;border-color:#e5e7eb">📄 Excel (الحالات المعروضة)</button>
           </div>
           <div style="color:#64748b">اضغط على "عرض التفاصيل" لفتح ملف الأسرة</div>
         </div>
         <div id="casesCardsGrid" class="cases-cards-grid"></div>
-        <div id="casesListPager" class="section" style="margin-top:10px;background:#f8fafc;border-color:#e5e7eb;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <div id="casesListPager" class="section"
+          style="margin-top:10px;background:#f8fafc;border-color:#e5e7eb;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
           <div id="casesListMeta" style="color:#64748b">—</div>
           <div style="display:flex;gap:8px;justify-content:flex-start;flex-wrap:wrap">
-            <button id="casesLoadMoreBtn" class="btn light" type="button" onclick="loadMoreCases()" style="color:#1f2937;border-color:#e5e7eb">تحميل المزيد</button>
+            <button id="casesLoadMoreBtn" class="btn light" type="button" onclick="loadMoreCases()"
+              style="color:#1f2937;border-color:#e5e7eb">تحميل المزيد</button>
           </div>
         </div>
         <div id="noCasesMessage" class="hidden" style="text-align:center;margin-top:8px">لا توجد حالات مطابقة</div>
@@ -214,12 +230,17 @@
           </div>
           <div id="caseDetailsBody" class="grid cols-2"></div>
           <div class="modal-footer-actions">
-            <button id="printCaseBtn" type="button" class="btn light" onclick="onCaseDetailsPrintClick()" style="color:#1f2937;border-color:#e5e7eb">🖨️ طباعة</button>
-            <button id="caseDetailsScreenshotBtn" type="button" class="btn light" onclick="captureCaseDetailsScreenshot()" style="color:#1f2937;border-color:#e5e7eb">📸 لقطة شاشة</button>
-            <button id="paymentsScreenshotBtn" type="button" class="btn light hidden" onclick="capturePaymentsScreenshot()" style="color:#1f2937;border-color:#e5e7eb">📸 لقطة شاشة</button>
+            <button id="printCaseBtn" type="button" class="btn light" onclick="onCaseDetailsPrintClick()"
+              style="color:#1f2937;border-color:#e5e7eb">🖨️ طباعة</button>
+            <button id="caseDetailsScreenshotBtn" type="button" class="btn light"
+              onclick="captureCaseDetailsScreenshot()" style="color:#1f2937;border-color:#e5e7eb">📸 لقطة شاشة</button>
+            <button id="paymentsScreenshotBtn" type="button" class="btn light hidden"
+              onclick="capturePaymentsScreenshot()" style="color:#1f2937;border-color:#e5e7eb">📸 لقطة شاشة</button>
             <button id="caseEditToggleBtn" type="button" class="btn" onclick="toggleCaseEditSave()">✏️ تعديل</button>
-            <button id="deleteCaseBtn" type="button" class="btn" onclick="deleteCurrentCase()" style="background:#dc2626">🗑️ حذف الحالة</button>
-            <button type="button" class="btn light" onclick="closeCaseDetails()" style="color:#1f2937;border-color:#e5e7eb">إغلاق</button>
+            <button id="deleteCaseBtn" type="button" class="btn" onclick="deleteCurrentCase()"
+              style="background:#dc2626">🗑️ حذف الحالة</button>
+            <button type="button" class="btn light" onclick="closeCaseDetails()"
+              style="color:#1f2937;border-color:#e5e7eb">إغلاق</button>
           </div>
         </div>
       </div>
@@ -231,17 +252,26 @@
             <button class="close-btn" type="button" onclick="closeUserActionsModal()">×</button>
           </div>
           <div class="grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
-            <div class="form-group" style="grid-column:1/-1"><label class="label">البريد الإلكتروني</label><input id="userActionsEmail" class="control" disabled></div>
-            <div class="form-group" style="grid-column:1/-1"><label class="label">اسم المستخدم (userName)</label><input id="userActionsUsername" class="control" disabled></div>
-            <div class="form-group" style="grid-column:1/-1"><label class="label">الاسم</label><input id="userActionsName" class="control" disabled></div>
-            <div class="form-group" style="grid-column:1/-1"><label class="label">الحالة</label><div id="userActionsStatus" style="color:#64748b">—</div></div>
+            <div class="form-group" style="grid-column:1/-1"><label class="label">البريد الإلكتروني</label><input
+                id="userActionsEmail" class="control" disabled></div>
+            <div class="form-group" style="grid-column:1/-1"><label class="label">(userName)</label><input
+                id="userActionsUsername" class="control" disabled></div>
+            
+            <div class="form-group" style="grid-column:1/-1"><label class="label">الحالة</label>
+              <div id="userActionsStatus" style="color:#64748b">—</div>
+            </div>
           </div>
           <div style="display:flex;gap:8px;justify-content:flex-start;margin-top:10px;flex-wrap:wrap">
-            <button id="userActionsToggleBtn" type="button" class="btn" onclick="userActionsToggleActive_()">تعطيل/تفعيل</button>
-            <button type="button" class="btn light" onclick="userActionsResetPasswordLink_()" style="color:#1f2937;border-color:#e5e7eb">رابط إعادة تعيين كلمة المرور</button>
-            <button type="button" class="btn light" onclick="userActionsEditPermissions_()" style="color:#1f2937;border-color:#e5e7eb">تعديل الصلاحيات</button>
-            <button id="userActionsDeleteBtn" type="button" class="btn light" onclick="userActionsDelete_()" style="color:#991b1b;border-color:#fecaca;background:#fff">حذف الحساب</button>
-            <button type="button" class="btn light" onclick="closeUserActionsModal()" style="color:#1f2937;border-color:#e5e7eb">إغلاق</button>
+            <button id="userActionsToggleBtn" type="button" class="btn"
+              onclick="userActionsToggleActive_()">تعطيل/تفعيل</button>
+            <button type="button" class="btn light" onclick="userActionsResetPasswordLink_()"
+              style="color:#1f2937;border-color:#e5e7eb">رابط إعادة تعيين كلمة المرور</button>
+            <button type="button" class="btn light" onclick="userActionsEditPermissions_()"
+              style="color:#1f2937;border-color:#e5e7eb">تعديل الصلاحيات</button>
+            <button id="userActionsDeleteBtn" type="button" class="btn light" onclick="userActionsDelete_()"
+              style="color:#991b1b;border-color:#fecaca;background:#fff">حذف الحساب</button>
+            <button type="button" class="btn light" onclick="closeUserActionsModal()"
+              style="color:#1f2937;border-color:#e5e7eb">إغلاق</button>
           </div>
           <div id="userActionsHint" class="settings-hint" style="display:none;margin-top:10px"></div>
         </div>
@@ -255,18 +285,22 @@
           </div>
           <div id="userPermMeta" style="color:#64748b">—</div>
           <div class="preset-actions" style="margin-top:10px">
-            <button type="button" class="btn mini" onclick="applyPermPresetModal_('explorer')">قالب مستكشف</button>
-            <button type="button" class="btn mini" onclick="applyPermPresetModal_('manager')">قالب مدير</button>
-            <button type="button" class="btn mini" onclick="applyPermPresetModal_('super_admin')">قالب مدير رئيسي</button>
-            <button type="button" class="btn mini" onclick="applyPermPresetModal_('doctor')">قالب دكتور</button>
-            <button type="button" class="btn mini" onclick="applyPermPresetModal_('hidden_super_admin')">قالب سوبر أدمن خفي</button>
-            <button type="button" class="btn mini light" onclick="setAllPermsModalUi_(true)" style="color:#1f2937;border-color:#e5e7eb">تحديد الكل</button>
-            <button type="button" class="btn mini light" onclick="setAllPermsModalUi_(false)" style="color:#1f2937;border-color:#e5e7eb">إلغاء الكل</button>
+            <button type="button" class="btn mini" onclick="applyPermPresetModal_('explorer')">مستكشف</button>
+            <button type="button" class="btn mini" onclick="applyPermPresetModal_('manager')">مدير</button>
+            <button type="button" class="btn mini" onclick="applyPermPresetModal_('super_admin')">مدير
+              رئيسي</button>
+            <button type="button" class="btn mini" onclick="applyPermPresetModal_('doctor')">دكتور</button>
+            <button type="button" class="btn mini light" onclick="setAllPermsModalUi_(true)"
+              style="color:#1f2937;border-color:#e5e7eb">تحديد الكل</button>
+            <button type="button" class="btn mini light" onclick="setAllPermsModalUi_(false)"
+              style="color:#1f2937;border-color:#e5e7eb">إلغاء الكل</button>
           </div>
           <div id="userPermPermissions" class="perms-grid" style="margin-top:10px"></div>
           <div style="display:flex;gap:8px;justify-content:flex-start;margin-top:12px;flex-wrap:wrap">
-            <button id="userPermSaveBtn" type="button" class="btn" onclick="saveUserPermissions_()">حفظ الإعدادات</button>
-            <button type="button" class="btn light" onclick="closeUserPermissionsModal()" style="color:#1f2937;border-color:#e5e7eb">إغلاق</button>
+            <button id="userPermSaveBtn" type="button" class="btn" onclick="saveUserPermissions_()">حفظ
+              الإعدادات</button>
+            <button type="button" class="btn light" onclick="closeUserPermissionsModal()"
+              style="color:#1f2937;border-color:#e5e7eb">إغلاق</button>
           </div>
           <div id="userPermHint" class="settings-hint" style="display:none;margin-top:10px"></div>
         </div>
@@ -297,15 +331,21 @@
                 <option value="أخرى">أخرى</option>
               </select>
             </div>
-            <div class="form-group"><label class="label">التاريخ *</label><input id="editPaymentDate" type="date" class="control" /></div>
-            <div class="form-group"><label class="label">المبلغ</label><input id="editPaymentAmount" type="number" class="control" placeholder="0" /></div>
-            <div class="form-group" style="grid-column:1/-1"><label class="label">بواسطة</label><input id="editPaymentBy" class="control" /></div>
-            <div class="form-group" style="grid-column:1/-1"><label class="label">ملاحظات</label><input id="editPaymentNotes" class="control" /></div>
+            <div class="form-group"><label class="label">التاريخ *</label><input id="editPaymentDate" type="date"
+                class="control" /></div>
+            <div class="form-group"><label class="label">المبلغ</label><input id="editPaymentAmount" type="number"
+                class="control" placeholder="0" /></div>
+            <div class="form-group" style="grid-column:1/-1"><label class="label">بواسطة</label><input
+                id="editPaymentBy" class="control" /></div>
+            <div class="form-group" style="grid-column:1/-1"><label class="label">ملاحظات</label><input
+                id="editPaymentNotes" class="control" /></div>
           </div>
           <div style="display:flex;gap:8px;justify-content:flex-start;margin-top:10px;flex-wrap:wrap">
             <button type="button" class="btn" onclick="applyEditPayment()">💾 حفظ</button>
-            <button type="button" class="btn light" onclick="deletePaymentRecord()" style="color:#991b1b;border-color:#fecaca">حذف</button>
-            <button type="button" class="btn light" onclick="closeEditPaymentModal()" style="color:#1f2937;border-color:#e5e7eb">إلغاء</button>
+            <button type="button" class="btn light" onclick="deletePaymentRecord()"
+              style="color:#991b1b;border-color:#fecaca">حذف</button>
+            <button type="button" class="btn light" onclick="closeEditPaymentModal()"
+              style="color:#1f2937;border-color:#e5e7eb">إلغاء</button>
           </div>
         </div>
       </div>
@@ -345,12 +385,16 @@
               <select id="sponsorScopeCategory" class="control"></select>
             </div>
 
-            <div class="form-group"><label class="label">تاريخ بداية الكفالة *</label><input id="sponsorStart" type="date" class="control" /></div>
-            <div class="form-group" style="grid-column:1/-1"><label class="label">قيمة الكفالة *</label><input id="sponsorAmount" type="number" class="control" placeholder="0" /></div>
+            <div class="form-group"><label class="label">تاريخ بداية الكفالة *</label><input id="sponsorStart"
+                type="date" class="control" /></div>
+            <div class="form-group" style="grid-column:1/-1"><label class="label">قيمة الكفالة *</label><input
+                id="sponsorAmount" type="number" class="control" placeholder="0" /></div>
           </div>
           <div style="display:flex;gap:8px;justify-content:flex-start;margin-top:10px">
-            <button id="bulkSponsorshipSaveBtn" type="button" class="btn" onclick="applyBulkSponsorship()">💾 حفظ</button>
-            <button type="button" class="btn light" onclick="closeBulkSponsorshipModal()" style="color:#1f2937;border-color:#e5e7eb">إلغاء</button>
+            <button id="bulkSponsorshipSaveBtn" type="button" class="btn" onclick="applyBulkSponsorship()">💾
+              حفظ</button>
+            <button type="button" class="btn light" onclick="closeBulkSponsorshipModal()"
+              style="color:#1f2937;border-color:#e5e7eb">إلغاء</button>
           </div>
         </div>
       </div>
@@ -386,13 +430,17 @@
               <label class="label">نوع آخر</label>
               <input id="assistanceOtherType" class="control" placeholder="اكتب نوع المساعدة" />
             </div>
-            <div class="form-group"><label class="label">التاريخ *</label><input id="assistanceDate" type="date" class="control" /></div>
-            <div class="form-group"><label class="label">المبلغ</label><input id="assistanceAmount" type="number" class="control" placeholder="0" /></div>
-            <div class="form-group" style="grid-column:1/-1"><label class="label">ملاحظات *</label><input id="assistanceNotes" class="control" placeholder="اكتب تفاصيل المساعدة" /></div>
+            <div class="form-group"><label class="label">التاريخ *</label><input id="assistanceDate" type="date"
+                class="control" /></div>
+            <div class="form-group"><label class="label">المبلغ</label><input id="assistanceAmount" type="number"
+                class="control" placeholder="0" /></div>
+            <div class="form-group" style="grid-column:1/-1"><label class="label">ملاحظات *</label><input
+                id="assistanceNotes" class="control" placeholder="اكتب تفاصيل المساعدة" /></div>
           </div>
           <div style="display:flex;gap:8px;justify-content:flex-start;margin-top:10px">
             <button type="button" class="btn" onclick="applyAddAssistance()">💾 حفظ</button>
-            <button type="button" class="btn light" onclick="closeAddAssistanceModal()" style="color:#1f2937;border-color:#e5e7eb">إلغاء</button>
+            <button type="button" class="btn light" onclick="closeAddAssistanceModal()"
+              style="color:#1f2937;border-color:#e5e7eb">إلغاء</button>
           </div>
         </div>
       </div>
@@ -408,25 +456,33 @@
               <div id="importMetaSection" class="hidden">
                 <h3 style="margin:0 0 8px">بيانات إلزامية قبل الاستيراد</h3>
                 <div class="grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
-                  <div class="form-group" style="margin:0"><label class="label">المحافظة *</label><select id="importGovernorate" class="control"></select></div>
-                  <div class="form-group" style="margin:0"><label class="label">المنطقة *</label><input id="importArea" class="control" list="importAreaList" placeholder="اختر/اكتب المنطقة"></div>
+                  <div class="form-group" style="margin:0"><label class="label">المحافظة *</label><select
+                      id="importGovernorate" class="control"></select></div>
+                  <div class="form-group" style="margin:0"><label class="label">المنطقة *</label><input id="importArea"
+                      class="control" list="importAreaList" placeholder="اختر/اكتب المنطقة"></div>
                   <datalist id="importAreaList"></datalist>
                   <div class="form-group" style="margin:0"><label class="label">المستكشفون *</label>
                     <div style="display:flex;gap:8px;margin-bottom:6px">
-                      <input id="importExplorerNameInput" class="control" placeholder="اكتب اسم المستكشف" onkeydown="if(event.key==='Enter'){event.preventDefault();addImportExplorerName();}">
+                      <input id="importExplorerNameInput" class="control" placeholder="اكتب اسم المستكشف"
+                        onkeydown="if(event.key==='Enter'){event.preventDefault();addImportExplorerName();}">
                       <button type="button" class="btn" onclick="addImportExplorerName()">➕ إضافة</button>
                     </div>
-                    <div id="importExplorersChips" class="explorer-chips" style="display:flex;flex-wrap:wrap;gap:4px;min-height:32px;padding:4px;border:1px solid #d1d5db;border-radius:4px;background:#fff"></div>
+                    <div id="importExplorersChips" class="explorer-chips"
+                      style="display:flex;flex-wrap:wrap;gap:4px;min-height:32px;padding:4px;border:1px solid #d1d5db;border-radius:4px;background:#fff">
+                    </div>
                   </div>
-                  <div class="form-group" style="margin:0"><label class="label">تاريخ الإضافة *</label><input id="importDate" class="control" placeholder="DD/MM/YYYY"></div>
+                  <div class="form-group" style="margin:0"><label class="label">تاريخ الإضافة *</label><input
+                      id="importDate" class="control" placeholder="DD/MM/YYYY"></div>
                 </div>
               </div>
               <div class="tabs" style="margin-top:10px">
                 <button class="btn" type="button" onclick="triggerImportFilePick()">📄 اختيار ملف (Excel)</button>
-                <button class="btn light" type="button" onclick="closeImportModal()" style="color:#1f2937;border-color:#e5e7eb">إلغاء</button>
+                <button class="btn light" type="button" onclick="closeImportModal()"
+                  style="color:#1f2937;border-color:#e5e7eb">إلغاء</button>
                 <input id="listImportInput" type="file" accept=".xlsx" class="hidden" />
               </div>
-              <div style="margin-top:6px;color:#64748b;font-size:.9rem">ملاحظة: سيتم الاستيراد اعتماداً على البيانات الموجودة داخل الشيت.</div>
+              <div style="margin-top:6px;color:#64748b;font-size:.9rem">ملاحظة: سيتم الاستيراد اعتماداً على البيانات
+                الموجودة داخل الشيت.</div>
             </div>
           </div>
         </div>
@@ -439,7 +495,8 @@
             <div class="dash-sub">نظرة فورية + دعم قرار + متابعة أداء + أولويات</div>
           </div>
           <div class="dash-actions">
-            <button class="btn light" type="button" onclick="showSection('casesList','navCasesBtn')" style="color:#1f2937;border-color:#e5e7eb">📋 فتح قائمة الحالات</button>
+            <button class="btn light" type="button" onclick="showSection('casesList','navCasesBtn')"
+              style="color:#1f2937;border-color:#e5e7eb">📋 فتح قائمة الحالات</button>
             <button class="btn" type="button" onclick="openMedicalCommittee()">🩺 لجنة العمليات الطبية</button>
           </div>
         </div>
@@ -471,14 +528,46 @@
           </div>
           <div class="dash-chart" style="padding-top:10px">
             <div class="dash-kpis" style="margin-top:0;grid-template-columns:repeat(4,minmax(0,1fr))">
-              <div class="kpi" data-dashfilter="cat:تجهيز عرائس"><div class="kpi-title">تجهيز عرائس</div><div class="kpi-value" id="catBrides">0</div><div class="kpi-meta">كل الحالات</div></div>
-              <div class="kpi" data-dashfilter="cat:أسقف"><div class="kpi-title">أسقف</div><div class="kpi-value" id="catRoofs">0</div><div class="kpi-meta">كل الحالات</div></div>
-              <div class="kpi" data-dashfilter="cat:وصلات مياه"><div class="kpi-title">وصلات مياه</div><div class="kpi-value" id="catWaterLinks">0</div><div class="kpi-meta">كل الحالات</div></div>
-              <div class="kpi" data-dashfilter="cat:احتياجات ضرورية ملحة"><div class="kpi-title">احتياجات ضرورية ملحة</div><div class="kpi-value" id="catUrgentNeeds">0</div><div class="kpi-meta">كل الحالات</div></div>
-              <div class="kpi" data-dashfilter="cat:مشروعات صغيرة"><div class="kpi-title">مشروعات صغيرة</div><div class="kpi-value" id="catSmallProjects">0</div><div class="kpi-meta">كل الحالات</div></div>
-              <div class="kpi" data-dashfilter="cat:عمليات طبية"><div class="kpi-title">عمليات طبية</div><div class="kpi-value" id="catMedicalOps">0</div><div class="kpi-meta">كل الحالات</div></div>
-              <div class="kpi" data-dashfilter="cat:كفالات مرضية"><div class="kpi-title">كفالات مرضية</div><div class="kpi-value" id="catMedicalSponsorship">0</div><div class="kpi-meta">كل الحالات</div></div>
-              <div class="kpi" data-dashfilter="cat:كفالة شهرية"><div class="kpi-title">كفالة شهرية</div><div class="kpi-value" id="catMonthlySponsorship">0</div><div class="kpi-meta">كل الحالات</div></div>
+              <div class="kpi" data-dashfilter="cat:تجهيز عرائس">
+                <div class="kpi-title">تجهيز عرائس</div>
+                <div class="kpi-value" id="catBrides">0</div>
+                <div class="kpi-meta">كل الحالات</div>
+              </div>
+              <div class="kpi" data-dashfilter="cat:أسقف">
+                <div class="kpi-title">أسقف</div>
+                <div class="kpi-value" id="catRoofs">0</div>
+                <div class="kpi-meta">كل الحالات</div>
+              </div>
+              <div class="kpi" data-dashfilter="cat:وصلات مياه">
+                <div class="kpi-title">وصلات مياه</div>
+                <div class="kpi-value" id="catWaterLinks">0</div>
+                <div class="kpi-meta">كل الحالات</div>
+              </div>
+              <div class="kpi" data-dashfilter="cat:احتياجات ضرورية ملحة">
+                <div class="kpi-title">احتياجات ضرورية ملحة</div>
+                <div class="kpi-value" id="catUrgentNeeds">0</div>
+                <div class="kpi-meta">كل الحالات</div>
+              </div>
+              <div class="kpi" data-dashfilter="cat:مشروعات صغيرة">
+                <div class="kpi-title">مشروعات صغيرة</div>
+                <div class="kpi-value" id="catSmallProjects">0</div>
+                <div class="kpi-meta">كل الحالات</div>
+              </div>
+              <div class="kpi" data-dashfilter="cat:عمليات طبية">
+                <div class="kpi-title">عمليات طبية</div>
+                <div class="kpi-value" id="catMedicalOps">0</div>
+                <div class="kpi-meta">كل الحالات</div>
+              </div>
+              <div class="kpi" data-dashfilter="cat:كفالات مرضية">
+                <div class="kpi-title">كفالات مرضية</div>
+                <div class="kpi-value" id="catMedicalSponsorship">0</div>
+                <div class="kpi-meta">كل الحالات</div>
+              </div>
+              <div class="kpi" data-dashfilter="cat:كفالة شهرية">
+                <div class="kpi-title">كفالة شهرية</div>
+                <div class="kpi-value" id="catMonthlySponsorship">0</div>
+                <div class="kpi-meta">كل الحالات</div>
+              </div>
             </div>
           </div>
         </div>
@@ -511,8 +600,10 @@
                 <div class="dash-card-sub">فين الضغط الأكبر؟</div>
               </div>
               <div class="dash-toggle">
-                <button id="geoGovBtn" class="btn mini" type="button" onclick="setDashboardGeoMode('gov')">محافظة</button>
-                <button id="geoAreaBtn" class="btn mini light" type="button" onclick="setDashboardGeoMode('area')" style="color:#1f2937;border-color:#e5e7eb">منطقة</button>
+                <button id="geoGovBtn" class="btn mini" type="button"
+                  onclick="setDashboardGeoMode('gov')">محافظة</button>
+                <button id="geoAreaBtn" class="btn mini light" type="button" onclick="setDashboardGeoMode('area')"
+                  style="color:#1f2937;border-color:#e5e7eb">منطقة</button>
               </div>
             </div>
             <div class="dash-chart"><canvas id="chartGeo" height="170"></canvas></div>
@@ -526,13 +617,34 @@
               </div>
             </div>
             <div class="dash-fin">
-              <div class="fin-item"><div class="fin-title">إجمالي الدخل</div><div class="fin-value" id="finIncomeTotal">0</div></div>
-              <div class="fin-item"><div class="fin-title">إجمالي المصروفات</div><div class="fin-value" id="finExpensesTotal">0</div></div>
-              <div class="fin-item"><div class="fin-title">متوسط العجز/الأسرة</div><div class="fin-value" id="finAvgDeficit">0</div></div>
-              <div class="fin-item"><div class="fin-title">إجمالي الديون</div><div class="fin-value" id="finDebtsTotal">0</div></div>
-              <div class="fin-item"><div class="fin-title">احتياج العمليات</div><div class="fin-value" id="finOpsNeed">0</div></div>
-              <div class="fin-item"><div class="fin-title">إجمالي تقديري</div><div class="fin-value" id="finEstimated">0</div></div>
-              <div class="fin-item"><div class="fin-title">كفالة شهرية (200 لكل حالة)</div><div class="fin-value" id="finMonthlySponsorship">0</div></div>
+              <div class="fin-item">
+                <div class="fin-title">إجمالي الدخل</div>
+                <div class="fin-value" id="finIncomeTotal">0</div>
+              </div>
+              <div class="fin-item">
+                <div class="fin-title">إجمالي المصروفات</div>
+                <div class="fin-value" id="finExpensesTotal">0</div>
+              </div>
+              <div class="fin-item">
+                <div class="fin-title">متوسط العجز/الأسرة</div>
+                <div class="fin-value" id="finAvgDeficit">0</div>
+              </div>
+              <div class="fin-item">
+                <div class="fin-title">إجمالي الديون</div>
+                <div class="fin-value" id="finDebtsTotal">0</div>
+              </div>
+              <div class="fin-item">
+                <div class="fin-title">احتياج العمليات</div>
+                <div class="fin-value" id="finOpsNeed">0</div>
+              </div>
+              <div class="fin-item">
+                <div class="fin-title">إجمالي تقديري</div>
+                <div class="fin-value" id="finEstimated">0</div>
+              </div>
+              <div class="fin-item">
+                <div class="fin-title">كفالة شهرية (200 لكل حالة)</div>
+                <div class="fin-value" id="finMonthlySponsorship">0</div>
+              </div>
             </div>
           </div>
         </div>
@@ -557,7 +669,8 @@
             </div>
 
             <div class="dash-table-toolbar">
-              <input id="dashTableSearch" class="control" placeholder="بحث (اسم/رقم قومي/محافظة/منطقة...)" oninput="renderDashboardTable()" />
+              <input id="dashTableSearch" class="control" placeholder="بحث (اسم/رقم قومي/محافظة/منطقة...)"
+                oninput="renderDashboardTable()" />
               <select id="dashTableSort" class="control" onchange="renderDashboardTable()">
                 <option value="need_desc">الاحتياج: الأعلى</option>
                 <option value="need_asc">الاحتياج: الأقل</option>
@@ -601,7 +714,8 @@
             </div>
             <div class="dash-table-footer">
               <div id="dashTableMeta" class="dash-muted">—</div>
-              <button class="btn mini light" type="button" onclick="showSection('casesList','navCasesBtn')" style="color:#1f2937;border-color:#e5e7eb">عرض كل الحالات</button>
+              <button class="btn mini light" type="button" onclick="showSection('casesList','navCasesBtn')"
+                style="color:#1f2937;border-color:#e5e7eb">عرض كل الحالات</button>
             </div>
           </div>
         </div>
@@ -623,32 +737,51 @@
             </div>
           </div>
           <div style="margin-top:10px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-            <label style="display:flex;align-items:center;gap:10px;padding:6px 10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff">
-              <input id="reportsAchievementsOnly" type="checkbox" onchange="generateReportPreview()" style="width:18px;height:18px" />
+            <label
+              style="display:flex;align-items:center;gap:10px;padding:6px 10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff">
+              <input id="reportsAchievementsOnly" type="checkbox" onchange="generateReportPreview()"
+                style="width:18px;height:18px" />
               <span style="font-weight:700">عرض الإنجازات فقط (بدون جدول الحالات)</span>
             </label>
-            <button class="btn mini light" type="button" onclick="copyReportsAchievementsText()" style="color:#1f2937;border-color:#e5e7eb">📋 نسخ نص الإنجازات</button>
+            <button class="btn mini light" type="button" onclick="copyReportsAchievementsText()"
+              style="color:#1f2937;border-color:#e5e7eb">📋 نسخ نص الإنجازات</button>
           </div>
 
           <div class="tabs" style="margin-top:8px;flex-wrap:wrap">
-            <button id="reportsTypeAllBtn" class="btn mini" type="button" onclick="setReportsTypeFilter('all')">الكل</button>
-            <button id="reportsTypeSponsorshipBtn" class="btn mini light" type="button" onclick="setReportsTypeFilter('sponsorship')" style="color:#1f2937;border-color:#e5e7eb">كفالات مالية</button>
-            <button id="reportsTypeRamadanBtn" class="btn mini light" type="button" onclick="setReportsTypeFilter('ramadan_bags')" style="color:#1f2937;border-color:#e5e7eb">شنط رمضان</button>
-            <button id="reportsTypeInKindBtn" class="btn mini light" type="button" onclick="setReportsTypeFilter('in_kind')" style="color:#1f2937;border-color:#e5e7eb">مساعدات عينية</button>
-            <button id="reportsTypeBridesBtn" class="btn mini light" type="button" onclick="setReportsTypeFilter('تجهيز عرائس')" style="color:#1f2937;border-color:#e5e7eb">تجهيز عرائس</button>
-            <button id="reportsTypeMedicalBtn" class="btn mini light" type="button" onclick="setReportsTypeFilter('medical')" style="color:#1f2937;border-color:#e5e7eb">عمليات طبية</button>
+            <button id="reportsTypeAllBtn" class="btn mini" type="button"
+              onclick="setReportsTypeFilter('all')">الكل</button>
+            <button id="reportsTypeSponsorshipBtn" class="btn mini light" type="button"
+              onclick="setReportsTypeFilter('sponsorship')" style="color:#1f2937;border-color:#e5e7eb">كفالات
+              مالية</button>
+            <button id="reportsTypeRamadanBtn" class="btn mini light" type="button"
+              onclick="setReportsTypeFilter('ramadan_bags')" style="color:#1f2937;border-color:#e5e7eb">شنط
+              رمضان</button>
+            <button id="reportsTypeInKindBtn" class="btn mini light" type="button"
+              onclick="setReportsTypeFilter('in_kind')" style="color:#1f2937;border-color:#e5e7eb">مساعدات
+              عينية</button>
+            <button id="reportsTypeBridesBtn" class="btn mini light" type="button"
+              onclick="setReportsTypeFilter('تجهيز عرائس')" style="color:#1f2937;border-color:#e5e7eb">تجهيز
+              عرائس</button>
+            <button id="reportsTypeMedicalBtn" class="btn mini light" type="button"
+              onclick="setReportsTypeFilter('medical')" style="color:#1f2937;border-color:#e5e7eb">عمليات طبية</button>
           </div>
 
           <div class="tabs" style="margin-top:8px;flex-wrap:wrap">
-            <button class="btn mini light" type="button" onclick="copyReportsTemplate('whatsapp')" style="color:#1f2937;border-color:#e5e7eb">📋 قالب واتساب</button>
-            <button class="btn mini light" type="button" onclick="copyReportsTemplate('facebook')" style="color:#1f2937;border-color:#e5e7eb">📋 قالب فيسبوك</button>
-            <button class="btn mini light" type="button" onclick="copyReportsTemplate('formal')" style="color:#1f2937;border-color:#e5e7eb">📋 خطاب رسمي</button>
+            <button class="btn mini light" type="button" onclick="copyReportsTemplate('whatsapp')"
+              style="color:#1f2937;border-color:#e5e7eb">📋 قالب واتساب</button>
+            <button class="btn mini light" type="button" onclick="copyReportsTemplate('facebook')"
+              style="color:#1f2937;border-color:#e5e7eb">📋 قالب فيسبوك</button>
+            <button class="btn mini light" type="button" onclick="copyReportsTemplate('formal')"
+              style="color:#1f2937;border-color:#e5e7eb">📋 خطاب رسمي</button>
           </div>
           <div class="tabs" style="margin-top:8px">
             <button class="btn" type="button" onclick="exportReportsRangeToExcel()">📄 Excel (حسب الفترة)</button>
-            <button class="btn light" type="button" onclick="captureReportsScreenshot()" style="color:#1f2937;border-color:#e5e7eb">📸 Screenshot</button>
-            <button class="btn light" type="button" onclick="exportReportsToWord()" style="color:#1f2937;border-color:#e5e7eb">📝 Word</button>
-            <button class="btn light" type="button" onclick="exportMedicalReportToExcel()" style="color:#1f2937;border-color:#e5e7eb">🩺 Excel (تقرير طبي)</button>
+            <button class="btn light" type="button" onclick="captureReportsScreenshot()"
+              style="color:#1f2937;border-color:#e5e7eb">📸 Screenshot</button>
+            <button class="btn light" type="button" onclick="exportReportsToWord()"
+              style="color:#1f2937;border-color:#e5e7eb">📝 Word</button>
+            <button class="btn light" type="button" onclick="exportMedicalReportToExcel()"
+              style="color:#1f2937;border-color:#e5e7eb">🩺 Excel (تقرير طبي)</button>
           </div>
           <div id="reportsRangeHint" class="settings-hint" style="display:none;margin-top:10px"></div>
         </div>
@@ -674,12 +807,36 @@
           </div>
 
           <div class="dash-kpis" style="margin-top:12px">
-            <div class="kpi"><div class="kpi-title">عدد الحالات</div><div class="kpi-value" id="repKpiTotal">0</div><div class="kpi-meta" id="repKpiRange">—</div></div>
-            <div class="kpi"><div class="kpi-title">المنفذة</div><div class="kpi-value" id="repKpiDone">0</div><div class="kpi-meta">ضمن الفترة</div></div>
-            <div class="kpi"><div class="kpi-title">نسبة الإنجاز</div><div class="kpi-value" id="repKpiRate">0%</div><div class="kpi-meta">من إجمالي الفترة</div></div>
-            <div class="kpi kpi-accent"><div class="kpi-title">إجمالي احتياج الفترة</div><div class="kpi-value" id="repKpiNeed">0</div><div class="kpi-meta">التقديري - المنفذ</div></div>
-            <div class="kpi"><div class="kpi-title">الكفالات</div><div class="kpi-value" id="repKpiSpons">0</div><div class="kpi-meta">عدد العمليات</div></div>
-            <div class="kpi"><div class="kpi-title">مساعدات أخرى</div><div class="kpi-value" id="repKpiOther">0</div><div class="kpi-meta">عدد العمليات</div></div>
+            <div class="kpi">
+              <div class="kpi-title">عدد الحالات</div>
+              <div class="kpi-value" id="repKpiTotal">0</div>
+              <div class="kpi-meta" id="repKpiRange">—</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-title">المنفذة</div>
+              <div class="kpi-value" id="repKpiDone">0</div>
+              <div class="kpi-meta">ضمن الفترة</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-title">نسبة الإنجاز</div>
+              <div class="kpi-value" id="repKpiRate">0%</div>
+              <div class="kpi-meta">من إجمالي الفترة</div>
+            </div>
+            <div class="kpi kpi-accent">
+              <div class="kpi-title">إجمالي احتياج الفترة</div>
+              <div class="kpi-value" id="repKpiNeed">0</div>
+              <div class="kpi-meta">التقديري - المنفذ</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-title">الكفالات</div>
+              <div class="kpi-value" id="repKpiSpons">0</div>
+              <div class="kpi-meta">عدد العمليات</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-title">مساعدات أخرى</div>
+              <div class="kpi-value" id="repKpiOther">0</div>
+              <div class="kpi-meta">عدد العمليات</div>
+            </div>
           </div>
 
           <div class="dash-grid" style="margin-top:12px">
@@ -725,8 +882,10 @@
             <div class="dash-sub">متابعة الحالات الطبية (عمليات/كفالات) + أولويات + احتياج</div>
           </div>
           <div class="dash-actions">
-            <button class="btn light" type="button" onclick="showSection('reportsSection','navReportsBtn')" style="color:#1f2937;border-color:#e5e7eb">⬅️ العودة للتقارير</button>
-            <button class="btn light" type="button" onclick="showSection('casesList','navCasesBtn')" style="color:#1f2937;border-color:#e5e7eb">📋 فتح قائمة الحالات</button>
+            <button class="btn light" type="button" onclick="showSection('reportsSection','navReportsBtn')"
+              style="color:#1f2937;border-color:#e5e7eb">⬅️ العودة للتقارير</button>
+            <button class="btn light" type="button" onclick="showSection('casesList','navCasesBtn')"
+              style="color:#1f2937;border-color:#e5e7eb">📋 فتح قائمة الحالات</button>
           </div>
         </div>
 
@@ -772,7 +931,8 @@
           </div>
 
           <div class="dash-table-toolbar">
-            <input id="medTableSearch" class="control" placeholder="بحث (اسم/رقم قومي/محافظة/منطقة/مستشفى...)" oninput="renderMedicalTable()" />
+            <input id="medTableSearch" class="control" placeholder="بحث (اسم/رقم قومي/محافظة/منطقة/مستشفى...)"
+              oninput="renderMedicalTable()" />
             <select id="medTableSort" class="control" onchange="renderMedicalTable()">
               <option value="need_desc">الاحتياج: الأعلى</option>
               <option value="need_asc">الاحتياج: الأقل</option>
@@ -821,7 +981,8 @@
 
           <div class="dash-table-footer">
             <div id="medTableMeta" class="dash-muted">—</div>
-            <button class="btn mini light" type="button" onclick="setMedicalFilter('all')" style="color:#1f2937;border-color:#e5e7eb">إلغاء الفلتر</button>
+            <button class="btn mini light" type="button" onclick="setMedicalFilter('all')"
+              style="color:#1f2937;border-color:#e5e7eb">إلغاء الفلتر</button>
           </div>
         </div>
       </section>
@@ -832,15 +993,18 @@
           <div style="display:flex;gap:8px;justify-content:space-between;align-items:center;margin-bottom:8px">
             <h3 style="margin:0">سجل الإجراءات (Audit Log)</h3>
             <div style="display:flex;gap:8px">
-              <button id="deleteAllCasesBtn" class="btn" type="button" onclick="deleteAllCases()" style="background:#dc2626">🗑️ حذف جميع الحالات</button>
+              <button id="deleteAllCasesBtn" class="btn" type="button" onclick="deleteAllCases()"
+                style="background:#dc2626">🗑️ حذف جميع الحالات</button>
               <button class="btn" type="button" onclick="exportAuditLog()">📄 تصدير السجل</button>
-              <button class="btn light" type="button" onclick="clearAuditLog()" style="color:#1f2937;border-color:#e5e7eb">🧹 مسح السجل</button>
+              <button class="btn light" type="button" onclick="clearAuditLog()"
+                style="color:#1f2937;border-color:#e5e7eb">🧹 مسح السجل</button>
             </div>
           </div>
 
           <div id="deletedCasesSection" class="section" style="background:#f8fafc;margin-top:12px">
             <h3 style="margin:0 0 8px">الحالات المحذوفة (مع السبب)</h3>
-            <div style="color:#64748b;font-size:.9rem;margin-bottom:8px">يعرض آخر عمليات حذف الحالات والسبب المسجل.</div>
+            <div style="color:#64748b;font-size:.9rem;margin-bottom:8px">يعرض آخر عمليات حذف الحالات والسبب المسجل.
+            </div>
             <div style="overflow:auto;border:1px solid #e5e7eb;border-radius:12px;background:#fff">
               <table class="table" style="min-width:900px">
                 <thead>
@@ -875,6 +1039,10 @@
 
       <section id="settingsSection" class="section hidden">
         <h2>الإعدادات</h2>
+        <div class="settings-actions" style="margin-top:0">
+          <button id="logoutBtn" type="button" class="btn light">تسجيل
+            الخروج</button>
+        </div>
         <div class="settings-card" style="margin-top:12px">
           <div class="settings-card-header">
             <div>
@@ -885,9 +1053,16 @@
           <div class="settings-card-body">
             <form onsubmit="return false" autocomplete="on">
               <div class="grid cols-2">
-                <div class="form-group" style="grid-column:1/-1"><label class="label">اسم المستخدم</label><input id="myUsername" type="text" class="control" autocomplete="username" placeholder="اسم المستخدم"></div>
-                <div class="form-group" style="grid-column:1/-1"><label class="label">كلمة المرور القديمة</label><div class="password-field"><input id="myOldPassword" type="password" class="control" autocomplete="current-password" placeholder="أدخل كلمة المرور القديمة"><button class="pw-toggle" type="button" data-pw-target="myOldPassword" aria-label="إظهار كلمة المرور">👁</button></div></div>
-                <div class="form-group" style="grid-column:1/-1"><label class="label">كلمة المرور الجديدة</label><div class="password-field"><input id="myNewPassword" type="password" class="control" autocomplete="new-password" placeholder="أدخل كلمة المرور الجديدة"><button class="pw-toggle" type="button" data-pw-target="myNewPassword" aria-label="إظهار كلمة المرور">👁</button></div></div>
+                <div class="form-group" style="grid-column:1/-1"><label class="label">كلمة المرور القديمة</label>
+                  <div class="password-field"><input id="myOldPassword" type="password" class="control"
+                      autocomplete="current-password" placeholder="أدخل كلمة المرور القديمة"><button class="pw-toggle"
+                      type="button" data-pw-target="myOldPassword" aria-label="إظهار كلمة المرور">👁</button></div>
+                </div>
+                <div class="form-group" style="grid-column:1/-1"><label class="label">كلمة المرور الجديدة</label>
+                  <div class="password-field"><input id="myNewPassword" type="password" class="control"
+                      autocomplete="new-password" placeholder="أدخل كلمة المرور الجديدة"><button class="pw-toggle"
+                      type="button" data-pw-target="myNewPassword" aria-label="إظهار كلمة المرور">👁</button></div>
+                </div>
               </div>
               <div class="settings-actions">
                 <button type="button" class="btn" onclick="saveMySettings()">حفظ إعداداتي</button>
@@ -917,7 +1092,8 @@
       <section id="userManagementSection" class="section hidden">
         <h2>إدارة المستخدمين</h2>
         <div class="settings-actions" style="margin-top:0">
-          <button type="button" class="btn light" onclick="showSection('settings')" style="color:#1f2937;border-color:#e5e7eb">رجوع للإعدادات</button>
+          <button type="button" class="btn light" onclick="showSection('settings')"
+            style="color:#1f2937;border-color:#e5e7eb">رجوع للإعدادات</button>
         </div>
         <div class="settings-layout">
           <div class="settings-grid">
@@ -939,10 +1115,18 @@
                   <div class="settings-card-body" style="padding:12px">
                     <form id="newUserForm" onsubmit="createUserFromUi_(); return false;">
                       <div class="grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
-                        <div class="form-group" style="grid-column:1/-1"><label class="label">البريد الإلكتروني *</label><input id="newUserEmail" class="control" autocomplete="username" placeholder="example@gmail.com"></div>
-                        <div class="form-group" style="grid-column:1/-1"><label class="label">اسم المستخدم (اختياري)</label><input id="newUserUsername" class="control" placeholder="يُترك فارغاً لاستخدام البريد كاسم مستخدم"></div>
-                        <div class="form-group" style="grid-column:1/-1"><label class="label">الاسم المعروض</label><input id="newUserName" class="control" placeholder="الاسم داخل النظام"></div>
-                        <div class="form-group" style="grid-column:1/-1"><label class="label">كلمة مرور مؤقتة (اختياري)</label><input id="newUserTempPassword" type="password" class="control" autocomplete="new-password" placeholder="لو لديك Edge Function للإنشاء"></div>
+                        <div class="form-group" style="grid-column:1/-1"><label class="label">البريد الإلكتروني
+                            *</label><input id="newUserEmail" class="control" autocomplete="username"
+                            placeholder="example@gmail.com"></div>
+                        <div class="form-group" style="grid-column:1/-1"><label class="label">اسم المستخدم
+                            (اختياري)</label><input id="newUserUsername" class="control"
+                            placeholder="يُترك فارغاً لاستخدام البريد كاسم مستخدم"></div>
+                        <div class="form-group" style="grid-column:1/-1"><label class="label">الاسم
+                            المعروض</label><input id="newUserName" class="control" placeholder="الاسم داخل النظام">
+                        </div>
+                        <div class="form-group" style="grid-column:1/-1"><label class="label">كلمة مرور مؤقتة
+                            (اختياري)</label><input id="newUserTempPassword" type="password" class="control"
+                            autocomplete="new-password" placeholder="لو لديك Edge Function للإنشاء"></div>
                       </div>
                       <div style="display:flex;gap:8px;justify-content:flex-start;margin-top:10px;flex-wrap:wrap">
                         <button type="submit" class="btn">إنشاء المستخدم</button>
@@ -952,23 +1136,21 @@
                   </div>
                 </div>
                 <div id="usersList" class="users-list"></div>
-                <div class="settings-hint" style="display:none">لإضافة مستخدم جديد: أنشئه من لوحة Supabase (Authentication → Users). سيتم إنشاء ملفه تلقائياً ثم يمكنك إعطاؤه الصلاحيات من هنا.</div>
+                <div class="settings-hint" style="display:none">لإضافة مستخدم جديد: أنشئه من لوحة Supabase
+                  (Authentication → Users). سيتم إنشاء ملفه تلقائياً ثم يمكنك إعطاؤه الصلاحيات من هنا.</div>
               </div>
             </div>
 
             <div class="settings-card">
-              <div class="settings-card-header">
-                <div>
-                  <h3>بيانات المستخدم</h3>
-                  <div class="settings-card-subtitle">تعديل الاسم، الحالة، والصلاحيات</div>
-                </div>
-              </div>
               <div class="settings-card-body" style="display:none">
-                <div id="userMgmtReadonlyHint" class="settings-hint" style="display:none;margin-top:0;margin-bottom:10px"></div>
+                <div id="userMgmtReadonlyHint" class="settings-hint"
+                  style="display:none;margin-top:0;margin-bottom:10px"></div>
                 <form onsubmit="return false" autocomplete="on">
                   <div class="grid cols-2">
-                    <div class="form-group"><label class="label">اسم المستخدم</label><input id="userMgmtUsername" class="control" placeholder="مثال: explorer2"></div>
-                    <div class="form-group"><label class="label">الاسم</label><input id="userMgmtName" class="control" placeholder="الاسم للعرض"></div>
+                    <div class="form-group"><label class="label">اسم المستخدم</label><input id="userMgmtUsername"
+                        class="control" placeholder="مثال: explorer2"></div>
+                    <div class="form-group"><label class="label">الاسم</label><input id="userMgmtName" class="control"
+                        placeholder="الاسم للعرض"></div>
                     <div class="form-group" style="display:none"><label class="label">الدور (Role)</label>
                       <select id="userMgmtRole" class="control" onchange="saveUserMgmtForm_(true)">
                         <option value="admin">إدارة (Admin)</option>
@@ -987,33 +1169,41 @@
                     </div>
                   </div>
 
-                <div class="settings-card" style="box-shadow:none;border:1px solid #e5e7eb;margin-top:10px;display:none">
-                  <div class="settings-card-header" style="padding:12px">
-                    <div>
-                      <h3 style="font-size:1rem">الصلاحيات</h3>
-                      <div class="settings-card-subtitle" style="margin-top:2px">حدد الصلاحيات من المجموعات أو استخدم القوالب الجاهزة</div>
+                  <div class="settings-card"
+                    style="box-shadow:none;border:1px solid #e5e7eb;margin-top:10px;display:none">
+                    <div class="settings-card-header" style="padding:12px">
+                      <div>
+                        <h3 style="font-size:1rem">الصلاحيات</h3>
+                        <div class="settings-card-subtitle" style="margin-top:2px">حدد الصلاحيات من المجموعات أو استخدم
+                          القوالب الجاهزة</div>
+                      </div>
+                      <div class="mini-actions" id="permBulkActions">
+                        <button type="button" class="btn mini" onclick="setAllPermsUi_(true)">تحديد الكل</button>
+                        <button type="button" class="btn mini" onclick="setAllPermsUi_(false)">إلغاء الكل</button>
+                      </div>
                     </div>
-                    <div class="mini-actions" id="permBulkActions">
-                      <button type="button" class="btn mini" onclick="setAllPermsUi_(true)">تحديد الكل</button>
-                      <button type="button" class="btn mini" onclick="setAllPermsUi_(false)">إلغاء الكل</button>
+                    <div class="settings-card-body" style="padding:12px">
+                      <div class="preset-actions" id="permPresetActions">
+                        <button type="button" class="btn mini" onclick="applyPermPreset_('explorer')">قالب
+                          مستكشف</button>
+                        <button type="button" class="btn mini" onclick="applyPermPreset_('manager')">قالب مدير</button>
+                        <button type="button" class="btn mini" onclick="applyPermPreset_('super_admin')">قالب مدير
+                          رئيسي</button>
+                      </div>
+                      <div id="userMgmtPermissions" class="perms-grid"></div>
                     </div>
                   </div>
-                  <div class="settings-card-body" style="padding:12px">
-                    <div class="preset-actions" id="permPresetActions">
-                      <button type="button" class="btn mini" onclick="applyPermPreset_('explorer')">قالب مستكشف</button>
-                      <button type="button" class="btn mini" onclick="applyPermPreset_('manager')">قالب مدير</button>
-                      <button type="button" class="btn mini" onclick="applyPermPreset_('super_admin')">قالب مدير رئيسي</button>
-                    </div>
-                    <div id="userMgmtPermissions" class="perms-grid"></div>
-                  </div>
-                </div>
 
-                <div class="settings-actions">
-                  <button type="button" class="btn" onclick="addOrUpdateUser()">حفظ المستخدم</button>
-                  <button type="button" class="btn light" onclick="deleteUser()" style="color:#1f2937;border-color:#e5e7eb">تعطيل المستخدم</button>
-                  <button type="button" class="btn light" id="resetPasswordLinkBtn" onclick="generateResetPasswordLinkForSelectedUser()" style="color:#1f2937;border-color:#e5e7eb">رابط إعادة تعيين كلمة المرور</button>
-                </div>
-                <div class="settings-hint" style="margin-top:10px">ملاحظة: تغيير كلمة مرور مستخدم آخر يتم من لوحة Supabase (Authentication → Users) أو عبر رابط إعادة تعيين كلمة المرور.</div>
+                  <div class="settings-actions">
+                    <button type="button" class="btn" onclick="addOrUpdateUser()">حفظ المستخدم</button>
+                    <button type="button" class="btn light" onclick="deleteUser()"
+                      style="color:#1f2937;border-color:#e5e7eb">تعطيل المستخدم</button>
+                    <button type="button" class="btn light" id="resetPasswordLinkBtn"
+                      onclick="generateResetPasswordLinkForSelectedUser()"
+                      style="color:#1f2937;border-color:#e5e7eb">رابط إعادة تعيين كلمة المرور</button>
+                  </div>
+                  <div class="settings-hint" style="margin-top:10px">ملاحظة: تغيير كلمة مرور مستخدم آخر يتم من لوحة
+                    Supabase (Authentication → Users) أو عبر رابط إعادة تعيين كلمة المرور.</div>
                 </form>
               </div>
             </div>
@@ -1029,4 +1219,5 @@
   <script defer src="assets/js/app.js?v=20260305_1325"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </body>
+
 </html>
