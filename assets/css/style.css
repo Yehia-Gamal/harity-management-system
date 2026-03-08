@@ -1061,8 +1061,8 @@ body.modal-open {
 
 @media (max-width:420px) {
     .modal-card {
-        width: 85vw !important;
-        max-width: 85vw !important;
+        width: 90vw !important;
+        max-width: 90vw !important;
         padding: 10px;
         border-radius: 16px
     }
@@ -2254,10 +2254,14 @@ section#newCaseSection h2 {
 
 .modal-footer-actions-2 {
     width: fit-content;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-align: center;
 }
 
 
-@media (max-width:320px) {
+@media (max-width:375px) {
     #caseDetailsModal .modal-footer-actions {
         gap: 8px;
         padding: 0;
