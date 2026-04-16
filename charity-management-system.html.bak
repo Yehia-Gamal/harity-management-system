@@ -200,7 +200,7 @@
         <button id="mobileNavToggle" class="topbar-toggle" type="button" onclick="toggleMobileNav()" aria-expanded="false" aria-controls="mainNavWrap">
           <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
-        <div class="topbar-brand-lockup"><img class="topbar-brand-logo" src="assets/img/khawatir-logo.png" alt="جمعية خواطر أحلى شباب" /><div class="topbar-brand-text"><div class="topbar-brand-kicker">جمعية خواطر أحلى شباب</div><div class="topbar-title">لجنة أسرة كريمة</div></div></div>
+        <div class="topbar-brand-lockup"><img class="topbar-brand-logo" src="assets/img/khawatir-logo.png" alt="????? ????? ???? ????" /><div class="topbar-brand-text"><div class="topbar-brand-kicker">????? ????? ???? ????</div><div class="topbar-title">???? ???? ?????</div></div></div>
       </div>
       <div class="topbar-end">
         <button class="topbar-btn" type="button" onclick="logout()" title="تسجيل الخروج">

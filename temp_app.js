@@ -96,8 +96,8 @@ function buildCaseDiffText_(before, after) {
 }
 
 async function createUserFromUi_() {
-  if (!requirePermUi_('users_manage', 'لا تملك صلاحية إدارة المستخدمين')) return;
-  if (!requireSupabaseUi_()) return;
+  if (!hasPerm('users_manage')) { alert('لا تملك صلاحية إدارة المستخدمين'); return; }
+  if (!SupabaseClient) { alert('تعذر الاتصال بقاعدة البيانات'); return; }
 
   const hint = document.getElementById('newUserHint');
   const email = (document.getElementById('newUserEmail')?.value || '').toString().trim();
@@ -217,92 +217,6 @@ function showToast_(message, type = 'info', duration = 4000) {
       try { toast.remove(); } catch { }
     }, duration);
   } catch { }
-}
-
-function notify_(message, type = 'info', options = {}) {
-  try {
-    if (window.CharityUi && typeof window.CharityUi.notify === 'function') {
-      window.CharityUi.notify(message, type, options || {});
-      return;
-    }
-  } catch { }
-  const text = (message || '').toString();
-  if (!text) return;
-  if (options && options.alert === true) {
-    try { alert(text); return; } catch { }
-  }
-  showToast_(text, type, (options && options.duration) || 4000);
-}
-
-async function confirmDialog_(options = {}) {
-  try {
-    if (window.CharityUi && typeof window.CharityUi.confirmDialog === 'function') {
-      return await window.CharityUi.confirmDialog(options || {});
-    }
-  } catch { }
-  try { return !!confirm((options.message || options.title || 'تأكيد').toString()); } catch { }
-  return false;
-}
-
-async function promptDialog_(options = {}) {
-  try {
-    if (window.CharityUi && typeof window.CharityUi.promptDialog === 'function') {
-      return await window.CharityUi.promptDialog(options || {});
-    }
-  } catch { }
-  try {
-    const result = prompt((options.message || options.inputLabel || options.title || 'أدخل القيمة').toString(), (options.inputValue || '').toString());
-    return result == null ? null : result.toString();
-  } catch { }
-  return null;
-}
-
-function setInlineHint_(elementId, message, type = 'info') {
-  try {
-    const el = document.getElementById(elementId);
-    if (!el) return false;
-    try { el.classList.remove('is-error', 'is-success', 'is-info', 'hidden'); } catch { }
-    const text = (message || '').toString().trim();
-    if (!text) {
-      el.style.display = 'none';
-      el.textContent = '';
-      return true;
-    }
-    el.style.display = 'block';
-    el.textContent = text;
-    if (type === 'error') el.classList.add('is-error');
-    else if (type === 'success') el.classList.add('is-success');
-    else el.classList.add('is-info');
-    return true;
-  } catch { }
-  return false;
-}
-
-function focusField_(elementId) {
-  try {
-    const el = document.getElementById(elementId);
-    if (!el) return;
-    el.focus();
-    if (typeof el.select === 'function' && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) el.select();
-  } catch { }
-}
-
-function requirePermUi_(perm, message) {
-  try {
-    if (hasPerm(perm)) return true;
-    notify_((message || 'لا تملك صلاحية تنفيذ هذا الإجراء').toString(), 'error', { alert: true });
-    return false;
-  } catch { }
-  return false;
-}
-
-function requireSupabaseUi_(message = 'تعذر الاتصال بقاعدة البيانات') {
-  try {
-    if (SupabaseClient) return true;
-    notify_(message, 'error', { alert: true });
-    return false;
-  } catch { }
-  return false;
 }
 
 function toggleMobileNav(forceOpen) {
@@ -1522,6 +1436,20 @@ async function setCurrentUserFromSession_(user) {
   };
   AppState.isAuthenticated = true;
 
+  // Force master super admin permissions for the primary owner account
+  try {
+    const email = (user?.email || '').toString().trim().toLowerCase();
+    if (email === 'yahia.elspaa@gmail.com') {
+      const forced = { ...getAllPermissionsOn_(), __role: 'super_admin' };
+      try { forced.medical_committee = true; } catch { }
+      try { forced.reports = true; } catch { }
+      try { AppState.currentUser.permissions = forced; } catch { }
+      try {
+        await SupabaseClient.from('profiles').update({ permissions: forced }).eq('id', user.id);
+      } catch { }
+    }
+  } catch { }
+
   // Update last seen if column exists (ignore errors)
   try {
     await SupabaseClient.from('profiles').update({ last_seen_at: new Date().toISOString() }).eq('id', user.id);
@@ -2294,7 +2222,7 @@ function applyRoleBasedUi_() {
   setBtn('auditBtn', can('audit'));
   setBtn('settingsBtn', can('settings'));
   setBtn('medicalCommitteeBtn', can('medical_committee'));
-  setBtn('reportsBtn', can('reports'));
+  setBtn('reportsBtn', role === 'hidden_super_admin' && can('reports'));
 
   // strict visibility rules per role
   if (role === 'explorer') {
@@ -2312,7 +2240,7 @@ function applyRoleBasedUi_() {
     setBtn('settingsBtn', true);
     setBtn('dashboardBtn', true);
     setBtn('medicalCommitteeBtn', false);
-    setBtn('reportsBtn', true);
+    setBtn('reportsBtn', false);
     setBtn('auditBtn', false);
   }
   if (role === 'doctor') {
@@ -2587,10 +2515,14 @@ function showSection(key, navBtnId) {
     const eff = getEffectivePermissions_(AppState.currentUser?.permissions || {});
     const role = (eff?.__role || 'custom').toString().trim();
 
-      const allow = (permKey) => {
-        if (!permKey) return true;
-        return !!eff?.[permKey];
-      };
+    const allow = (permKey) => {
+      if (!permKey) return true;
+      if (permKey === 'reports') {
+        // reports are exclusive to hidden super admin
+        return role === 'hidden_super_admin' && !!eff?.reports;
+      }
+      return !!eff?.[permKey];
+    };
 
     const need = {
       newCaseSection: 'cases_create',
@@ -2678,27 +2610,10 @@ function showSection(key, navBtnId) {
   }
 
   try {
-    Array.from(document.querySelectorAll('#mainNav .nav-btn, #mainNav .sidebar-nav-item')).forEach(b => b.classList.remove('active'));
+    Array.from(document.querySelectorAll('#mainNav .nav-btn')).forEach(b => b.classList.remove('active'));
     if (navBtnId) {
       const btn = document.getElementById(navBtnId);
       if (btn) btn.classList.add('active');
-    }
-  } catch { }
-
-  try {
-    const topbarTitle = document.querySelector('.topbar-title');
-    if (topbarTitle) {
-      const sectionTitles = {
-        newCaseSection: 'إضافة حالة جديدة',
-        casesListSection: 'قائمة الحالات',
-        dashboardSection: 'الإحصائيات',
-        reportsSection: 'التقارير',
-        auditSection: 'سجل الإجراءات',
-        settingsSection: 'الإعدادات',
-        userManagementSection: 'إدارة المستخدمين',
-        medicalCommitteeSection: 'لجنة العمليات الطبية'
-      };
-      topbarTitle.textContent = sectionTitles[targetId] || 'لجنة أسرة كريمة';
     }
   } catch { }
 }
@@ -6146,69 +6061,42 @@ function generateReportPreview() {
   const medicalHtml = renderReportsMedicalPro_(list, range);
 
   host.innerHTML = `
-    <div class="ds-toolbar" style="background:#f8fbff; border-color:#e2eaff; border-radius:12px; margin-bottom:16px;">
-      <div style="font-weight:900; font-size:1.1rem; color:var(--brand-primary);">${rangeLabel}</div>
-      <div style="font-size:0.9rem; color:var(--text-muted); font-weight:700;">عدد الحالات المعروضة: <span style="font-size:1.1rem; color:var(--text-primary);">${escapeHtml(total)}</span></div>
+    <div class="section" style="border-color:#e5e7eb;background:#fff;margin-bottom:12px">
+      <div style="font-weight:800;margin-bottom:6px">${rangeLabel}</div>
+      <div style="color:#64748b">عدد الحالات المعروضة: <strong>${escapeHtml(total)}</strong></div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px">
-      <div class="ds-content-card" style="padding:16px;border-top:3px solid var(--brand-primary)">
-        <div style="font-size:.85rem;color:var(--text-muted);font-weight:700;margin-bottom:4px">إجمالي الحالات</div>
-        <div style="font-size:1.8rem;font-weight:900;color:var(--text-primary)">${escapeHtml(total)}</div>
-      </div>
-      <div class="ds-content-card" style="padding:16px;border-top:3px solid var(--status-success);background:rgba(16,185,129,0.02)">
-        <div style="font-size:.85rem;color:var(--status-success);font-weight:700;margin-bottom:4px">الحالات المنفذة</div>
-        <div style="font-size:1.8rem;font-weight:900;color:var(--status-success)">${escapeHtml(done)}</div>
-      </div>
-      <div class="ds-content-card" style="padding:16px;border-top:3px solid var(--brand-secondary)">
-        <div style="font-size:.85rem;color:var(--text-muted);font-weight:700;margin-bottom:4px">نسبة الإنجاز</div>
-        <div style="font-size:1.8rem;font-weight:900;color:var(--brand-secondary)">${escapeHtml(rate)}%</div>
-      </div>
-      <div class="ds-content-card" style="padding:16px;border-top:3px solid var(--status-warning)">
-        <div style="font-size:.85rem;color:var(--text-muted);font-weight:700;margin-bottom:4px">العاجلة</div>
-        <div style="font-size:1.8rem;font-weight:900;color:var(--text-primary)">${escapeHtml(urgent)}</div>
-      </div>
-      <div class="ds-content-card" style="padding:16px;border-top:3px solid #8b5cf6">
-        <div style="font-size:.85rem;color:var(--text-muted);font-weight:700;margin-bottom:4px">الطبية</div>
-        <div style="font-size:1.8rem;font-weight:900;color:var(--text-primary)">${escapeHtml(medical)}</div>
-      </div>
-      <div class="ds-content-card" style="padding:16px;border-top:3px solid var(--text-muted)">
-        <div style="font-size:.85rem;color:var(--text-muted);font-weight:700;margin-bottom:8px">توزيع أعلى المحافظات</div>
-        <div style="font-size:.9rem;color:var(--text-primary)">${topGov || 'لا بيانات'}</div>
-      </div>
-      <div class="ds-content-card" style="padding:16px;border-top:3px solid #0284c7">
-        <div style="font-size:.85rem;color:var(--text-muted);font-weight:700;margin-bottom:4px">إجمالي عمليات كفالة</div>
-        <div style="font-size:1.8rem;font-weight:900;color:var(--text-primary)">${escapeHtml(spons.length)}</div>
-        <div style="font-size:.8rem;color:var(--text-muted);margin-top:4px">بإجمالي ${escapeHtml(Math.round(sponsTotal).toLocaleString('en-US'))} جنيه</div>
-      </div>
-      <div class="ds-content-card" style="padding:16px;border-top:3px solid #059669">
-        <div style="font-size:.85rem;color:var(--text-muted);font-weight:700;margin-bottom:4px">تدخلات أخرى</div>
-        <div style="font-size:1.8rem;font-weight:900;color:var(--text-primary)">${escapeHtml(other.length)}</div>
-        <div style="font-size:.8rem;color:var(--text-muted);margin-top:4px">بإجمالي ${escapeHtml(Math.round(otherTotal).toLocaleString('en-US'))} جنيه</div>
-      </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+      <div class="section"><div style="font-weight:700;font-size:22px">${escapeHtml(total)}</div>إجمالي الحالات</div>
+      <div class="section"><div style="font-weight:700;font-size:22px">${escapeHtml(done)}</div>الحالات المنفذة</div>
+      <div class="section"><div style="font-weight:700;font-size:22px">${escapeHtml(rate)}%</div>نسبة الإنجاز</div>
+      <div class="section"><div style="font-weight:700;font-size:22px">${escapeHtml(urgent)}</div>العاجلة</div>
+      <div class="section"><div style="font-weight:700;font-size:22px">${escapeHtml(medical)}</div>الطبية</div>
+      <div class="section"><div style="font-weight:700;margin-bottom:6px">حسب المحافظة</div>${topGov || 'لا بيانات'}</div>
+      <div class="section"><div style="font-weight:700;font-size:22px">${escapeHtml(spons.length)}</div>عمليات كفالة داخل الفترة</div>
+      <div class="section"><div style="font-weight:700;font-size:22px">${escapeHtml(Math.round(sponsTotal).toLocaleString('en-US'))}</div>إجمالي الكفالات داخل الفترة</div>
+      <div class="section"><div style="font-weight:700;font-size:22px">${escapeHtml(other.length)}</div>مساعدات أخرى داخل الفترة</div>
+      <div class="section"><div style="font-weight:700;font-size:22px">${escapeHtml(Math.round(otherTotal).toLocaleString('en-US'))}</div>إجمالي المساعدات الأخرى</div>
     </div>
-    <div class="ds-section-panel" style="margin-bottom:24px">
-      <div class="ds-section-panel-title">
-        <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-left:8px"><polyline points="20 6 9 17 4 12"></polyline></svg>
-        نص الإنجازات المجمع (يمكن نسخه والمشاركة به)
-      </div>
-      <pre id="reportsAchievementsText" style="white-space:pre-wrap;margin:16px;padding:20px;background:#f8fafc;border:1px solid #e2eaf0;border-radius:12px;font-family:inherit;line-height:1.85;color:var(--text-primary);font-size:.95rem">${escapeHtml(achievementsText || 'لا توجد إنجازات داخل الفترة وفقاً للبيانات الحالية.')}</pre>
+    <div class="section" style="margin-top:12px">
+      <div style="font-weight:800;margin-bottom:10px">الإنجازات</div>
+      <pre id="reportsAchievementsText" style="white-space:pre-wrap;margin:0;font-family:inherit;line-height:1.75">${escapeHtml(achievementsText || 'لا توجد إنجازات داخل الفترة وفقاً للبيانات الحالية.')}</pre>
     </div>
-    <div class="ds-section-panel" style="margin-bottom:24px">
-      <div class="ds-section-panel-title">أفضل 10 مناطق إنجازًا</div>
-      <div style="margin:16px">${topAreasHtml}</div>
+    <div class="section" style="margin-top:12px">
+      <div style="font-weight:800;margin-bottom:10px">أفضل 10 مناطق إنجازًا</div>
+      ${topAreasHtml}
     </div>
-    <div class="ds-section-panel" style="margin-bottom:24px">
-      <div class="ds-section-panel-title">الإنجازات حسب المنفّذ</div>
-      <div style="margin:16px">${byExecutorHtml}</div>
+    <div class="section" style="margin-top:12px">
+      <div style="font-weight:800;margin-bottom:10px">الإنجازات حسب المنفّذ</div>
+      ${byExecutorHtml}
     </div>
-    <div class="ds-section-panel" style="margin-bottom:24px">
-      <div class="ds-section-panel-title">تقرير طبي (احترافي)</div>
-      <div style="margin:16px">${medicalHtml}</div>
+    <div class="section" style="margin-top:12px">
+      <div style="font-weight:800;margin-bottom:10px">تقرير طبي (احترافي)</div>
+      ${medicalHtml}
     </div>
     ${achievementsOnly ? '' : `
-      <div class="ds-section-panel" style="margin-bottom:24px">
-        <div class="ds-section-panel-title">تفاصيل الحالات</div>
-        <div style="margin:16px">${previewTable}</div>
+      <div class="section" style="margin-top:12px">
+        <div style="font-weight:800;margin-bottom:10px">تفاصيل الحالات</div>
+        ${previewTable}
       </div>`}
     `;
 
@@ -6335,14 +6223,13 @@ function renderReportsDashboard_(casesInRange, range, typeFilter, flatAssists) {
 
 function buildReportsAchievementsText_(cases, range, typeFilter) {
   const list = Array.isArray(cases) ? cases : [];
-  const safeRange = range?.active ? `${range.label}` : 'كل البيانات';
+  const safeRange = range?.active ? `الفترة: ${range.label}` : 'الفترة: كل البيانات';
   const lines = [];
-  lines.push(`📊 تقرير إنجازات لجنة أسرة كريمة`);
-  lines.push(`📅 الفترة: ${safeRange}`);
+  lines.push(`تقرير الإنجازات`);
+  lines.push(safeRange);
   if (typeFilter && typeFilter !== 'all') {
-    lines.push(`🏷️ نوع التقرير: ${escapeHtml(getReportsTypeLabel_(typeFilter))}`);
+    lines.push(`نوع التقرير: ${escapeHtml(getReportsTypeLabel_(typeFilter))}`);
   }
-  lines.push(`--------------------------------------------------`);
   lines.push('');
 
   const totalCases = list.length;
@@ -6355,63 +6242,45 @@ function buildReportsAchievementsText_(cases, range, typeFilter) {
     }
     return true;
   }).length;
-
-  if (totalCases || addedCases) {
-    lines.push(`👥 ملخص الحالات الإجمالي:`);
-  }
   if (totalCases) {
-    lines.push(`   🔸 إجمالي الحالات المتفاعلة: ${totalCases} حالة${range?.active ? ' (ضمن الفترة)' : ''}`);
+    lines.push(`- تم التعامل مع عدد ${totalCases} حالة داخل النظام${range?.active ? ' ضمن الفترة المحددة' : ''}.`);
   }
   if (addedCases && range?.active) {
-    lines.push(`   🔸 حالات جديدة مسجلة: ${addedCases} حالة مستجدة`);
+    lines.push(`- تم إضافة/تسجيل ${addedCases} حالة بتاريخ ضمن الفترة.`);
   }
 
   const assistsAll = flattenAssistanceInRange_(list, range);
   const assists = filterAssistsByReportsType_(assistsAll, typeFilter);
   if (assists.length) {
     lines.push('');
-    lines.push('💰 تفصيل المساعدات والكفالات (المنفذة):');
-    lines.push('--------------------------------------------------');
+    lines.push('إنجازات المساعدات/الكفالات:');
 
     const fmtMoney = (n) => Math.round(Number(n || 0)).toLocaleString('en-US');
 
-    // Grouping by Governorate and Area for better hierarchy
-    const govGroups = {};
+    // group by (gov, area, type)
+    const keyOf = (x) => `${(x?.governorate || 'غير محدد').trim()}||${(x?.area || 'غير محدد').trim()}||${(x?.type || 'غير محدد').trim()}`;
+    const groups = {};
     assists.forEach(x => {
-      const gov = (x?.governorate || 'غير محدد').trim();
-      const area = (x?.area || 'غير محدد').trim();
-      const type = (x?.type || 'غير محدد').trim();
-
-      govGroups[gov] = govGroups[gov] || { total: 0, areas: {} };
-      govGroups[gov].total += Number(x?.amount ?? 0) || 0;
-
-      const ak = `${area}||${type}`;
-      govGroups[gov].areas[ak] = govGroups[gov].areas[ak] || { area, type, count: 0, total: 0, names: [] };
-      govGroups[gov].areas[ak].count += 1;
-      govGroups[gov].areas[ak].total += Number(x?.amount ?? 0) || 0;
-
+      const k = keyOf(x);
+      groups[k] = groups[k] || { gov: (x?.governorate || 'غير محدد').trim(), area: (x?.area || 'غير محدد').trim(), type: (x?.type || 'غير محدد').trim(), count: 0, total: 0, names: [] };
+      groups[k].count += 1;
+      groups[k].total += Number(x?.amount ?? 0) || 0;
       const nm = (x?.familyHead || '').toString().trim();
-      if (nm) govGroups[gov].areas[ak].names.push(nm);
+      if (nm) groups[k].names.push(nm);
     });
 
-    const sortedGovs = Object.keys(govGroups).sort((a,b) => govGroups[b].total - govGroups[a].total);
+    const sorted = Object.values(groups).sort((a, b) => (b.total - a.total) || (b.count - a.count));
+    sorted.slice(0, 20).forEach(g => {
+      const typeLabel = g.type === 'sponsorship' ? 'كفالة مالية' : g.type;
+      const place = `${g.gov}${g.area ? ` - ${g.area}` : ''}`;
+      const moneyPart = g.total ? ` بإجمالي ${fmtMoney(g.total)} جنيه` : '';
+      lines.push(`- تم تنفيذ ${typeLabel} في ${place} بعدد ${g.count}${moneyPart}.`);
 
-    sortedGovs.forEach(gov => {
-      lines.push(`\n📍 محافظة ${gov}`);
-
-      const sortedAreas = Object.values(govGroups[gov].areas).sort((a,b) => b.total - a.total);
-      sortedAreas.forEach(g => {
-        const typeLabel = g.type === 'sponsorship' ? 'كفالة مالية' : g.type;
-        const areaText = g.area && g.area !== 'غير محدد' ? g.area : 'مناطق عامة';
-        const moneyPart = g.total ? ` (بإجمالي ${fmtMoney(g.total)} جنيه)` : '';
-
-        lines.push(`   🔸 ${areaText}: ${g.count} عملية ${typeLabel}${moneyPart}`);
-
-        const uniq = Array.from(new Set((g.names || []).filter(Boolean)));
-        if (uniq.length > 0 && uniq.length <= 15) {
-          lines.push(`      👤 شملت: ${uniq.join('، ')}`);
-        }
-      });
+      // For small groups, include sample names
+      const uniq = Array.from(new Set((g.names || []).filter(Boolean)));
+      if (uniq.length && uniq.length <= 8) {
+        lines.push(`  الأسماء: ${uniq.join('، ')}`);
+      }
     });
   }
 
@@ -6424,7 +6293,7 @@ function buildReportsAchievementsText_(cases, range, typeFilter) {
   const topCats = Object.entries(byCat).sort((a, b) => b[1] - a[1]).slice(0, 10);
   if (topCats.length) {
     lines.push('');
-    lines.push('📈 توزيع الحالات المتفاعلة حسب الفئة:');
+    lines.push('توزيع الإنجازات حسب الفئة:');
     topCats.forEach(([cat, n]) => {
       lines.push(`- ${cat}: ${n} حالة`);
     });
