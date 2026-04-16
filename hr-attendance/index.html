@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a3b43">
+  <meta name="description" content="Prototype blueprint for a Web-only / PWA HR attendance and mission control platform with Passkeys and geolocation.">
+  <title>HR Attendance &amp; Mission Control</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./assets/app.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="hero">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <div class="eyebrow">Web-only / PWA / Passkeys / GPS</div>
+          <h1>منصة HR Attendance &amp; Mission Control</h1>
+          <p class="lead">
+            نموذج تنفيذي مستقل يترجم الوثيقة المعتمدة إلى حزمة جاهزة للبدء: SQL Schema، API Contract،
+            Sprint Plan، وواجهة RTL تشرح كيف سيعمل الحضور بالموقع والتحقق المحلي عبر Passkeys.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="../docs/hr-attendance/schema.sql">فتح SQL Schema</a>
+            <a class="button ghost" href="../docs/hr-attendance/api-contract.md">فتح API Contract</a>
+            <a class="button ghost" href="../docs/hr-attendance/sprint-plan.md">فتح Sprint Plan</a>
+            <button class="button install hidden" id="installBtn" type="button">تثبيت الـ PWA</button>
+          </div>
+          <div class="trust-strip">
+            <span>تحقق محلي</span>
+            <span>وقت الخادم</span>
+            <span>Geofence</span>
+            <span>Risk Flags</span>
+            <span>Audit Log</span>
+          </div>
+        </div>
+
+        <div class="hero-panel">
+          <div class="stat-grid">
+            <article class="stat-card">
+              <span class="stat-label">السعة الحالية</span>
+              <strong>55 موظف</strong>
+              <small>مع قابلية توسع لاحقة</small>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">طبقات الثقة</span>
+              <strong>5 عناصر</strong>
+              <small>حساب + Passkey + وقت + موقع + مراجعة</small>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">مراحل التنفيذ</span>
+              <strong>4 مراحل</strong>
+              <small>Core ثم Presence ثم Missions ثم Polish</small>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">KPI</span>
+              <strong>5 معايير</strong>
+              <small>مع أوزان قابلة للتعديل</small>
+            </article>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="rail">
+        <div class="rail-card">
+          <h2>خريطة التنفيذ</h2>
+          <nav class="rail-nav">
+            <a href="#architecture">المعمارية</a>
+            <a href="#simulator">محاكي الحضور</a>
+            <a href="#admin">لوحة الإدارة</a>
+            <a href="#employee">Employee PWA</a>
+            <a href="#data-model">نموذج البيانات</a>
+            <a href="#delivery">خطة التسليم</a>
+          </nav>
+        </div>
+      </aside>
+
+      <div class="content">
+        <section class="panel" id="architecture">
+          <div class="panel-head">
+            <div>
+              <span class="section-kicker">Architecture</span>
+              <h2>طبقات النظام النهائية</h2>
+            </div>
+            <div class="pill-group">
+              <span class="pill">Laravel API</span>
+              <span class="pill">Next.js Admin + PWA</span>
+              <span class="pill">PostgreSQL</span>
+              <span class="pill">Redis + Queue</span>
+            </div>
+          </div>
+          <div class="stack-grid">
+            <article class="stack-card">
+              <h3>Frontend</h3>
+              <ul class="stack-list">
+                <li>Admin Dashboard بإدارة الموظفين والحضور والتقارير</li>
+                <li>Employee PWA لتسجيل الحضور والانصراف والطلبات</li>
+                <li>RTL منذ البداية مع تجربة لمس واضحة على الهاتف</li>
+              </ul>
+            </article>
+            <article class="stack-card">
+              <h3>Core Services</h3>
+              <ul class="stack-list">
+                <li>Auth + Passkeys/WebAuthn</li>
+                <li>Attendance Resolver + Geofence Evaluation</li>
+                <li>Missions + Leave + Notifications + Audit</li>
+              </ul>
+            </article>
+            <article class="stack-card">
+              <h3>Infrastructure</h3>
+              <ul class="stack-list">
+                <li>PostgreSQL للمعاملات والتقارير</li>
+                <li>Redis للـ queue, cache, escalations</li>
+                <li>Object Storage للمرفقات وPush subscriptions</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel" id="simulator">
+          <div class="panel-head">
+            <div>
+              <span class="section-kicker">Attendance Logic</span>
+              <h2>محاكي قرار الحضور والانصراف</h2>
+            </div>
+            <div class="pill-group">
+              <span class="pill accent">Passkey First</span>
+              <span class="pill accent">Server Time</span>
+            </div>
+          </div>
+          <div class="simulator-grid">
+            <form class="simulator-form" id="simulatorForm">
+              <label>
+                <span>نوع الحركة</span>
+                <select id="eventType">
+                  <option value="checkin">تسجيل حضور</option>
+                  <option value="checkout">تسجيل انصراف</option>
+                </select>
+              </label>
+              <label>
+                <span>نتيجة Passkey</span>
+                <select id="passkeyStatus">
+                  <option value="verified">نجاح</option>
+                  <option value="failed">فشل</option>
+                </select>
+              </label>
+              <label>
+                <span>صلاحية الموقع</span>
+                <select id="locationPermission">
+                  <option value="granted">مسموح</option>
+                  <option value="denied">مرفوض</option>
+                  <option value="unknown">غير متاح</option>
+                </select>
+              </label>
+              <label>
+                <span>تقييم Geofence</span>
+                <select id="geofenceState">
+                  <option value="insidebranch">داخل المقر</option>
+                  <option value="insidemission">داخل مأمورية</option>
+                  <option value="outsidebranch">خارج النطاق</option>
+                  <option value="unknown">غير معروف</option>
+                </select>
+              </label>
+              <label class="inline-toggle">
+                <input id="missionActive" type="checkbox">
+                <span>يوجد Mission معتمدة نشطة</span>
+              </label>
+              <label class="inline-toggle">
+                <input id="unknownDevice" type="checkbox">
+                <span>الجهاز غير موثوق</span>
+              </label>
+              <label class="inline-toggle">
+                <input id="staleSession" type="checkbox">
+                <span>الجلسة قديمة وتحتاج تشديد</span>
+              </label>
+            </form>
+
+            <div class="result-card">
+              <div class="result-summary">
+                <span class="result-badge" id="resultBadge">جار التقييم</span>
+                <h3 id="resultTitle">حركة موثقة وتلقائية</h3>
+                <p id="resultDescription">سيتم احتسابها كحضور داخل المقر بدون مراجعة.</p>
+              </div>
+
+              <div class="mini-metrics">
+                <div>
+                  <span>Verification</span>
+                  <strong id="verificationValue">verified</strong>
+                </div>
+                <div>
+                  <span>Geofence</span>
+                  <strong id="geofenceValue">insidebranch</strong>
+                </div>
+                <div>
+                  <span>Review</span>
+                  <strong id="reviewValue">No</strong>
+                </div>
+              </div>
+
+              <div class="risk-box">
+                <span>Risk Flags</span>
+                <div id="riskFlags" class="risk-flags"></div>
+              </div>
+
+              <div class="code-block">
+                <div class="code-head">
+                  <span>attendance_event payload</span>
+                  <button class="button tiny ghost" id="copyPayloadBtn" type="button">نسخ JSON</button>
+                </div>
+                <pre id="payloadPreview"></pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" id="admin">
+          <div class="panel-head">
+            <div>
+              <span class="section-kicker">Admin Experience</span>
+              <h2>شكل لوحة الإدارة المقترح</h2>
+            </div>
+            <div class="pill-group">
+              <span class="pill">Attendance Board</span>
+              <span class="pill">Mission Center</span>
+              <span class="pill">Audit Log</span>
+            </div>
+          </div>
+          <div class="dashboard-grid">
+            <article class="dashboard-card hero-card">
+              <div class="dashboard-label">اليوم</div>
+              <h3>لوحة تشغيل فورية للإدارة و HR</h3>
+              <div class="kpi-row">
+                <div><span>لم يسجلوا حضورًا</span><strong>7</strong></div>
+                <div><span>حالات تحتاج مراجعة</span><strong>3</strong></div>
+                <div><span>مأموريات نشطة</span><strong>5</strong></div>
+                <div><span>طلبات موقع معلقة</span><strong>2</strong></div>
+              </div>
+            </article>
+            <article class="dashboard-card">
+              <h3>Boards سريعة</h3>
+              <ul class="plain-list">
+                <li>Attendance Daily Board مع approve/reject</li>
+                <li>Mission Center مع timeline وحالة التنفيذ</li>
+                <li>Live Presence Monitor مع pending response</li>
+                <li>Reports Center حسب الفرع والقسم والمجمع</li>
+              </ul>
+            </article>
+            <article class="dashboard-card">
+              <h3>تصعيدات تلقائية</h3>
+              <div class="timeline-list">
+                <div><span>09:55</span><strong>تنبيه تأخر قبل بداية 10:00</strong></div>
+                <div><span>10:20</span><strong>تصعيد غياب بدون تسجيل</strong></div>
+                <div><span>12:10</span><strong>انتهاء مهلة طلب موقع مباشر</strong></div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel" id="employee">
+          <div class="panel-head">
+            <div>
+              <span class="section-kicker">Employee PWA</span>
+              <h2>تجربة الموظف على الهاتف</h2>
+            </div>
+            <div class="pill-group">
+              <span class="pill">Check-in / Check-out</span>
+              <span class="pill">Passkeys</span>
+              <span class="pill">Location Requests</span>
+            </div>
+          </div>
+          <div class="employee-grid">
+            <div class="phone-frame">
+              <div class="phone-top">
+                <span>09:58</span>
+                <strong>HR PWA</strong>
+                <span>100%</span>
+              </div>
+              <div class="phone-body">
+                <div class="phone-card success">
+                  <span>حالتي اليوم</span>
+                  <strong>جاهز لتسجيل الحضور</strong>
+                  <small>آخر تحقق أمني: Passkey نشطة</small>
+                </div>
+                <div class="phone-actions">
+                  <button type="button">تسجيل حضور</button>
+                  <button type="button">تسجيل انصراف</button>
+                </div>
+                <div class="phone-list">
+                  <div>
+                    <span>آخر عملية</span>
+                    <strong>لا توجد حركة اليوم بعد</strong>
+                  </div>
+                  <div>
+                    <span>طلبات موقعي</span>
+                    <strong>1 قيد الانتظار</strong>
+                  </div>
+                  <div>
+                    <span>المأموريات</span>
+                    <strong>مأمورية الغد 10:00 - 15:30</strong>
+                  </div>
+                  <div>
+                    <span>Passkeys</span>
+                    <strong>2 أجهزة مسجلة</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="employee-copy">
+              <div class="callout">
+                <h3>القاعدة الجديدة</h3>
+                <p>الحركة لا تعتبر مكتملة إلا بعد Passkey assertion ناجحة، ثم التقاط الموقع أو تسجيل سبب عدم توفره، ثم اعتماد وقت الخادم فقط.</p>
+              </div>
+              <div class="feature-grid">
+                <article>
+                  <h4>Onboarding</h4>
+                  <p>دعوة الموظف، أول تسجيل دخول، إلزام إنشاء Passkey، واختبار الموقع والإشعارات.</p>
+                </article>
+                <article>
+                  <h4>Security</h4>
+                  <p>إدارة الأجهزة الموثوقة، حذف Passkey، وسجل آخر استخدام أمني.</p>
+                </article>
+                <article>
+                  <h4>Requests</h4>
+                  <p>إجازات، أذونات، نسيان تسجيل، ومأموريات كلها من نفس واجهة الـ PWA.</p>
+                </article>
+                <article>
+                  <h4>Presence</h4>
+                  <p>تتبع عند الحضور والانصراف للجميع، وتتبع أثناء المأموريات أو للوظائف الميدانية حسب السياسة.</p>
+                </article>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" id="data-model">
+          <div class="panel-head">
+            <div>
+              <span class="section-kicker">Data Model</span>
+              <h2>الموديولات الأساسية في قاعدة البيانات</h2>
+            </div>
+            <div class="pill-group">
+              <span class="pill">34+ كيانات</span>
+              <span class="pill">Enums + FKs + Audit</span>
+            </div>
+          </div>
+          <div class="module-grid">
+            <article class="module-card">
+              <h3>Identity</h3>
+              <p>users, roles, permissions, user_roles, passkey_credentials, user_devices</p>
+            </article>
+            <article class="module-card">
+              <h3>Org Structure</h3>
+              <p>branches, departments, governorates, complexes, employees, employee_shifts, work_shifts</p>
+            </article>
+            <article class="module-card">
+              <h3>Attendance</h3>
+              <p>attendance_events, attendance_daily, attendance_exceptions, attendance_manual_overrides</p>
+            </article>
+            <article class="module-card">
+              <h3>Presence</h3>
+              <p>location_requests, employee_locations, mission_location_logs, push_subscriptions, notifications</p>
+            </article>
+            <article class="module-card">
+              <h3>Missions &amp; Leave</h3>
+              <p>missions, leave_types, leave_requests, exception_types, attachments</p>
+            </article>
+            <article class="module-card">
+              <h3>Performance</h3>
+              <p>kpi_cycles, kpi_criteria, employee_kpi_scores, employee_kpi_summaries</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel" id="delivery">
+          <div class="panel-head">
+            <div>
+              <span class="section-kicker">Delivery Plan</span>
+              <h2>ترتيب التسليم المقترح</h2>
+            </div>
+            <div class="segmented" id="phaseFilter">
+              <button class="active" type="button" data-phase="all">الكل</button>
+              <button type="button" data-phase="phase1">Phase 1</button>
+              <button type="button" data-phase="phase2">Phase 2</button>
+              <button type="button" data-phase="phase3">Phase 3</button>
+              <button type="button" data-phase="phase4">Phase 4</button>
+            </div>
+          </div>
+          <div class="phase-grid">
+            <article class="phase-card" data-phase="phase1">
+              <span>Phase 1</span>
+              <h3>Core Platform</h3>
+              <p>Identity, roles, employees, branches, shifts, Passkeys, attendance check-in/out, daily board.</p>
+            </article>
+            <article class="phase-card" data-phase="phase2">
+              <span>Phase 2</span>
+              <h3>Presence &amp; Exceptions</h3>
+              <p>Geofence, leave/exception workflows, employee PWA home, notifications, live location requests.</p>
+            </article>
+            <article class="phase-card" data-phase="phase3">
+              <span>Phase 3</span>
+              <h3>Missions &amp; Executive Controls</h3>
+              <p>Missions lifecycle, escalations, executive dashboard, advanced map monitoring.</p>
+            </article>
+            <article class="phase-card" data-phase="phase4">
+              <span>Phase 4</span>
+              <h3>Enterprise Polish</h3>
+              <p>Exports, audit enhancements, branding, hardening, QA, pilot deployment, analytics refinements.</p>
+            </article>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <p>هذا prototype مستقل عن المشروع الحالي داخل المستودع ويستخدم كحزمة بدء تنفيذية للمسار الجديد.</p>
+      <div class="footer-links">
+        <a href="../docs/hr-attendance/README.md">Execution Pack</a>
+        <a href="../docs/hr-attendance/schema.sql">Schema</a>
+        <a href="../docs/hr-attendance/api-contract.md">API</a>
+        <a href="../docs/hr-attendance/sprint-plan.md">Sprints</a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="./assets/app.js"></script>
+</body>
+</html>
+

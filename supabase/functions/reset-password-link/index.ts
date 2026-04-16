@@ -1,60 +1,44 @@
 declare const Deno: any;
-// @ts-ignore - Deno runtime supports URL imports; TS language service may not resolve it.
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2?target=deno";
+import { corsHeaders, json, requireUsersManage } from "../_shared/security.ts";
 
-// Note: this is a Supabase Edge Function (Deno runtime)
 Deno.serve(async (req: Request) => {
-  const corsHeaders: Record<string, string> = {
-    "access-control-allow-origin": "*",
-    "access-control-allow-headers": "authorization, x-client-info, apikey, content-type",
-    "access-control-allow-methods": "POST, OPTIONS",
-  };
+  const { headers, allowed } = corsHeaders(req);
 
   if (req.method === "OPTIONS") {
-    return new Response("ok", { status: 200, headers: corsHeaders });
+    return new Response(allowed ? "ok" : "forbidden", { status: allowed ? 200 : 403, headers });
   }
+  if (!allowed) return json({ error: "origin_not_allowed" }, 403, headers);
+  if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405, headers);
 
   try {
-    const { email } = await req.json();
-    const e = (email || "").toString().trim().toLowerCase();
-    if (!e || !e.includes("@")) {
-      return new Response(JSON.stringify({ error: "email_required" }), {
-        status: 400,
-        headers: { ...corsHeaders, "content-type": "application/json" },
-      });
-    }
+    const guard = await requireUsersManage(req, headers);
+    if (guard.response) return guard.response;
+    const { supabaseAdmin, caller } = guard;
 
-    const url = Deno.env.get("SUPABASE_URL") || "";
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-    if (!url || !serviceRoleKey) {
-      return new Response(JSON.stringify({ error: "missing_env" }), {
-        status: 500,
-        headers: { ...corsHeaders, "content-type": "application/json" },
-      });
-    }
-
-    const supabaseAdmin = createClient(url, serviceRoleKey);
+    const body = await req.json().catch(() => ({}));
+    const email = String(body?.email || "").trim().toLowerCase();
+    if (!email || !email.includes("@")) return json({ error: "email_required" }, 400, headers);
 
     const { data, error } = await supabaseAdmin.auth.admin.generateLink({
       type: "recovery",
-      email: e,
+      email,
     });
 
-    if (error) {
-      return new Response(JSON.stringify({ error: error.message }), {
-        status: 400,
-        headers: { ...corsHeaders, "content-type": "application/json" },
+    if (error) return json({ error: "reset_link_failed" }, 400, headers);
+
+    try {
+      await supabaseAdmin.from("audit_log").insert({
+        action: "إنشاء رابط إعادة تعيين كلمة المرور",
+        case_id: "",
+        details: `target: ${email}`,
+        created_by: caller.id,
       });
+    } catch {
+      // Audit failure must not expose internals or block the requested admin action.
     }
 
-    return new Response(
-      JSON.stringify({ action_link: data?.properties?.action_link || "" }),
-      { status: 200, headers: { ...corsHeaders, "content-type": "application/json" } }
-    );
-  } catch (err) {
-    return new Response(JSON.stringify({ error: "bad_request" }), {
-      status: 400,
-      headers: { ...corsHeaders, "content-type": "application/json" },
-    });
+    return json({ ok: true, action_link: data?.properties?.action_link || "" }, 200, headers);
+  } catch {
+    return json({ error: "bad_request" }, 400, headers);
   }
 });

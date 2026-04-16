@@ -40,28 +40,28 @@ function buildCaseDiffText_(before, after) {
 
     add('Ø§Ù„ØªÙ‚ÙŠÙŠÙ…', a0.caseGrade, b0.caseGrade);
     add('Ø§Ø³Ù… Ø§Ù„Ø­Ø§Ù„Ø©', a0.familyHead, b0.familyHead);
-    add('Ø§Ù„Ù‡Ø§ØªÙ', a0.phone, b0.phone);
+    add('الهاتف', a0.phone, b0.phone);
     add('ÙˆØ§ØªØ³Ø§Ø¨', a0.whatsapp, b0.whatsapp);
     add('Ø§Ù„Ø­Ø§Ù„Ø© Ø§Ù„Ø§Ø¬ØªÙ…Ø§Ø¹ÙŠØ©', a0.maritalStatus, b0.maritalStatus);
     add('Ø§Ù„Ø¹Ù†ÙˆØ§Ù†', a0.address, b0.address);
-    add('Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©', a0.governorate, b0.governorate);
+    add('المحافظة', a0.governorate, b0.governorate);
     add('Ø§Ù„Ù…Ù†Ø·Ù‚Ø©', a0.area, b0.area);
-    add('Ø¹Ø¯Ø¯ Ø£ÙØ±Ø§Ø¯ Ø§Ù„Ø£Ø³Ø±Ø©', a0.familyCount, b0.familyCount);
-    add('Ø§Ù„ÙØ¦Ø©', a0.category, b0.category);
+    add('عدد أفراد الأسرة', a0.familyCount, b0.familyCount);
+    add('الفئة', a0.category, b0.category);
     add('Ø§Ù„Ø§Ø³ØªØ¹Ø¬Ø§Ù„', a0.urgency, b0.urgency);
-    add('Ø§Ù„Ù…Ø³ØªÙƒØ´Ù', a0.explorerName, b0.explorerName);
+    add('المستكشف', a0.explorerName, b0.explorerName);
     add('ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¨Ø­Ø«', a0.date, b0.date);
-    add('Ù…Ù†ÙØ° (Ù…Ø¨Ù„Øº)', a0.deliveredAmount, b0.deliveredAmount);
+    add('منفذ (مبلغ)', a0.deliveredAmount, b0.deliveredAmount);
     add('ÙˆØ³ÙˆÙ…', Array.isArray(a0.tags) ? a0.tags.join(', ') : '', Array.isArray(b0.tags) ? b0.tags.join(', ') : '');
 
     add('Ø¹Ù…Ù„ Ø§Ù„Ø£Ø¨', a0.jobs?.father, b0.jobs?.father);
     add('Ø¹Ù…Ù„ Ø§Ù„Ø£Ù…', a0.jobs?.mother, b0.jobs?.mother);
 
-    add('ÙˆØµÙ Ø§Ù„Ø³ÙƒÙ†', a0.housing?.housingDesc, b0.housing?.housingDesc);
-    add('Ø¹Ø¯Ø¯ Ø§Ù„ØºØ±Ù', a0.housing?.roomsCount, b0.housing?.roomsCount);
+    add('وصف السكن', a0.housing?.housingDesc, b0.housing?.housingDesc);
+    add('عدد الغرف', a0.housing?.roomsCount, b0.housing?.roomsCount);
     add('Ø­Ù…Ø§Ù…', a0.housing?.bathroomType, b0.housing?.bathroomType);
     add('Ù…ÙŠØ§Ù‡', a0.housing?.waterExists, b0.housing?.waterExists);
-    add('Ø³Ù‚Ù', a0.housing?.roofExists, b0.housing?.roofExists);
+    add('سقف', a0.housing?.roofExists, b0.housing?.roofExists);
     add('Ù†ÙˆØ¹ Ø§Ù„Ù…Ù†Ø·Ù‚Ø©', a0.housing?.areaType, b0.housing?.areaType);
 
     add('Ù‡Ù„ ØªÙˆØ¬Ø¯ Ø¯ÙŠÙˆÙ†', a0.debts?.enabled ? 'Ù†Ø¹Ù…' : 'Ù„Ø§', b0.debts?.enabled ? 'Ù†Ø¹Ù…' : 'Ù„Ø§');
@@ -72,18 +72,18 @@ function buildCaseDiffText_(before, after) {
 
     add('Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø¯Ø®Ù„', a0.income?.total, b0.income?.total);
     add('Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ø§Ù„Ø¯Ø®Ù„', a0.income?.notes, b0.income?.notes);
-    add('Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…ØµØ±ÙˆÙØ§Øª', a0.expenses?.total, b0.expenses?.total);
-    add('Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ø§Ù„Ù…ØµØ±ÙˆÙØ§Øª', a0.expenses?.notes, b0.expenses?.notes);
-    add('ØµØ§ÙÙŠ Ø´Ù‡Ø±ÙŠ', a0.netMonthly, b0.netMonthly);
+    add('إجمالي المصروفات', a0.expenses?.total, b0.expenses?.total);
+    add('ملاحظات المصروفات', a0.expenses?.notes, b0.expenses?.notes);
+    add('صافي شهري', a0.netMonthly, b0.netMonthly);
 
-    add('Ø²ÙˆØ§Ø¬: Ù…ÙØ¹Ù„', a0.marriage?.enabled ? 'Ù†Ø¹Ù…' : 'Ù„Ø§', b0.marriage?.enabled ? 'Ù†Ø¹Ù…' : 'Ù„Ø§');
+    add('زواج: مفعل', a0.marriage?.enabled ? 'Ù†Ø¹Ù…' : 'Ù„Ø§', b0.marriage?.enabled ? 'Ù†Ø¹Ù…' : 'Ù„Ø§');
     add('Ø§Ø³Ù… Ø§Ù„Ø¹Ø±ÙˆØ³Ø©', a0.marriage?.brideName, b0.marriage?.brideName);
     add('Ø§Ø³Ù… Ø§Ù„Ø¹Ø±ÙŠØ³', a0.marriage?.groomName, b0.marriage?.groomName);
     add('Ù…Ù‡Ù†Ø© Ø§Ù„Ø¹Ø±ÙŠØ³', a0.marriage?.groomJob, b0.marriage?.groomJob);
     add('ØªØ§Ø±ÙŠØ® ÙƒØªØ¨ Ø§Ù„ÙƒØªØ§Ø¨', a0.marriage?.contractDate, b0.marriage?.contractDate);
     add('ØªØ§Ø±ÙŠØ® Ø§Ù„Ø²ÙˆØ§Ø¬', a0.marriage?.weddingDate, b0.marriage?.weddingDate);
 
-    add('Ù…Ø´Ø±ÙˆØ¹: Ù…ÙØ¹Ù„', a0.project?.enabled ? 'Ù†Ø¹Ù…' : 'Ù„Ø§', b0.project?.enabled ? 'Ù†Ø¹Ù…' : 'Ù„Ø§');
+    add('مشروع: مفعل', a0.project?.enabled ? 'Ù†Ø¹Ù…' : 'Ù„Ø§', b0.project?.enabled ? 'Ù†Ø¹Ù…' : 'Ù„Ø§');
     add('Ù†ÙˆØ¹ Ø§Ù„Ù…Ø´Ø±ÙˆØ¹', a0.project?.type, b0.project?.type);
     add('Ø®Ø¨Ø±Ø© Ø§Ù„Ù…Ø´Ø±ÙˆØ¹', a0.project?.experience, b0.project?.experience);
     add('Ø§Ø­ØªÙŠØ§Ø¬Ø§Øª Ø§Ù„Ù…Ø´Ø±ÙˆØ¹', a0.project?.needs, b0.project?.needs);
@@ -116,14 +116,14 @@ async function createUserFromUi_() {
   // Create user via Edge Function ONLY (bypass RLS).
   try {
     if (!SupabaseClient?.functions?.invoke) {
-      throw new Error('Edge Functions ØºÙŠØ± Ù…ÙØ¹Ù„Ø©/ØºÙŠØ± Ù…ØªØ§Ø­Ø©');
+      throw new Error('Edge Functions غير مفعلة/غير متاحة');
     }
     const { data, error } = await SupabaseClient.functions.invoke('create-user', {
       body: { email, password: tempPassword || null, username, full_name: name || null, permissions }
     });
     if (error) {
       const msg = (error?.message || '').toString();
-      throw new Error(msg || 'ØªØ¹Ø°Ø± ØªÙ†ÙÙŠØ° create-user');
+      throw new Error(msg || 'تعذر تنفيذ create-user');
     }
     if (!data?.ok) {
       const err = (data?.error || '').toString();
@@ -146,7 +146,7 @@ async function createUserFromUi_() {
     if (hint) {
       hint.style.display = 'block';
       if (msg.toLowerCase().includes('cors') || msg.toLowerCase().includes('failed to fetch')) {
-        hint.textContent = 'ØªØ¹Ø°Ø± Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…: Ù…Ø´ÙƒÙ„Ø© CORS ÙÙŠ Edge Function create-user. ØªØ£ÙƒØ¯ Ø£Ù† Ø§Ù„ÙƒÙˆØ¯ Ù…ÙˆØ¬ÙˆØ¯ ÙÙŠ Ù…Ù„Ù entrypoint (index.ts) ÙˆØªÙ… DeployØŒ ÙˆØ£Ù† Ø§Ù„Ù€Function ØªØ±Ø¯ Ø¹Ù„Ù‰ OPTIONS ÙˆØªØ¶ÙŠÙ Access-Control-Allow-Origin.';
+        hint.textContent = 'تعذر إنشاء المستخدم: مشكلة CORS في Edge Function create-user. تأكد أن الكود موجود في ملف entrypoint (index.ts) وتم Deploy، وأن الـFunction ترد على OPTIONS وتضيف Access-Control-Allow-Origin.';
       } else {
         hint.textContent = msg ? `ØªØ¹Ø°Ø± Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…: ${msg}` : 'ØªØ¹Ø°Ø± Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…';
       }
@@ -290,7 +290,7 @@ function focusField_(elementId) {
 function requirePermUi_(perm, message) {
   try {
     if (hasPerm(perm)) return true;
-    notify_((message || 'Ù„Ø§ ØªÙ…Ù„Ùƒ ØµÙ„Ø§Ø­ÙŠØ© ØªÙ†ÙÙŠØ° Ù‡Ø°Ø§ Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡').toString(), 'error', { alert: true });
+    notify_((message || 'لا تملك صلاحية تنفيذ هذا الإجراء').toString(), 'error', { alert: true });
     return false;
   } catch { }
   return false;
@@ -351,7 +351,7 @@ async function renderCaseChangeLog_() {
     return;
   }
 
-  try { panel.innerHTML = '<div style="color:#64748b">Ø¬Ø§Ø±Ù ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø³Ø¬Ù„...</div>'; } catch { }
+  try { panel.innerHTML = '<div style="color:#64748b">جارٍ تحميل السجل...</div>'; } catch { }
 
   try {
     const { data, error } = await SupabaseClient
@@ -391,10 +391,10 @@ async function renderCaseChangeLog_() {
         <table class="table" style="min-width:900px">
           <thead>
             <tr>
-              <th>Ø§Ù„ÙˆÙ‚Øª</th>
-              <th>Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…</th>
-              <th>Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡</th>
-              <th>ØªÙØ§ØµÙŠÙ„</th>
+              <th>الوقت</th>
+              <th>المستخدم</th>
+              <th>الإجراء</th>
+              <th>تفاصيل</th>
             </tr>
           </thead>
           <tbody>${rows || '<tr><td colspan="4" style="text-align:center">Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø³Ø¬Ù„ Ù„Ù‡Ø°Ù‡ Ø§Ù„Ø­Ø§Ù„Ø© Ø¨Ø¹Ø¯</td></tr>'}</tbody>
@@ -420,8 +420,8 @@ function initPasswordToggles_() {
             if (!input) return;
             const isPwd = (input.getAttribute('type') || '').toLowerCase() === 'password';
             input.setAttribute('type', isPwd ? 'text' : 'password');
-            btn.textContent = isPwd ? 'ðŸ™ˆ' : 'ðŸ‘';
-            btn.setAttribute('aria-label', isPwd ? 'Ø¥Ø®ÙØ§Ø¡ ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±' : 'Ø¥Ø¸Ù‡Ø§Ø± ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±');
+            btn.textContent = isPwd ? 'ðŸ™ˆ' : '👁';
+            btn.setAttribute('aria-label', isPwd ? 'إخفاء كلمة المرور' : 'Ø¥Ø¸Ù‡Ø§Ø± ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±');
           } catch { }
         });
       } catch { }
@@ -476,7 +476,7 @@ function toggleCasesListCategoriesMobile() {
     if (!grid) return;
     grid.classList.toggle('cats-open');
     const btn = document.getElementById('toggleCasesCatsBtn');
-    if (btn) btn.textContent = grid.classList.contains('cats-open') ? 'Ø¥Ø®ÙØ§Ø¡' : 'Ø¥Ø¸Ù‡Ø§Ø±';
+    if (btn) btn.textContent = grid.classList.contains('cats-open') ? 'إخفاء' : 'Ø¥Ø¸Ù‡Ø§Ø±';
   } catch { }
 }
 
@@ -1278,8 +1278,8 @@ const PERMISSION_GROUPS = [
     items: ['users_manage']
   }
 ];
-const GOVS = ['Ø§Ù„Ù‚Ø§Ù‡Ø±Ø©', 'Ø§Ù„Ø¬ÙŠØ²Ø©', 'Ø§Ù„Ù‚Ù„ÙŠÙˆØ¨ÙŠØ©', 'Ø§Ù„Ø¥Ø³ÙƒÙ†Ø¯Ø±ÙŠØ©', 'Ø¨ÙˆØ±Ø³Ø¹ÙŠØ¯', 'Ø§Ù„Ø³ÙˆÙŠØ³', 'Ø¯Ù…ÙŠØ§Ø·', 'Ø§Ù„Ø¯Ù‚Ù‡Ù„ÙŠØ©', 'Ø§Ù„Ø´Ø±Ù‚ÙŠØ©', 'Ø§Ù„ØºØ±Ø¨ÙŠØ©', 'Ø§Ù„Ù…Ù†ÙˆÙÙŠØ©', 'ÙƒÙØ± Ø§Ù„Ø´ÙŠØ®', 'Ø§Ù„Ø¨Ø­ÙŠØ±Ø©', 'Ø§Ù„Ø¥Ø³Ù…Ø§Ø¹ÙŠÙ„ÙŠØ©', 'Ø¨Ù†ÙŠ Ø³ÙˆÙŠÙ', 'Ø§Ù„ÙÙŠÙˆÙ…', 'Ø§Ù„Ù…Ù†ÙŠØ§', 'Ø£Ø³ÙŠÙˆØ·', 'Ø³ÙˆÙ‡Ø§Ø¬', 'Ù‚Ù†Ø§', 'Ø§Ù„Ø£Ù‚ØµØ±', 'Ø£Ø³ÙˆØ§Ù†', 'Ø§Ù„ÙˆØ§Ø¯ÙŠ Ø§Ù„Ø¬Ø¯ÙŠØ¯', 'Ù…Ø·Ø±ÙˆØ­', 'Ø´Ù…Ø§Ù„ Ø³ÙŠÙ†Ø§Ø¡', 'Ø¬Ù†ÙˆØ¨ Ø³ÙŠÙ†Ø§Ø¡', 'Ø§Ù„Ø¨Ø­Ø± Ø§Ù„Ø£Ø­Ù…Ø±'];
-const CATEGORIES = ['ØªØ¬Ù‡ÙŠØ² Ø¹Ø±Ø§Ø¦Ø³', 'Ø£Ø³Ù‚Ù', 'ÙˆØµÙ„Ø§Øª Ù…ÙŠØ§Ù‡', 'Ø§Ø­ØªÙŠØ§Ø¬Ø§Øª Ø¶Ø±ÙˆØ±ÙŠØ© Ù…Ù„Ø­Ø©', 'Ù…Ø´Ø±ÙˆØ¹Ø§Øª ØµØºÙŠØ±Ø©', 'Ø¹Ù…Ù„ÙŠØ§Øª Ø·Ø¨ÙŠØ©', 'ÙƒÙØ§Ù„Ø§Øª Ù…Ø±Ø¶ÙŠØ©', 'ÙƒÙØ§Ù„Ø© Ø´Ù‡Ø±ÙŠØ©', 'Ø£ÙŠØªØ§Ù…', 'Ø·Ù„Ø§Ø¨ Ø¹Ù„Ù…'];
+const GOVS = ['Ø§Ù„Ù‚Ø§Ù‡Ø±Ø©', 'Ø§Ù„Ø¬ÙŠØ²Ø©', 'Ø§Ù„Ù‚Ù„ÙŠÙˆØ¨ÙŠØ©', 'Ø§Ù„Ø¥Ø³ÙƒÙ†Ø¯Ø±ÙŠØ©', 'Ø¨ÙˆØ±Ø³Ø¹ÙŠØ¯', 'Ø§Ù„Ø³ÙˆÙŠØ³', 'Ø¯Ù…ÙŠØ§Ø·', 'Ø§Ù„Ø¯Ù‚Ù‡Ù„ÙŠØ©', 'Ø§Ù„Ø´Ø±Ù‚ÙŠØ©', 'Ø§Ù„ØºØ±Ø¨ÙŠØ©', 'المنوفية', 'كفر الشيخ', 'Ø§Ù„Ø¨Ø­ÙŠØ±Ø©', 'Ø§Ù„Ø¥Ø³Ù…Ø§Ø¹ÙŠÙ„ÙŠØ©', 'بني سويف', 'الفيوم', 'Ø§Ù„Ù…Ù†ÙŠØ§', 'Ø£Ø³ÙŠÙˆØ·', 'Ø³ÙˆÙ‡Ø§Ø¬', 'Ù‚Ù†Ø§', 'Ø§Ù„Ø£Ù‚ØµØ±', 'Ø£Ø³ÙˆØ§Ù†', 'Ø§Ù„ÙˆØ§Ø¯ÙŠ Ø§Ù„Ø¬Ø¯ÙŠØ¯', 'Ù…Ø·Ø±ÙˆØ­', 'Ø´Ù…Ø§Ù„ Ø³ÙŠÙ†Ø§Ø¡', 'Ø¬Ù†ÙˆØ¨ Ø³ÙŠÙ†Ø§Ø¡', 'Ø§Ù„Ø¨Ø­Ø± Ø§Ù„Ø£Ø­Ù…Ø±'];
+const CATEGORIES = ['ØªØ¬Ù‡ÙŠØ² Ø¹Ø±Ø§Ø¦Ø³', 'أسقف', 'ÙˆØµÙ„Ø§Øª Ù…ÙŠØ§Ù‡', 'Ø§Ø­ØªÙŠØ§Ø¬Ø§Øª Ø¶Ø±ÙˆØ±ÙŠØ© Ù…Ù„Ø­Ø©', 'Ù…Ø´Ø±ÙˆØ¹Ø§Øª ØµØºÙŠØ±Ø©', 'Ø¹Ù…Ù„ÙŠØ§Øª Ø·Ø¨ÙŠØ©', 'كفالات مرضية', 'كفالة شهرية', 'Ø£ÙŠØªØ§Ù…', 'Ø·Ù„Ø§Ø¨ Ø¹Ù„Ù…'];
 // Ù‚ÙˆØ§Ø¦Ù… Ø®ÙŠØ§Ø±Ø§Øª Ø¹Ø§Ù…Ø© Ù‚Ø§Ø¨Ù„Ø© Ù„Ø¥Ø¹Ø§Ø¯Ø© Ø§Ù„Ø§Ø³ØªØ®Ø¯Ø§Ù…
 const RELATION_OPTIONS = [
   'Ø§Ù„Ø£Ù…', 'Ø§Ù„Ø£Ø¨', 'Ø§Ù„Ø²ÙˆØ¬', 'Ø§Ù„Ø²ÙˆØ¬Ø©', 'Ø§Ù„Ø§Ø¨Ù†', 'Ø§Ù„Ø§Ø¨Ù†Ø©', 'Ø²ÙˆØ¬Ø© Ø§Ù„Ø§Ø¨Ù†', 'Ø²ÙˆØ¬ Ø§Ù„Ø§Ø¨Ù†Ø©',
@@ -1299,10 +1299,10 @@ function permissionLabel_(k) {
     audit: 'Ø³Ø¬Ù„ Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡Ø§Øª',
     medical_committee: 'Ù„Ø¬Ù†Ø© Ø§Ù„Ø¹Ù…Ù„ÙŠØ§Øª Ø§Ù„Ø·Ø¨ÙŠØ©',
     cases_read: 'Ù‚Ø±Ø§Ø¡Ø© Ø§Ù„Ø­Ø§Ù„Ø§Øª',
-    cases_create: 'Ø¥Ø¶Ø§ÙØ© Ø­Ø§Ù„Ø§Øª',
+    cases_create: 'إضافة حالات',
     cases_edit: 'ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ø­Ø§Ù„Ø§Øª',
-    cases_delete: 'Ø­Ø°Ù Ø­Ø§Ù„Ø©',
-    cases_delete_all: 'Ø­Ø°Ù ÙƒÙ„ Ø§Ù„Ø­Ø§Ù„Ø§Øª',
+    cases_delete: 'حذف حالة',
+    cases_delete_all: 'حذف كل الحالات',
     case_status_change: 'ØªØºÙŠÙŠØ± Ø§Ù„Ø­Ø§Ù„Ø©',
     users_manage: 'Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†'
   };
@@ -1422,14 +1422,14 @@ async function setUserActiveQuick_(id, makeActive) {
   if (!SupabaseClient) return;
   if (!hasPerm('users_manage')) { alert('Ù„Ø§ ØªÙ…Ù„Ùƒ ØµÙ„Ø§Ø­ÙŠØ© Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†'); return; }
   const v = !!makeActive;
-  const ok = confirm(v ? 'ØªÙØ¹ÙŠÙ„ Ù‡Ø°Ø§ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ØŸ' : 'ØªØ¹Ø·ÙŠÙ„ Ù‡Ø°Ø§ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ØŸ');
+  const ok = confirm(v ? 'تفعيل هذا المستخدم؟' : 'ØªØ¹Ø·ÙŠÙ„ Ù‡Ø°Ø§ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ØŸ');
   if (!ok) return;
   const { error } = await SupabaseClient.from('profiles').update({ is_active: v }).eq('id', String(id));
   if (error) { alert('ØªØ¹Ø°Ø± ØªØ­Ø¯ÙŠØ« Ø­Ø§Ù„Ø© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…'); return; }
   try {
     const { data } = await SupabaseClient.from('profiles').select('username').eq('id', String(id)).maybeSingle();
     const uname = data?.username || '';
-    await logAction(v ? 'ØªÙØ¹ÙŠÙ„ Ù…Ø³ØªØ®Ø¯Ù…' : 'ØªØ¹Ø·ÙŠÙ„ Ù…Ø³ØªØ®Ø¯Ù…', '', `username: ${uname || ''} | id: ${id}`);
+    await logAction(v ? 'تفعيل مستخدم' : 'ØªØ¹Ø·ÙŠÙ„ Ù…Ø³ØªØ®Ø¯Ù…', '', `username: ${uname || ''} | id: ${id}`);
   } catch { }
   try { await renderUsersList(); } catch { }
 }
@@ -1609,10 +1609,10 @@ async function reloadCasesFromSupabase_() {
 
 async function onSupabaseWriteError_(fallbackMsg, e) {
   try {
-    const msg = (fallbackMsg || 'ØªØ¹Ø°Ø± Ø§Ù„Ø­ÙØ¸ ÙÙŠ Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø­Ø§Ù„ÙŠØ§Ù‹.').toString();
+    const msg = (fallbackMsg || 'تعذر الحفظ في قاعدة البيانات حالياً.').toString();
     alert(`${msg}\n\nØ§Ù„Ø®Ø·Ø£: ${e?.message || 'Ø®Ø·Ø£ ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ'}`);
   } catch {
-    try { alert('ØªØ¹Ø°Ø± Ø§Ù„Ø­ÙØ¸ ÙÙŠ Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø­Ø§Ù„ÙŠØ§Ù‹.'); } catch { }
+    try { alert('تعذر الحفظ في قاعدة البيانات حالياً.'); } catch { }
   }
   try { await reloadCasesFromSupabase_(); } catch { }
 }
@@ -1712,7 +1712,7 @@ async function deleteAllCasesFromDb() {
   if (!SupabaseClient) throw new Error('Supabase not configured');
   // Safety: never allow mass delete without explicit typed confirmation.
   let ok = false;
-  try { ok = (prompt('ØªØ­Ø°ÙŠØ± Ø®Ø·ÙŠØ±: Ø§ÙƒØªØ¨ DELETE-ALL Ù„ØªØ£ÙƒÙŠØ¯ Ø­Ø°Ù ÙƒÙ„ Ø§Ù„Ø­Ø§Ù„Ø§Øª Ù…Ù† Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª:') || '').toString().trim().toUpperCase() === 'DELETE-ALL'; } catch { ok = false; }
+  try { ok = (prompt('تحذير خطير: اكتب DELETE-ALL لتأكيد حذف كل الحالات من قاعدة البيانات:') || '').toString().trim().toUpperCase() === 'DELETE-ALL'; } catch { ok = false; }
   if (!ok) throw new Error('cancelled');
   // Avoid RPC that may execute a DELETE without a WHERE clause (blocked by PostgREST).
   // Use a safe delete with an explicit filter.
@@ -1807,7 +1807,7 @@ function matchesDashboardFilter(c, key) {
   if (key === 'alert:a_unapproved') {
     const grade = String(c.caseGrade || '').trim().toUpperCase();
     const st = String(c.status || '').trim();
-    return grade === 'A' && st !== 'Ù…Ø¹ØªÙ…Ø¯Ø©' && st !== 'Ù…Ù†ÙØ°Ø©';
+    return grade === 'A' && st !== 'Ù…Ø¹ØªÙ…Ø¯Ø©' && st !== 'منفذة';
   }
   if (key === 'alert:stale_30') {
     const raw = (c.date || c.importInfo?.importDate || '').toString();
@@ -1816,10 +1816,10 @@ function matchesDashboardFilter(c, key) {
     if (!Number.isFinite(d.getTime())) return false;
     const days = (Date.now() - d.getTime()) / 86400000;
     const st = String(c.status || '').trim();
-    return days >= 30 && st !== 'Ù…Ù†ÙØ°Ø©';
+    return days >= 30 && st !== 'منفذة';
   }
   if (key === 'alert:medical_urgent') {
-    const isMed = cats.includes('Ø¹Ù…Ù„ÙŠØ§Øª Ø·Ø¨ÙŠØ©') || cats.includes('ÙƒÙØ§Ù„Ø§Øª Ù…Ø±Ø¶ÙŠØ©');
+    const isMed = cats.includes('Ø¹Ù…Ù„ÙŠØ§Øª Ø·Ø¨ÙŠØ©') || cats.includes('كفالات مرضية');
     const urg = String(c.urgency || '').trim();
     return isMed && (urg === 'Ø¹Ø§Ø¬Ù„' || urg === 'Ø¹Ø§Ø¬Ù„ Ø¬Ø¯Ù‹Ø§');
   }
@@ -1855,13 +1855,13 @@ function matchesDashboardFilter(c, key) {
     return (housing.waterExists || '').trim() === 'Ù„Ø§ ÙŠÙˆØ¬Ø¯';
   }
   if (key === 'need_medical_care') {
-    return cats.includes('ÙƒÙØ§Ù„Ø§Øª Ù…Ø±Ø¶ÙŠØ©') || cats.includes('Ø¹Ù…Ù„ÙŠØ§Øª Ø·Ø¨ÙŠØ©');
+    return cats.includes('كفالات مرضية') || cats.includes('Ø¹Ù…Ù„ÙŠØ§Øª Ø·Ø¨ÙŠØ©');
   }
   if (key === 'need_medical_ops') {
     return cats.includes('Ø¹Ù…Ù„ÙŠØ§Øª Ø·Ø¨ÙŠØ©');
   }
   if (key === 'monthly_sponsorship') {
-    return cats.includes('ÙƒÙØ§Ù„Ø© Ø´Ù‡Ø±ÙŠØ©');
+    return cats.includes('كفالة شهرية');
   }
   return true;
 }
@@ -1923,7 +1923,7 @@ async function renderAuditLog() {
 
   // Deleted cases view (filter from audit log)
   if (delBody) {
-    const dels = (data || []).filter(x => (x.action || '').toString().includes('Ø­Ø°Ù Ø­Ø§Ù„Ø©'));
+    const dels = (data || []).filter(x => (x.action || '').toString().includes('حذف حالة'));
     const drows = dels.map(x => {
       const t = (x.created_at || '').toString().replace('T', ' ').replace('Z', '');
       const uname = x?.profiles?.username || '';
@@ -1936,7 +1936,7 @@ async function renderAuditLog() {
       } catch { }
       return `<tr><td>${t}</td><td>${user}</td><td>${x.case_id || ''}</td><td>${escapeHtml(reason)}</td></tr>`;
     }).join('');
-    delBody.innerHTML = drows || '<tr><td colspan="4" style="text-align:center">Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø­Ø°Ù Ù…Ø³Ø¬Ù„ Ø¨Ø¹Ø¯</td></tr>';
+    delBody.innerHTML = drows || '<tr><td colspan="4" style="text-align:center">لا يوجد حذف مسجل بعد</td></tr>';
   }
 }
 
@@ -2027,7 +2027,7 @@ function init() {
 
 async function sendPasswordResetEmail_() {
   const hint = document.getElementById('loginHint');
-  try { if (hint) { hint.classList.remove('hidden'); hint.textContent = 'Ø¬Ø§Ø±Ù Ø¥Ø±Ø³Ø§Ù„ Ø±Ø§Ø¨Ø· Ø¥Ø¹Ø§Ø¯Ø© ØªØ¹ÙŠÙŠÙ† ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±...'; } } catch { }
+  try { if (hint) { hint.classList.remove('hidden'); hint.textContent = 'جارٍ إرسال رابط إعادة تعيين كلمة المرور...'; } } catch { }
   if (!SupabaseClient) {
     try { if (hint) hint.textContent = 'ØªØ¹Ø°Ø± Ø§Ù„Ø§ØªØµØ§Ù„ Ø¨Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª (Supabase)'; } catch { }
     return;
@@ -2057,7 +2057,7 @@ async function sendPasswordResetEmail_() {
     const redirectTo = `${location.origin}${location.pathname}`;
     const res = await SupabaseClient.auth.resetPasswordForEmail(email, { redirectTo });
     if (res?.error) throw res.error;
-    try { if (hint) hint.textContent = 'ØªÙ… Ø¥Ø±Ø³Ø§Ù„ Ø±Ø§Ø¨Ø· Ø¥Ø¹Ø§Ø¯Ø© ØªØ¹ÙŠÙŠÙ† ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø¥Ù„Ù‰ Ø§Ù„Ø¨Ø±ÙŠØ¯ (Ø¥Ù† ÙƒØ§Ù† Ù…ÙˆØ¬ÙˆØ¯Ø§Ù‹). Ø§ÙØ­Øµ Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„ÙˆØ§Ø±Ø¯ ÙˆØ§Ù„Ù€Spam.'; } catch { }
+    try { if (hint) hint.textContent = 'تم إرسال رابط إعادة تعيين كلمة المرور إلى البريد (إن كان موجوداً). افحص البريد الوارد والـSpam.'; } catch { }
     try { showToast_('ØªÙ… Ø¥Ø±Ø³Ø§Ù„ Ø±Ø§Ø¨Ø· Ø¥Ø¹Ø§Ø¯Ø© ØªØ¹ÙŠÙŠÙ† ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± (Ø¥Ù† ÙƒØ§Ù† Ø§Ù„Ø¨Ø±ÙŠØ¯ Ù…ÙˆØ¬ÙˆØ¯Ø§Ù‹).', 'success'); } catch { }
     try {
       const fp = document.getElementById('forgotPasswordBtn');
@@ -2148,7 +2148,7 @@ async function detectRecoveryFlow_() {
     const hint = document.getElementById('recoveryHint');
     if (hint) {
       hint.style.display = 'block';
-      hint.textContent = 'ØªØ¹Ø°Ø± ØªÙØ¹ÙŠÙ„ Ø¬Ù„Ø³Ø© Ø§Ù„Ø§Ø³ØªØ¹Ø§Ø¯Ø© Ù…Ù† Ø§Ù„Ø±Ø§Ø¨Ø·. Ù‚Ø¯ ÙŠÙƒÙˆÙ† Ù‡Ù†Ø§Ùƒ Ù…Ø´ÙƒÙ„Ø© ÙÙŠ Ø³Ø§Ø¹Ø© Ø§Ù„Ø¬Ù‡Ø§Ø² (Clock Skew). ØªØ£ÙƒØ¯ Ø£Ù† Ø³Ø§Ø¹Ø© Ø§Ù„Ø¬Ù‡Ø§Ø² ÙˆØ³Ø§Ø¹Ø© Ø§Ù„Ø¥Ù†ØªØ±Ù†Øª Ù…ØªØ·Ø§Ø¨Ù‚ØªØ§Ù† Ø¨Ø´ÙƒÙ„ ØµØ­ÙŠØ­ØŒ Ø«Ù… Ø£Ø¹Ø¯ Ø¥Ø±Ø³Ø§Ù„ Ø±Ø§Ø¨Ø· Ø¥Ø¹Ø§Ø¯Ø© ØªØ¹ÙŠÙŠÙ† ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±.';
+      hint.textContent = 'تعذر تفعيل جلسة الاستعادة من الرابط. قد يكون هناك مشكلة في ساعة الجهاز (Clock Skew). تأكد أن ساعة الجهاز وساعة الإنترنت متطابقتان بشكل صحيح، ثم أعد إرسال رابط إعادة تعيين كلمة المرور.';
     }
   } catch { }
   } finally {
@@ -2187,7 +2187,7 @@ async function applyRecoveryPassword_() {
   const hint = document.getElementById('recoveryHint');
   const btn = document.getElementById('recoverySaveBtn');
   try { if (btn) btn.setAttribute('disabled', 'disabled'); } catch { }
-  try { if (hint) { hint.style.display = 'block'; hint.textContent = 'Ø¬Ø§Ø±Ù Ø§Ù„Ø­ÙØ¸...'; } } catch { }
+  try { if (hint) { hint.style.display = 'block'; hint.textContent = 'جارٍ الحفظ...'; } } catch { }
 
   if (!SupabaseClient) {
     try { if (hint) hint.textContent = 'ØªØ¹Ø°Ø± Ø§Ù„Ø§ØªØµØ§Ù„ Ø¨Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª (Supabase)'; } catch { }
@@ -2202,7 +2202,7 @@ async function applyRecoveryPassword_() {
       return;
     }
     if (p1.trim().length < 6) {
-      if (hint) hint.textContent = 'ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø§Ù„Ø¬Ø¯ÙŠØ¯Ø© ÙŠØ¬Ø¨ Ø£Ù† ØªÙƒÙˆÙ† 6 Ø£Ø­Ø±Ù Ø¹Ù„Ù‰ Ø§Ù„Ø£Ù‚Ù„';
+      if (hint) hint.textContent = 'كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل';
       return;
     }
     if (p1 !== p2) {
@@ -2213,11 +2213,11 @@ async function applyRecoveryPassword_() {
     const res = await withTimeout_(
       runAuthOp_(() => SupabaseClient.auth.updateUser({ password: p1 })),
       15000,
-      'ØªØ¹Ø°Ø± Ø­ÙØ¸ ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±: Ø§Ù†ØªÙ‡Øª Ø§Ù„Ù…Ù‡Ù„Ø©. Ø£Ø¹Ø¯ Ø§Ù„Ù…Ø­Ø§ÙˆÙ„Ø©.'
+      'تعذر حفظ كلمة المرور: انتهت المهلة. أعد المحاولة.'
     );
     if (res?.error) throw res.error;
 
-    if (hint) hint.textContent = 'ØªÙ… ØªØ­Ø¯ÙŠØ« ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±. Ø¬Ø§Ø±Ù Ø¥Ø¹Ø§Ø¯Ø© ØªØ­Ù…ÙŠÙ„ Ø§Ù„ØµÙØ­Ø©...';
+    if (hint) hint.textContent = 'تم تحديث كلمة المرور. جارٍ إعادة تحميل الصفحة...';
     try {
       const cleanUrl = `${location.origin}${location.pathname}`;
       history.replaceState(null, '', cleanUrl);
@@ -2240,7 +2240,7 @@ async function applyRecoveryPassword_() {
   } catch (e) {
     try { console.error('applyRecoveryPassword_ error:', e); } catch { }
     const msg = (e?.message || e?.error_description || '').toString().trim();
-    if (hint) hint.textContent = msg ? `ØªØ¹Ø°Ø± Ø­ÙØ¸ ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±: ${msg}` : 'ØªØ¹Ø°Ø± Ø­ÙØ¸ ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±';
+    if (hint) hint.textContent = msg ? `تعذر حفظ كلمة المرور: ${msg}` : 'تعذر حفظ كلمة المرور';
   } finally {
     try { if (btn) btn.removeAttribute('disabled'); } catch { }
   }
@@ -2386,7 +2386,7 @@ async function onLogin(e) {
     try {
       if (hintBox) {
         hintBox.classList.remove('hidden');
-        hintBox.textContent = 'Ø£ÙƒÙ…Ù„ ØªØºÙŠÙŠØ± ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø£ÙˆÙ„Ø§Ù‹ Ù…Ù† Ù†Ø§ÙØ°Ø© Ø§Ù„Ø§Ø³ØªØ¹Ø§Ø¯Ø©.';
+        hintBox.textContent = 'أكمل تغيير كلمة المرور أولاً من نافذة الاستعادة.';
       }
       openRecoveryPasswordModal();
     } catch { }
@@ -2397,7 +2397,7 @@ async function onLogin(e) {
     try {
       if (hintBox) {
         hintBox.classList.remove('hidden');
-        hintBox.textContent = 'Ø§Ù„Ù†Ø¸Ø§Ù… Ù…Ø´ØºÙˆÙ„ Ø§Ù„Ø¢Ù†â€¦ Ø§Ù†ØªØ¸Ø± Ø«ÙˆØ§Ù†Ù Ø«Ù… Ø£Ø¹Ø¯ Ø§Ù„Ù…Ø­Ø§ÙˆÙ„Ø©.';
+        hintBox.textContent = 'النظام مشغول الآن… انتظر ثوانٍ ثم أعد المحاولة.';
       }
     } catch { }
     try {
@@ -2488,7 +2488,7 @@ async function onLogin(e) {
       } catch { profRow = null; }
 
       if (profRow && profRow.is_active === false) {
-        alert('Ù‡Ø°Ø§ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… Ù…Ø¹Ø·Ù‘Ù„. Ø±Ø§Ø¬Ø¹ Ø§Ù„Ø¥Ø¯Ø§Ø±Ø© Ù„Ø¥Ø¹Ø§Ø¯Ø© Ø§Ù„ØªÙØ¹ÙŠÙ„.');
+        alert('هذا المستخدم معطّل. راجع الإدارة لإعادة التفعيل.');
         try {
           if (forgotBtn) { forgotBtn.style.display = 'block'; }
           if (hintBox) {
@@ -2501,7 +2501,7 @@ async function onLogin(e) {
       }
       if (profRow) {
         const emailHint = usernameToEmail(unameKey);
-        alert('Ø§Ø³Ù… Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… Ù…ÙˆØ¬ÙˆØ¯ØŒ Ù„ÙƒÙ† ØªØ¹Ø°Ø± ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„.\n\nØ§Ù„Ø£Ø³Ø¨Ø§Ø¨ Ø§Ù„Ø´Ø§Ø¦Ø¹Ø©:\n- ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± ØºÙŠØ± ØµØ­ÙŠØ­Ø©\n- Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… Ù„Ù… ÙŠØªÙ… Ø¥Ù†Ø´Ø§Ø¤Ù‡ Ø¯Ø§Ø®Ù„ Supabase (Authentication â†’ Users) Ø¨Ù†ÙØ³ Ø§Ù„Ø¨Ø±ÙŠØ¯\n\nØ§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø°ÙŠ ÙŠØªÙˆÙ‚Ø¹Ù‡ Ø§Ù„Ù†Ø¸Ø§Ù… ØºØ§Ù„Ø¨Ø§Ù‹: ' + emailHint + '\n\nÙ…Ù„Ø§Ø­Ø¸Ø©: Ø¥Ø°Ø§ ÙƒØ§Ù† Ø­Ø³Ø§Ø¨Ùƒ ÙÙŠ Supabase Ù…Ø¹Ù…ÙˆÙ„ Ø¨Ø¨Ø±ÙŠØ¯ Ù…Ø®ØªÙ„Ù (Ù…Ø«Ù„ Gmail)ØŒ Ø§ÙƒØªØ¨ Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„ÙƒØ§Ù…Ù„ ÙÙŠ Ø®Ø§Ù†Ø© "Ø§Ø³Ù… Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…".');
+        alert('اسم المستخدم موجود، لكن تعذر تسجيل الدخول.\n\nالأسباب الشائعة:\n- كلمة المرور غير صحيحة\n- المستخدم لم يتم إنشاؤه داخل Supabase (Authentication → Users) بنفس البريد\n\nالبريد الذي يتوقعه النظام غالباً: ' + emailHint + '\n\nملاحظة: إذا كان حسابك في Supabase معمول ببريد مختلف (مثل Gmail)، اكتب البريد الكامل في خانة "اسم المستخدم".');
         try {
           if (forgotBtn) { forgotBtn.style.display = 'block'; }
           if (hintBox) {
@@ -2604,7 +2604,7 @@ function showSection(key, navBtnId) {
     };
     const perm = need[targetId0];
     if (!allow(perm)) {
-      alert('Ù„Ø§ ØªÙ…Ù„Ùƒ ØµÙ„Ø§Ø­ÙŠØ© ÙØªØ­ Ù‡Ø°Ù‡ Ø§Ù„ØµÙØ­Ø©');
+      alert('لا تملك صلاحية فتح هذه الصفحة');
       return;
     }
   } catch { }
@@ -2689,7 +2689,7 @@ function showSection(key, navBtnId) {
     const topbarTitle = document.querySelector('.topbar-title');
     if (topbarTitle) {
       const sectionTitles = {
-        newCaseSection: 'Ø¥Ø¶Ø§ÙØ© Ø­Ø§Ù„Ø© Ø¬Ø¯ÙŠØ¯Ø©',
+        newCaseSection: 'إضافة حالة جديدة',
         casesListSection: 'Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ø­Ø§Ù„Ø§Øª',
         dashboardSection: 'Ø§Ù„Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª',
         reportsSection: 'Ø§Ù„ØªÙ‚Ø§Ø±ÙŠØ±',
@@ -2765,7 +2765,7 @@ function normalizeCaseGrade_(v) {
   const upper = s.toUpperCase();
   if (upper === 'A') return 'Ø­Ø§Ù„Ø© Ù…Ø³ØªØ¯ÙŠÙ…Ø©';
   if (upper === 'B') return 'Ø­Ø§Ù„Ø© Ù…ÙˆØ³Ù…ÙŠØ©';
-  if (upper === 'C') return 'Ø­Ø§Ù„Ø© Ù…Ø±ÙÙˆØ¶Ø©';
+  if (upper === 'C') return 'حالة مرفوضة';
   if (s === 'Ù‚ÙŠØ¯ Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø±' || s === 'Pending') return 'Ø­Ø§Ù„Ø© Ù‚ÙŠØ¯ Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø±';
   return s;
 }
@@ -2820,7 +2820,7 @@ function initHeaderUi() {
 function updateNavBadges() {
   const total = AppState.cases.length;
   const urgent = AppState.cases.filter(c => c.urgency === 'Ø¹Ø§Ø¬Ù„' || c.urgency === 'Ø¹Ø§Ø¬Ù„ Ø¬Ø¯Ù‹Ø§').length;
-  const medical = AppState.cases.filter(c => (c.category || '').includes('Ø¹Ù…Ù„ÙŠØ§Øª Ø·Ø¨ÙŠØ©') || (c.category || '').includes('ÙƒÙØ§Ù„Ø§Øª Ù…Ø±Ø¶ÙŠØ©')).length;
+  const medical = AppState.cases.filter(c => (c.category || '').includes('Ø¹Ù…Ù„ÙŠØ§Øª Ø·Ø¨ÙŠØ©') || (c.category || '').includes('كفالات مرضية')).length;
   try {
     const t = document.getElementById('casesTotalBadge');
     if (t) t.textContent = String(total);
@@ -2886,7 +2886,7 @@ function onListImportFile(e) {
         const wb = window.XLSX.read(data, { type: 'array' });
         const sheetName = wb.SheetNames?.[0];
         const ws = sheetName ? wb.Sheets?.[sheetName] : null;
-        if (!ws) throw new Error('Ù„Ù… ÙŠØªÙ… Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Sheet Ø¯Ø§Ø®Ù„ Ù…Ù„Ù Excel');
+        if (!ws) throw new Error('لم يتم العثور على Sheet داخل ملف Excel');
 
         // Prefer AOA import to avoid generating huge CSV strings (faster + less memory)
         const aoa = window.XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', blankrows: false, raw: false });
@@ -2896,15 +2896,15 @@ function onListImportFile(e) {
         try { closeImportModal(); } catch { }
       } catch (err) {
         try { console.error('Excel import failed (list import)', err); } catch { }
-        const msg = (err && err.message) ? `\n\nØ§Ù„ØªÙØ§ØµÙŠÙ„: ${err.message}` : '';
-        alert(`ØªØ¹Ø°Ø± Ù‚Ø±Ø§Ø¡Ø© Ù…Ù„Ù Excel${msg}`);
+        const msg = (err && err.message) ? `\n\nالتفاصيل: ${err.message}` : '';
+        alert(`تعذر قراءة ملف Excel${msg}`);
       }
     };
     reader.readAsArrayBuffer(file);
     e.target.value = '';
     return;
   }
-  alert('ØµÙŠØºØ© Ø§Ù„Ù…Ù„Ù ØºÙŠØ± Ù…Ø¯Ø¹ÙˆÙ…Ø©. ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ù…Ù„Ù Excel (XLSX) ÙÙ‚Ø·.');
+  alert('صيغة الملف غير مدعومة. يرجى اختيار ملف Excel (XLSX) فقط.');
   e.target.value = '';
 }
 
@@ -3012,34 +3012,34 @@ function clearCasesListFilters() {
 
 function exportFilteredCasesToExcel() {
   const list = getFilteredCases();
-  if (!list.length) { alert('Ù„Ø§ ØªÙˆØ¬Ø¯ Ø­Ø§Ù„Ø§Øª Ù„Ù„ØªØµØ¯ÙŠØ±'); return; }
+  if (!list.length) { alert('لا توجد حالات للتصدير'); return; }
 
   const sumNum = (v) => Number(v ?? 0) || 0;
   const needOf = (c) => Math.max(0, sumNum(c.estimatedAmount) - sumNum(c.deliveredAmount));
 
   const headers = [
-    'Ø±Ù‚Ù… Ø§Ù„Ø­Ø§Ù„Ø©',
-    'Ø§Ø³Ù… Ø§Ù„Ø­Ø§Ù„Ø©',
-    'Ø§Ù„Ø±Ù‚Ù… Ø§Ù„Ù‚ÙˆÙ…ÙŠ',
-    'Ø§Ù„Ù‡Ø§ØªÙ',
-    'Ø±Ù‚Ù… ÙˆØ§ØªØ³Ø§Ø¨',
-    'Ø§Ù„Ø¹Ù†ÙˆØ§Ù†',
-    'Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©',
-    'Ø§Ù„Ù…Ù†Ø·Ù‚Ø©',
-    'Ø§Ù„ÙØ¦Ø©',
-    'Ø§Ù„Ø­Ø§Ù„Ø©',
-    'Ø§Ù„Ø§Ø³ØªØ¹Ø¬Ø§Ù„',
-    'ØªÙ‚ÙŠÙŠÙ… Ø§Ù„Ø­Ø§Ù„Ø©',
-    'Ø§Ù„Ù…Ø³ØªÙƒØ´Ù',
-    'ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¨Ø­Ø«',
-    'Ù…Ø¨Ù„Øº ØªÙ‚Ø¯ÙŠØ±ÙŠ',
-    'Ù…Ø¨Ù„Øº Ù…Ù†ÙØ°',
-    'Ø§Ù„Ø§Ø­ØªÙŠØ§Ø¬',
-    'Ø¹Ø¯Ø¯ Ø§Ù„ÙƒÙØ§Ù„Ø§Øª Ø§Ù„Ù…Ø³Ø¬Ù„Ø©',
-    'Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„ÙƒÙØ§Ù„Ø§Øª Ø§Ù„Ù…Ø³Ø¬Ù„Ø©',
-    'ØªØ§Ø±ÙŠØ® Ø¢Ø®Ø± ÙƒÙØ§Ù„Ø©',
-    'Ø¹Ø¯Ø¯ Ø§Ù„Ù…Ø³Ø§Ø¹Ø¯Ø§Øª (ØºÙŠØ± Ø§Ù„ÙƒÙØ§Ù„Ø©)',
-    'Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…Ø³Ø§Ø¹Ø¯Ø§Øª (ØºÙŠØ± Ø§Ù„ÙƒÙØ§Ù„Ø©)'
+    'رقم الحالة',
+    'اسم الحالة',
+    'الرقم القومي',
+    'الهاتف',
+    'رقم واتساب',
+    'العنوان',
+    'المحافظة',
+    'المنطقة',
+    'الفئة',
+    'الحالة',
+    'الاستعجال',
+    'تقييم الحالة',
+    'المستكشف',
+    'تاريخ البحث',
+    'مبلغ تقديري',
+    'مبلغ منفذ',
+    'الاحتياج',
+    'عدد الكفالات المسجلة',
+    'إجمالي الكفالات المسجلة',
+    'تاريخ آخر كفالة',
+    'عدد المساعدات (غير الكفالة)',
+    'إجمالي المساعدات (غير الكفالة)'
   ];
   const rows = [headers];
   list.forEach(c => {
@@ -3140,117 +3140,117 @@ function generateCaseId() {
 
 function downloadCasesImportTemplate() {
   const headers = [
-    'Ù…',
-    'Ø§Ø³Ù… Ø§Ù„Ø­Ø§Ù„Ø©',
-    'Ø§Ù„Ø±Ù‚Ù… Ø§Ù„Ù‚ÙˆÙ…ÙŠ',
-    'Ø¹Ø¯Ø¯ Ø§Ù„Ø§Ø¨Ù†Ø§Ø¡',
-    'ÙˆØµÙ Ø§Ù„Ø­Ø§Ù„Ø©',
-    'Ø¹Ù…Ù„ Ø§Ù„Ø§Ø¨',
-    'Ø¹Ù…Ù„ Ø§Ù„Ø§Ù…',
-    'Ø§Ù„Ù…Ø±Ø¶ÙŠ',
-    'Ø§Ù„Ø­Ø§Ù„Ø© Ø§Ù„Ø§Ø¬ØªÙ…Ø§Ø¹ÙŠØ©',
-    'Ø§Ø­ØªÙŠØ§Ø¬Ø§ØªÙ‡Ù…',
-    'Ø§Ù„Ø¯Ø®Ù„ Ø§Ù„Ø´Ù‡Ø±ÙŠ',
-    'Ø§Ø­ØªÙŠØ§Ø¬ Ø§Ù„Ø§Ø³Ø±Ø©',
-    'Ø±Ù‚Ù… Ø§Ù„ØªÙ„ÙŠÙÙˆÙ†',
-    'Ø§Ù„Ø¹Ù†ÙˆØ§Ù†',
-    'Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©',
-    'Ø§Ù„Ù‚Ø±ÙŠØ©',
-    'ÙØ¦Ø© Ø§Ù„Ø­Ø§Ù„Ø©',
-    'Ø§Ù„Ø§Ø³ØªØ¹Ø¬Ø§Ù„',
-    'Ø§Ø³Ù… Ø§Ù„Ù…Ø³ØªÙƒØ´Ù',
-    'Ø§Ù„ØªØ§Ø±ÙŠØ®',
-    'Ø§Ù„Ø­Ø§Ù„Ø©',
-    'ØªÙ‚ÙŠÙŠÙ… Ø§Ù„Ø­Ø§Ù„Ø©',
-    'Ø±Ù‚Ù… ÙˆØ§ØªØ³Ø§Ø¨',
-    'ÙˆØµÙ Ø§Ù„Ø³ÙƒÙ†',
-    'Ø¹Ø¯Ø¯ Ø§Ù„ØºØ±Ù',
-    'Ø§Ù„Ø­Ù…Ø§Ù…',
-    'Ø§Ù„Ù…ÙŠØ§Ù‡',
-    'Ø§Ù„Ø³Ù‚Ù',
-    'Ù†ÙˆØ¹ Ø§Ù„Ù…Ù†Ø·Ù‚Ø©',
-    'Ù‡Ù„ ØªÙˆØ¬Ø¯ Ø¯ÙŠÙˆÙ†ØŸ',
-    'Ù‚ÙŠÙ…Ø© Ø§Ù„Ø¯ÙŠÙ†',
-    'ØµØ§Ø­Ø¨ Ø§Ù„Ø¯ÙŠÙ†',
-    'Ø­ÙƒÙ… Ù‚Ø¶Ø§Ø¦ÙŠØŸ',
-    'Ø³Ø¨Ø¨ Ø§Ù„Ø¯ÙŠÙ†',
-    'Ø§Ù„Ø¯Ø®Ù„: Ø§Ù„Ø±ÙˆØ§ØªØ¨',
-    'Ø§Ù„Ø¯Ø®Ù„: Ø§Ù„Ù…Ø¹Ø§Ø´Ø§Øª',
-    'Ø§Ù„Ø¯Ø®Ù„: Ø§Ù„Ù…Ø´Ø§Ø±ÙŠØ¹',
-    'Ø§Ù„Ø¯Ø®Ù„: Ù…Ø³Ø§Ø¹Ø¯Ø§Øª Ø§Ù„Ø¬Ù…Ø¹ÙŠØ§Øª',
-    'Ø§Ù„Ø¯Ø®Ù„: Ø¨Ù†ÙˆØ¯ Ø¥Ø¶Ø§ÙÙŠØ© (JSON)',
-    'Ø§Ù„Ø¯Ø®Ù„: Ù…Ù„Ø§Ø­Ø¸Ø§Øª',
-    'Ø§Ù„Ø¯Ø®Ù„: Ø¥Ø¬Ù…Ø§Ù„ÙŠ',
-    'Ø§Ù„Ù…ØµØ±ÙˆÙØ§Øª: Ø¥ÙŠØ¬Ø§Ø± Ø§Ù„Ø³ÙƒÙ†',
-    'Ø§Ù„Ù…ØµØ±ÙˆÙØ§Øª: Ø§Ù„Ù…Ø±Ø§ÙÙ‚',
-    'Ø§Ù„Ù…ØµØ±ÙˆÙØ§Øª: Ø¨Ù†ÙˆØ¯ Ø¥Ø¶Ø§ÙÙŠØ© (JSON)',
-    'Ø§Ù„Ù…ØµØ±ÙˆÙØ§Øª: Ù…Ù„Ø§Ø­Ø¸Ø§Øª',
-    'Ø§Ù„Ù…ØµØ±ÙˆÙØ§Øª: Ø¥Ø¬Ù…Ø§Ù„ÙŠ',
-    'ØµØ§ÙÙŠ Ø´Ù‡Ø±ÙŠ',
-    'Ù‡Ù„ ÙŠÙˆØ¬Ø¯ Ø­Ø§Ù„Ø© Ø²ÙˆØ§Ø¬ØŸ',
-    'Ø§Ø³Ù… Ø§Ù„Ø¹Ø±ÙˆØ³Ø©',
-    'Ø§Ø³Ù… Ø§Ù„Ø¹Ø±ÙŠØ³',
-    'Ù…Ù‡Ù†Ø© Ø§Ù„Ø¹Ø±ÙŠØ³',
-    'ØªØ§Ø±ÙŠØ® ÙƒØªØ¨ Ø§Ù„ÙƒØªØ§Ø¨',
-    'ØªØ§Ø±ÙŠØ® Ø§Ù„Ø²ÙˆØ§Ø¬',
-    'Ø§Ù„Ø§Ø­ØªÙŠØ§Ø¬Ø§Øª Ø§Ù„Ù…ØªÙˆÙØ±Ø© (Ø²ÙˆØ§Ø¬)',
-    'Ø§Ù„Ø§Ø­ØªÙŠØ§Ø¬Ø§Øª Ø§Ù„Ù…Ø·Ù„ÙˆØ¨Ø© (Ø²ÙˆØ§Ø¬)',
-    'Ù‡Ù„ ÙŠÙˆØ¬Ø¯ Ù…Ø´Ø±ÙˆØ¹ØŸ',
-    'Ù†ÙˆØ¹ Ø§Ù„Ù…Ø´Ø±ÙˆØ¹',
-    'Ø§Ù„Ø®Ø¨Ø±Ø© ÙˆØ§Ù„Ø§Ø³ØªØ¹Ø¯Ø§Ø¯',
-    'Ø§Ù„Ø§Ø­ØªÙŠØ§Ø¬Ø§Øª Ø§Ù„Ù…Ø·Ù„ÙˆØ¨Ø© Ù„Ù„Ù…Ø´Ø±ÙˆØ¹',
-    'Ù…Ø¨Ù„Øº ØªÙ‚Ø¯ÙŠØ±ÙŠ',
-    'Ù…Ø¨Ù„Øº Ù…Ù†ÙØ°',
-    'Ù…ØµØ¯Ø± Ø§Ù„ØªÙ…ÙˆÙŠÙ„',
-    'ÙˆØ³ÙˆÙ…',
-    'Ø£ÙØ±Ø§Ø¯ Ø§Ù„Ø£Ø³Ø±Ø© (JSON)',
-    'Ø§Ø­ØªÙŠØ§Ø¬Ø§Øª Ø§Ù„Ø£Ø³Ø±Ø©',
-    'ØªÙ‚Ø±ÙŠØ± Ø§Ù„Ø¨Ø§Ø­Ø«',
-    'Ø§Ù„Ø­Ø§Ù„Ø§Øª Ø§Ù„Ø·Ø¨ÙŠØ©'
+    'م',
+    'اسم الحالة',
+    'الرقم القومي',
+    'عدد الابناء',
+    'وصف الحالة',
+    'عمل الاب',
+    'عمل الام',
+    'المرضي',
+    'الحالة الاجتماعية',
+    'احتياجاتهم',
+    'الدخل الشهري',
+    'احتياج الاسرة',
+    'رقم التليفون',
+    'العنوان',
+    'المحافظة',
+    'القرية',
+    'فئة الحالة',
+    'الاستعجال',
+    'اسم المستكشف',
+    'التاريخ',
+    'الحالة',
+    'تقييم الحالة',
+    'رقم واتساب',
+    'وصف السكن',
+    'عدد الغرف',
+    'الحمام',
+    'المياه',
+    'السقف',
+    'نوع المنطقة',
+    'هل توجد ديون؟',
+    'قيمة الدين',
+    'صاحب الدين',
+    'حكم قضائي؟',
+    'سبب الدين',
+    'الدخل: الرواتب',
+    'الدخل: المعاشات',
+    'الدخل: المشاريع',
+    'الدخل: مساعدات الجمعيات',
+    'الدخل: بنود إضافية (JSON)',
+    'الدخل: ملاحظات',
+    'الدخل: إجمالي',
+    'المصروفات: إيجار السكن',
+    'المصروفات: المرافق',
+    'المصروفات: بنود إضافية (JSON)',
+    'المصروفات: ملاحظات',
+    'المصروفات: إجمالي',
+    'صافي شهري',
+    'هل يوجد حالة زواج؟',
+    'اسم العروسة',
+    'اسم العريس',
+    'مهنة العريس',
+    'تاريخ كتب الكتاب',
+    'تاريخ الزواج',
+    'الاحتياجات المتوفرة (زواج)',
+    'الاحتياجات المطلوبة (زواج)',
+    'هل يوجد مشروع؟',
+    'نوع المشروع',
+    'الخبرة والاستعداد',
+    'الاحتياجات المطلوبة للمشروع',
+    'مبلغ تقديري',
+    'مبلغ منفذ',
+    'مصدر التمويل',
+    'وسوم',
+    'أفراد الأسرة (JSON)',
+    'احتياجات الأسرة',
+    'تقرير الباحث',
+    'الحالات الطبية'
   ];
 
   const exampleMedicalCases = JSON.stringify([
     {
-      name: 'Ù…Ø«Ø§Ù„: Ø¹Ù…Ù„ÙŠØ© Ø¹ÙŠÙ†',
-      diseaseType: 'Ù…Ø«Ø§Ù„: Ù…ÙŠØ§Ù‡ Ø¨ÙŠØ¶Ø§Ø¡',
-      hospital: 'Ù…Ø³ØªØ´ÙÙ‰ Ø¹Ø§Ù…',
-      doctor: 'Ø¯/ Ø£Ø­Ù…Ø¯',
-      report: 'Ù…Ù„Ø®Øµ ØªÙ‚Ø±ÙŠØ±',
+      name: 'مثال: عملية عين',
+      diseaseType: 'مثال: مياه بيضاء',
+      hospital: 'مستشفى عام',
+      doctor: 'د/ أحمد',
+      report: 'ملخص تقرير',
       estimatedCost: '5000'
     }
   ]);
 
   const exampleRow = [
     '1',
-    'Ù…Ø­Ù…Ø¯ Ø¹Ù„ÙŠ',
+    'محمد علي',
     '29901010101010',
     '2',
-    'ÙˆØµÙ Ù…Ø®ØªØµØ±',
-    'Ø¹Ù…Ù„ Ø§Ù„Ø£Ø¨',
-    'Ø¹Ù…Ù„ Ø§Ù„Ø£Ù…',
-    'Ù„Ø§ ÙŠÙˆØ¬Ø¯',
-    'Ù…ØªØ²ÙˆØ¬/Ù…ØªØ²ÙˆØ¬Ø©',
-    'Ø§Ø­ØªÙŠØ§Ø¬Ø§Øª Ù…Ø®ØªØµØ±Ø©',
+    'وصف مختصر',
+    'عمل الأب',
+    'عمل الأم',
+    'لا يوجد',
+    'متزوج/متزوجة',
+    'احتياجات مختصرة',
     '2000',
-    'Ø§Ø­ØªÙŠØ§Ø¬ Ø§Ù„Ø£Ø³Ø±Ø©',
+    'احتياج الأسرة',
     '01000000000',
-    'Ø¹Ù†ÙˆØ§Ù† Ù…Ø®ØªØµØ±',
-    'Ø§Ù„Ù‚Ø§Ù‡Ø±Ø©',
-    'Ù…Ø¯ÙŠÙ†Ø© Ù†ØµØ±',
-    'Ø¹Ù…Ù„ÙŠØ§Øª Ø·Ø¨ÙŠØ©',
-    'Ø¹Ø§Ø¬Ù„',
-    'Ù…Ø³ØªÙƒØ´Ù 1',
+    'عنوان مختصر',
+    'القاهرة',
+    'مدينة نصر',
+    'عمليات طبية',
+    'عاجل',
+    'مستكشف 1',
     new Date().toISOString().slice(0, 10),
-    'Ø¬Ø¯ÙŠØ¯Ø©',
+    'جديدة',
     'A',
     '01000000000',
-    'ÙˆØµÙ Ø§Ù„Ø³ÙƒÙ† Ù‡Ù†Ø§',
+    'وصف السكن هنا',
     '2',
-    'Ù…Ø³ØªÙ‚Ù„',
-    'ÙŠÙˆØ¬Ø¯',
-    'ÙŠÙˆØ¬Ø¯',
-    'Ø­Ø¶Ø±',
-    'Ù„Ø§',
+    'مستقل',
+    'يوجد',
+    'يوجد',
+    'حضر',
+    'لا',
     '',
     '',
     '',
@@ -3268,7 +3268,7 @@ function downloadCasesImportTemplate() {
     '',
     '800',
     '1200',
-    'Ù„Ø§',
+    'لا',
     '',
     '',
     '',
@@ -3276,17 +3276,17 @@ function downloadCasesImportTemplate() {
     '',
     '',
     '',
-    'Ù„Ø§',
+    'لا',
     '',
     '',
     '',
     '10000',
     '',
     '',
-    'ÙˆØ³Ù…1|ÙˆØ³Ù…2',
+    'وسم1|وسم2',
     '[{"name":"Ø§Ù„Ø£Ø¨","relation":"Ø§Ù„Ø£Ø¨","age":40,"working":"Ù†Ø¹Ù…","workStability":"Ø¹Ù…Ù„ Ø«Ø§Ø¨Øª","notes":""}]',
-    'Ø§Ø­ØªÙŠØ§Ø¬Ø§Øª Ø§Ù„Ø£Ø³Ø±Ø©',
-    'ØªÙ‚Ø±ÙŠØ± Ø§Ù„Ø¨Ø§Ø­Ø«',
+    'احتياجات الأسرة',
+    'تقرير الباحث',
     exampleMedicalCases
   ];
 
@@ -3326,14 +3326,14 @@ function downloadCasesImportTemplate() {
 
       // Add helper lists sheet
       const listsRows = [
-        ['Ù†Ø¹Ù…/Ù„Ø§', 'Ù†Ø¹Ù…', 'Ù„Ø§'],
-        ['Ø§Ù„Ø­Ø§Ù„Ø©', 'Ø¬Ø¯ÙŠØ¯Ø©', 'Ù…Ø­ÙˆÙ„Ø©', 'Ù…Ù†ÙØ°Ø©'],
-        ['Ø§Ù„Ø§Ø³ØªØ¹Ø¬Ø§Ù„', 'Ø¹Ø§Ø¯ÙŠ', 'Ø¹Ø§Ø¬Ù„', 'Ø¹Ø§Ø¬Ù„ Ø¬Ø¯Ù‹Ø§'],
-        ['ØªÙ‚ÙŠÙŠÙ… Ø§Ù„Ø­Ø§Ù„Ø©', 'Ø­Ø§Ù„Ø© Ù…Ø³ØªØ¯ÙŠÙ…Ø©', 'Ø­Ø§Ù„Ø© Ù…ÙˆØ³Ù…ÙŠØ©', 'Ø­Ø§Ù„Ø© Ù…Ø±ÙÙˆØ¶Ø©', 'Ø­Ø§Ù„Ø© Ù‚ÙŠØ¯ Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø±'],
-        ['Ø§Ù„Ø­Ø§Ù„Ø© Ø§Ù„Ø§Ø¬ØªÙ…Ø§Ø¹ÙŠØ©', 'Ø£Ø¹Ø²Ø¨/Ø¹Ø²Ø¨Ø§Ø¡', 'Ù…ØªØ²ÙˆØ¬/Ù…ØªØ²ÙˆØ¬Ø©', 'Ù…Ø·Ù„Ù‚/Ù…Ø·Ù„Ù‚Ø©', 'Ø£Ø±Ù…Ù„/Ø£Ø±Ù…Ù„Ø©'],
-        ['Ø§Ù„Ø­Ù…Ø§Ù…', 'Ù…Ø´ØªØ±Ùƒ', 'Ù…Ø³ØªÙ‚Ù„', 'Ù„Ø§ ÙŠÙˆØ¬Ø¯'],
-        ['Ø§Ù„Ù…ÙŠØ§Ù‡/Ø§Ù„Ø³Ù‚Ù', 'ÙŠÙˆØ¬Ø¯', 'Ù„Ø§ ÙŠÙˆØ¬Ø¯'],
-        ['Ù†ÙˆØ¹ Ø§Ù„Ù…Ù†Ø·Ù‚Ø©', 'Ø¹Ø´ÙˆØ§Ø¦ÙŠ', 'Ø¨Ø¯Ùˆ', 'Ø±ÙŠÙ', 'Ø­Ø¶Ø±']
+        ['نعم/لا', 'نعم', 'لا'],
+        ['الحالة', 'جديدة', 'محولة', 'منفذة'],
+        ['الاستعجال', 'عادي', 'عاجل', 'عاجل جدًا'],
+        ['تقييم الحالة', 'حالة مستديمة', 'حالة موسمية', 'حالة مرفوضة', 'حالة قيد الانتظار'],
+        ['الحالة الاجتماعية', 'أعزب/عزباء', 'متزوج/متزوجة', 'مطلق/مطلقة', 'أرمل/أرملة'],
+        ['الحمام', 'مشترك', 'مستقل', 'لا يوجد'],
+        ['المياه/السقف', 'يوجد', 'لا يوجد'],
+        ['نوع المنطقة', 'عشوائي', 'بدو', 'ريف', 'حضر']
       ];
       const wsLists = window.XLSX.utils.aoa_to_sheet(listsRows);
       wsLists['!cols'] = [{ wch: 22 }, { wch: 18 }, { wch: 18 }, { wch: 18 }];
@@ -3351,73 +3351,73 @@ function downloadCasesImportTemplate() {
     }
   } catch { }
 
-  alert('Ù…ÙƒØªØ¨Ø© Excel ØºÙŠØ± Ù…ØªØ§Ø­Ø© Ø­Ø§Ù„ÙŠØ§Ù‹. ØªØ£ÙƒØ¯ Ù…Ù† Ø§ØªØµØ§Ù„ Ø§Ù„Ø¥Ù†ØªØ±Ù†Øª Ø«Ù… Ø£Ø¹Ø¯ Ø§Ù„Ù…Ø­Ø§ÙˆÙ„Ø©.');
+  alert('مكتبة Excel غير متاحة حالياً. تأكد من اتصال الإنترنت ثم أعد المحاولة.');
 }
 
 function downloadSampleCasesExcel() {
-  if (!window.XLSX) { alert('Ù…ÙƒØªØ¨Ø© Excel ØºÙŠØ± Ù…ØªØ§Ø­Ø© Ø­Ø§Ù„ÙŠØ§Ù‹. ØªØ£ÙƒØ¯ Ù…Ù† Ø§ØªØµØ§Ù„ Ø§Ù„Ø¥Ù†ØªØ±Ù†Øª.'); return; }
+  if (!window.XLSX) { alert('مكتبة Excel غير متاحة حالياً. تأكد من اتصال الإنترنت.'); return; }
 
   const headers = [
-    'Ø±Ù‚Ù… Ø§Ù„Ø­Ø§Ù„Ø©',
-    'Ø§Ø³Ù… Ø±Ø¨ Ø§Ù„Ø£Ø³Ø±Ø©',
-    'Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ',
-    'Ø§Ù„Ø¹Ù†ÙˆØ§Ù†',
-    'Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©',
-    'Ø§Ù„Ù…Ù†Ø·Ù‚Ø©',
-    'Ø¹Ø¯Ø¯ Ø£ÙØ±Ø§Ø¯ Ø§Ù„Ø£Ø³Ø±Ø©',
-    'ÙØ¦Ø© Ø§Ù„Ø­Ø§Ù„Ø©',
-    'Ø§Ù„Ø§Ø³ØªØ¹Ø¬Ø§Ù„',
-    'Ø§Ù„ÙˆØµÙ',
-    'Ø§Ø³Ù… Ø§Ù„Ù…Ø³ØªÙƒØ´Ù',
-    'Ø§Ù„ØªØ§Ø±ÙŠØ®',
-    'Ø§Ù„Ø­Ø§Ù„Ø©',
-    'ØªÙ‚ÙŠÙŠÙ… Ø§Ù„Ø­Ø§Ù„Ø©',
-    'Ø§Ù„Ø­Ø§Ù„Ø© Ø§Ù„Ø§Ø¬ØªÙ…Ø§Ø¹ÙŠØ©',
-    'Ø±Ù‚Ù… ÙˆØ§ØªØ³Ø§Ø¨',
-    'ÙˆØµÙ Ø§Ù„Ø³ÙƒÙ†',
-    'Ø¹Ø¯Ø¯ Ø§Ù„ØºØ±Ù',
-    'Ø§Ù„Ø­Ù…Ø§Ù…',
-    'Ø§Ù„Ù…ÙŠØ§Ù‡',
-    'Ø§Ù„Ø³Ù‚Ù',
-    'Ù†ÙˆØ¹ Ø§Ù„Ù…Ù†Ø·Ù‚Ø©',
-    'Ù‡Ù„ ØªÙˆØ¬Ø¯ Ø¯ÙŠÙˆÙ†ØŸ',
-    'Ù‚ÙŠÙ…Ø© Ø§Ù„Ø¯ÙŠÙ†',
-    'ØµØ§Ø­Ø¨ Ø§Ù„Ø¯ÙŠÙ†',
-    'Ø­ÙƒÙ… Ù‚Ø¶Ø§Ø¦ÙŠØŸ',
-    'Ø³Ø¨Ø¨ Ø§Ù„Ø¯ÙŠÙ†',
-    'Ø§Ù„Ø¯Ø®Ù„: Ø§Ù„Ø±ÙˆØ§ØªØ¨',
-    'Ø§Ù„Ø¯Ø®Ù„: Ø§Ù„Ù…Ø¹Ø§Ø´Ø§Øª',
-    'Ø§Ù„Ø¯Ø®Ù„: Ø§Ù„Ù…Ø´Ø§Ø±ÙŠØ¹',
-    'Ø§Ù„Ø¯Ø®Ù„: Ù…Ø³Ø§Ø¹Ø¯Ø§Øª Ø§Ù„Ø¬Ù…Ø¹ÙŠØ§Øª',
-    'Ø§Ù„Ø¯Ø®Ù„: Ø¨Ù†ÙˆØ¯ Ø¥Ø¶Ø§ÙÙŠØ© (JSON)',
-    'Ø§Ù„Ø¯Ø®Ù„: Ù…Ù„Ø§Ø­Ø¸Ø§Øª',
-    'Ø§Ù„Ø¯Ø®Ù„: Ø¥Ø¬Ù…Ø§Ù„ÙŠ',
-    'Ø§Ù„Ù…ØµØ±ÙˆÙØ§Øª: Ø¥ÙŠØ¬Ø§Ø± Ø§Ù„Ø³ÙƒÙ†',
-    'Ø§Ù„Ù…ØµØ±ÙˆÙØ§Øª: Ø§Ù„Ù…Ø±Ø§ÙÙ‚',
-    'Ø§Ù„Ù…ØµØ±ÙˆÙØ§Øª: Ø¨Ù†ÙˆØ¯ Ø¥Ø¶Ø§ÙÙŠØ© (JSON)',
-    'Ø§Ù„Ù…ØµØ±ÙˆÙØ§Øª: Ù…Ù„Ø§Ø­Ø¸Ø§Øª',
-    'Ø§Ù„Ù…ØµØ±ÙˆÙØ§Øª: Ø¥Ø¬Ù…Ø§Ù„ÙŠ',
-    'ØµØ§ÙÙŠ Ø´Ù‡Ø±ÙŠ',
-    'Ù‡Ù„ ÙŠÙˆØ¬Ø¯ Ø­Ø§Ù„Ø© Ø²ÙˆØ§Ø¬ØŸ',
-    'Ø§Ø³Ù… Ø§Ù„Ø¹Ø±ÙˆØ³Ø©',
-    'Ø§Ø³Ù… Ø§Ù„Ø¹Ø±ÙŠØ³',
-    'Ù…Ù‡Ù†Ø© Ø§Ù„Ø¹Ø±ÙŠØ³',
-    'ØªØ§Ø±ÙŠØ® ÙƒØªØ¨ Ø§Ù„ÙƒØªØ§Ø¨',
-    'ØªØ§Ø±ÙŠØ® Ø§Ù„Ø²ÙˆØ§Ø¬',
-    'Ø§Ù„Ø§Ø­ØªÙŠØ§Ø¬Ø§Øª Ø§Ù„Ù…ØªÙˆÙØ±Ø© (Ø²ÙˆØ§Ø¬)',
-    'Ø§Ù„Ø§Ø­ØªÙŠØ§Ø¬Ø§Øª Ø§Ù„Ù…Ø·Ù„ÙˆØ¨Ø© (Ø²ÙˆØ§Ø¬)',
-    'Ù‡Ù„ ÙŠÙˆØ¬Ø¯ Ù…Ø´Ø±ÙˆØ¹ØŸ',
-    'Ù†ÙˆØ¹ Ø§Ù„Ù…Ø´Ø±ÙˆØ¹',
-    'Ø§Ù„Ø®Ø¨Ø±Ø© ÙˆØ§Ù„Ø§Ø³ØªØ¹Ø¯Ø§Ø¯',
-    'Ø§Ù„Ø§Ø­ØªÙŠØ§Ø¬Ø§Øª Ø§Ù„Ù…Ø·Ù„ÙˆØ¨Ø© Ù„Ù„Ù…Ø´Ø±ÙˆØ¹',
-    'Ù…Ø¨Ù„Øº ØªÙ‚Ø¯ÙŠØ±ÙŠ',
-    'Ù…Ø¨Ù„Øº Ù…Ù†ÙØ°',
-    'Ù…ØµØ¯Ø± Ø§Ù„ØªÙ…ÙˆÙŠÙ„',
-    'ÙˆØ³ÙˆÙ…',
-    'Ø£ÙØ±Ø§Ø¯ Ø§Ù„Ø£Ø³Ø±Ø© (JSON)',
-    'Ø§Ø­ØªÙŠØ§Ø¬Ø§Øª Ø§Ù„Ø£Ø³Ø±Ø©',
-    'ØªÙ‚Ø±ÙŠØ± Ø§Ù„Ø¨Ø§Ø­Ø«',
-    'Ø§Ù„Ø­Ø§Ù„Ø§Øª Ø§Ù„Ø·Ø¨ÙŠØ©'
+    'رقم الحالة',
+    'اسم رب الأسرة',
+    'رقم الهاتف',
+    'العنوان',
+    'المحافظة',
+    'المنطقة',
+    'عدد أفراد الأسرة',
+    'فئة الحالة',
+    'الاستعجال',
+    'الوصف',
+    'اسم المستكشف',
+    'التاريخ',
+    'الحالة',
+    'تقييم الحالة',
+    'الحالة الاجتماعية',
+    'رقم واتساب',
+    'وصف السكن',
+    'عدد الغرف',
+    'الحمام',
+    'المياه',
+    'السقف',
+    'نوع المنطقة',
+    'هل توجد ديون؟',
+    'قيمة الدين',
+    'صاحب الدين',
+    'حكم قضائي؟',
+    'سبب الدين',
+    'الدخل: الرواتب',
+    'الدخل: المعاشات',
+    'الدخل: المشاريع',
+    'الدخل: مساعدات الجمعيات',
+    'الدخل: بنود إضافية (JSON)',
+    'الدخل: ملاحظات',
+    'الدخل: إجمالي',
+    'المصروفات: إيجار السكن',
+    'المصروفات: المرافق',
+    'المصروفات: بنود إضافية (JSON)',
+    'المصروفات: ملاحظات',
+    'المصروفات: إجمالي',
+    'صافي شهري',
+    'هل يوجد حالة زواج؟',
+    'اسم العروسة',
+    'اسم العريس',
+    'مهنة العريس',
+    'تاريخ كتب الكتاب',
+    'تاريخ الزواج',
+    'الاحتياجات المتوفرة (زواج)',
+    'الاحتياجات المطلوبة (زواج)',
+    'هل يوجد مشروع؟',
+    'نوع المشروع',
+    'الخبرة والاستعداد',
+    'الاحتياجات المطلوبة للمشروع',
+    'مبلغ تقديري',
+    'مبلغ منفذ',
+    'مصدر التمويل',
+    'وسوم',
+    'أفراد الأسرة (JSON)',
+    'احتياجات الأسرة',
+    'تقرير الباحث',
+    'الحالات الطبية'
   ];
 
   const pick = (arr, i) => arr[Math.abs(i) % arr.length];
@@ -3425,33 +3425,33 @@ function downloadSampleCasesExcel() {
   const today = new Date();
   const fmtDate = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
   const addDays = (base, days) => { const d = new Date(base.getTime()); d.setDate(d.getDate() + days); return d; };
-  const yn = (b) => b ? 'Ù†Ø¹Ù…' : 'Ù„Ø§';
+  const yn = (b) => b ? 'نعم' : 'لا';
 
-  const govs = Array.isArray(GOVS) && GOVS.length ? GOVS : ['Ø§Ù„Ù‚Ø§Ù‡Ø±Ø©', 'Ø§Ù„Ø¬ÙŠØ²Ø©'];
-  const areas = ['Ù…Ø¯ÙŠÙ†Ø© Ù†ØµØ±', 'Ø§Ù„Ù‡Ø±Ù…', 'Ø´Ø¨Ø±Ø§', 'Ø§Ù„Ø¹Ø¬ÙˆØ²Ø©', 'Ø­Ù„ÙˆØ§Ù†', 'Ø§Ù„Ø²ÙŠØªÙˆÙ†', 'Ø¨ÙˆÙ„Ø§Ù‚', 'Ù…Ù†Ø´ÙŠØ© Ø§Ù„Ù‚Ù†Ø§Ø·Ø±', '6 Ø£ÙƒØªÙˆØ¨Ø±', 'Ø§Ù„Ø¹ØµØ§ÙØ±Ø©', 'Ø§Ù„Ù…Ø¹Ù…ÙˆØ±Ø©', 'Ø§Ù„Ø¹Ø§Ù…Ø±ÙŠØ©'];
-  const explorers = ['Ù…Ø³ØªÙƒØ´Ù 1', 'Ù…Ø³ØªÙƒØ´Ù 2', 'Ù…Ø³ØªÙƒØ´Ù 3', 'Ù…Ø³ØªÙƒØ´Ù 4', 'Ù…Ø³ØªÙƒØ´Ù 5'];
-  const statusList = ['Ø¬Ø¯ÙŠØ¯Ø©', 'Ù…Ø­ÙˆÙ„Ø©', 'Ù…Ù†ÙØ°Ø©'];
-  const urgencyList = ['Ø¹Ø§Ø¯ÙŠ', 'Ø¹Ø§Ø¬Ù„', 'Ø¹Ø§Ø¬Ù„ Ø¬Ø¯Ù‹Ø§'];
-  const grades = ['Ø­Ø§Ù„Ø© Ù…Ø³ØªØ¯ÙŠÙ…Ø©', 'Ø­Ø§Ù„Ø© Ù…ÙˆØ³Ù…ÙŠØ©', 'Ø­Ø§Ù„Ø© Ù…Ø±ÙÙˆØ¶Ø©', 'Ø­Ø§Ù„Ø© Ù‚ÙŠØ¯ Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø±'];
-  const bathroomTypes = ['Ù…Ø´ØªØ±Ùƒ', 'Ù…Ø³ØªÙ‚Ù„', 'Ù„Ø§ ÙŠÙˆØ¬Ø¯'];
-  const ynExists = ['ÙŠÙˆØ¬Ø¯', 'Ù„Ø§ ÙŠÙˆØ¬Ø¯'];
-  const areaTypes = ['Ø­Ø¶Ø±', 'Ø±ÙŠÙ', 'Ø¹Ø´ÙˆØ§Ø¦ÙŠ', 'Ø¨Ø¯Ùˆ'];
-  const maritalList = ['Ø£Ø¹Ø²Ø¨/Ø¹Ø²Ø¨Ø§Ø¡', 'Ù…ØªØ²ÙˆØ¬/Ù…ØªØ²ÙˆØ¬Ø©', 'Ù…Ø·Ù„Ù‚/Ù…Ø·Ù„Ù‚Ø©', 'Ø£Ø±Ù…Ù„/Ø£Ø±Ù…Ù„Ø©', 'ÙŠØªÙŠÙ…'];
-  const educations = ['Ù„Ø§ ÙŠÙˆØ¬Ø¯', 'Ø£Ø¨ØªØ¯Ø§Ø¦ÙŠØ©', 'Ø§Ø¹Ø¯Ø§Ø¯ÙŠØ©', 'Ø«Ø§Ù†ÙˆÙŠØ©', 'ØªØ¹Ù„ÙŠÙ… Ù…ØªÙˆØ³Ø·', 'Ø¬Ø§Ù…Ø¹ÙŠ', 'Ù…Ø­Ùˆ Ø£Ù…ÙŠØ©', 'Ù…ØªØ³Ø±Ø¨ Ù…Ù† Ø§Ù„ØªØ¹Ù„ÙŠÙ…'];
-  const debtOwners = ['Ø¨Ù‚Ø§Ù„Ø©', 'ØµØ§Ø­Ø¨ Ø§Ù„Ø¨ÙŠØª', 'Ø´Ø±ÙƒØ© ÙƒÙ‡Ø±Ø¨Ø§Ø¡', 'Ø¬Ù…Ø¹ÙŠØ©', 'Ù…Ø³ØªØ´ÙÙ‰', 'Ø£Ù‚Ø§Ø±Ø¨'];
-  const courtOrders = ['Ù„Ø§ ÙŠÙˆØ¬Ø¯', 'Ø´ÙŠÙƒ', 'ÙˆØµÙ„ Ø§Ù…Ø§Ù†Ù‡'];
-  const fundingSources = ['ØªØ¨Ø±Ø¹Ø§Øª Ø£ÙØ±Ø§Ø¯', 'Ø¬Ù…Ø¹ÙŠØ©', 'Ù…ØªØ¨Ø±Ø¹', 'ØµÙ†Ø¯ÙˆÙ‚ Ø²ÙƒØ§Ø©', 'ØªÙ…ÙˆÙŠÙ„ Ø°Ø§ØªÙŠ'];
-  const jobs = ['Ø¹Ø§Ù…Ù„', 'Ø³Ø§Ø¦Ù‚', 'Ù†Ø¬Ø§Ø±', 'Ø³Ø¨Ø§Ùƒ', 'Ù…ÙˆØ¸Ù', 'Ù„Ø§ ÙŠØ¹Ù…Ù„'];
-  const projectTypes = ['Ù…Ø´Ø±ÙˆØ¹ Ø®ÙŠØ§Ø·Ø©', 'ØªØ±Ø¨ÙŠØ© Ø¯ÙˆØ§Ø¬Ù†', 'Ø¨Ù‚Ø§Ù„Ø© ØµØºÙŠØ±Ø©', 'Ø¹Ø±Ø¨Ø© Ø·Ø¹Ø§Ù…', 'ÙˆØ±Ø´Ø© Ø¨Ø³ÙŠØ·Ø©'];
-  const projectNeeds = ['Ù…Ø§ÙƒÙŠÙ†Ø©', 'Ø®Ø§Ù…Ø§Øª', 'Ù…Ø¹Ø¯Ø§Øª', 'Ø±Ø£Ø³ Ù…Ø§Ù„', 'ØªØ¬Ù‡ÙŠØ² Ù…ÙƒØ§Ù†'];
-  const marriageNeeds = ['Ø£Ø¬Ù‡Ø²Ø© ÙƒÙ‡Ø±Ø¨Ø§Ø¦ÙŠØ©', 'Ø£Ø«Ø§Ø«', 'Ø¯Ù‡Ø§Ù†Ø§Øª', 'Ù…ÙØ±ÙˆØ´Ø§Øª', 'Ù…Ø³ØªÙ„Ø²Ù…Ø§Øª Ù…Ø·Ø¨Ø®'];
-  const marriageAvailable = ['Ø¨Ø¹Ø¶ Ø§Ù„Ø£Ø«Ø§Ø«', 'ØºØ±ÙØ© Ù†ÙˆÙ…', 'Ø«Ù„Ø§Ø¬Ø©', 'Ø¨ÙˆØªØ§Ø¬Ø§Ø²', 'Ù„Ø§ ÙŠÙˆØ¬Ø¯'];
-  const tagsPool = ['Ø¯ÙŠÙˆÙ†', 'ÙŠØªÙŠÙ…', 'Ù…ØªØ³Ø±Ø¨', 'Ø³ÙƒÙ†', 'Ø·Ø¨ÙŠ', 'Ø¹Ø§Ø¬Ù„', 'Ù…Ø´Ø±ÙˆØ¹', 'Ø²ÙˆØ§Ø¬', 'Ù…ÙŠØ§Ù‡', 'Ø£Ø³Ù‚Ù', 'ÙƒÙØ§Ù„Ø© Ø´Ù‡Ø±ÙŠØ©'];
+  const govs = Array.isArray(GOVS) && GOVS.length ? GOVS : ['القاهرة', 'الجيزة'];
+  const areas = ['مدينة نصر', 'الهرم', 'شبرا', 'العجوزة', 'حلوان', 'الزيتون', 'بولاق', 'منشية القناطر', '6 أكتوبر', 'العصافرة', 'المعمورة', 'العامرية'];
+  const explorers = ['مستكشف 1', 'مستكشف 2', 'مستكشف 3', 'مستكشف 4', 'مستكشف 5'];
+  const statusList = ['جديدة', 'محولة', 'منفذة'];
+  const urgencyList = ['عادي', 'عاجل', 'عاجل جدًا'];
+  const grades = ['حالة مستديمة', 'حالة موسمية', 'حالة مرفوضة', 'حالة قيد الانتظار'];
+  const bathroomTypes = ['مشترك', 'مستقل', 'لا يوجد'];
+  const ynExists = ['يوجد', 'لا يوجد'];
+  const areaTypes = ['حضر', 'ريف', 'عشوائي', 'بدو'];
+  const maritalList = ['أعزب/عزباء', 'متزوج/متزوجة', 'مطلق/مطلقة', 'أرمل/أرملة', 'يتيم'];
+  const educations = ['لا يوجد', 'أبتدائية', 'اعدادية', 'ثانوية', 'تعليم متوسط', 'جامعي', 'محو أمية', 'متسرب من التعليم'];
+  const debtOwners = ['بقالة', 'صاحب البيت', 'شركة كهرباء', 'جمعية', 'مستشفى', 'أقارب'];
+  const courtOrders = ['لا يوجد', 'شيك', 'وصل امانه'];
+  const fundingSources = ['تبرعات أفراد', 'جمعية', 'متبرع', 'صندوق زكاة', 'تمويل ذاتي'];
+  const jobs = ['عامل', 'سائق', 'نجار', 'سباك', 'موظف', 'لا يعمل'];
+  const projectTypes = ['مشروع خياطة', 'تربية دواجن', 'بقالة صغيرة', 'عربة طعام', 'ورشة بسيطة'];
+  const projectNeeds = ['ماكينة', 'خامات', 'معدات', 'رأس مال', 'تجهيز مكان'];
+  const marriageNeeds = ['أجهزة كهربائية', 'أثاث', 'دهانات', 'مفروشات', 'مستلزمات مطبخ'];
+  const marriageAvailable = ['بعض الأثاث', 'غرفة نوم', 'ثلاجة', 'بوتاجاز', 'لا يوجد'];
+  const tagsPool = ['ديون', 'يتيم', 'متسرب', 'سكن', 'طبي', 'عاجل', 'مشروع', 'زواج', 'مياه', 'أسقف', 'كفالة شهرية'];
 
   const makeExtras = (i, kind) => {
     const list = [];
-    if ((i + (kind === 'inc' ? 0 : 1)) % 3 === 0) list.push({ name: kind === 'inc' ? 'Ù…Ø³Ø§Ø¹Ø¯Ø© Ø£Ù‡Ù„' : 'Ø£Ø¯ÙˆÙŠØ©', value: kind === 'inc' ? 300 : 200 });
-    if ((i + (kind === 'inc' ? 1 : 2)) % 4 === 0) list.push({ name: kind === 'inc' ? 'Ø¯Ø®Ù„ Ø¥Ø¶Ø§ÙÙŠ' : 'ØªØ¹Ù„ÙŠÙ…', value: kind === 'inc' ? 250 : 150 });
+    if ((i + (kind === 'inc' ? 0 : 1)) % 3 === 0) list.push({ name: kind === 'inc' ? 'مساعدة أهل' : 'أدوية', value: kind === 'inc' ? 300 : 200 });
+    if ((i + (kind === 'inc' ? 1 : 2)) % 4 === 0) list.push({ name: kind === 'inc' ? 'دخل إضافي' : 'تعليم', value: kind === 'inc' ? 250 : 150 });
     return list;
   };
 
@@ -3461,16 +3461,16 @@ function downloadSampleCasesExcel() {
     for (let k = 0; k < Math.max(2, Math.min(8, base)); k++) {
       const age = 6 + ((i * 3 + k * 7) % 55);
       let edu = pick(educations, i + k);
-      if (wantDropout && k === 0) edu = 'Ù…ØªØ³Ø±Ø¨ Ù…Ù† Ø§Ù„ØªØ¹Ù„ÙŠÙ…';
+      if (wantDropout && k === 0) edu = 'متسرب من التعليم';
       let ms = pick(maritalList, i + k);
-      if (wantOrphanMember && k === 1) ms = 'ÙŠØªÙŠÙ…';
+      if (wantOrphanMember && k === 1) ms = 'يتيم';
       out.push({
-        name: `ÙØ±Ø¯ ${k + 1}`,
-        relation: k === 0 ? 'Ø§Ù„Ø£Ø¨' : k === 1 ? 'Ø§Ù„Ø£Ù…' : (k % 2 === 0 ? 'Ø§Ù„Ø§Ø¨Ù†' : 'Ø§Ù„Ø§Ø¨Ù†Ø©'),
+        name: `فرد ${k + 1}`,
+        relation: k === 0 ? 'الأب' : k === 1 ? 'الأم' : (k % 2 === 0 ? 'الابن' : 'الابنة'),
         age,
         education: edu,
         maritalStatus: ms,
-        working: age >= 18 ? (k % 3 === 0 ? 'Ù†Ø¹Ù…' : (k % 3 === 1 ? 'Ù„Ø§' : 'Ù…Ø±ÙŠØ¶')) : 'Ø·Ø§Ù„Ø¨/Ø·Ø§Ù„Ø¨Ø©'
+        working: age >= 18 ? (k % 3 === 0 ? 'نعم' : (k % 3 === 1 ? 'لا' : 'مريض')) : 'طالب/طالبة'
       });
     }
     return out;
@@ -3478,31 +3478,31 @@ function downloadSampleCasesExcel() {
 
   const makeMedicalCases = (i, categories) => {
     const cats = (categories || '').split(',').map(s => s.trim()).filter(Boolean);
-    if (!cats.includes('Ø¹Ù…Ù„ÙŠØ§Øª Ø·Ø¨ÙŠØ©') && !cats.includes('ÙƒÙØ§Ù„Ø§Øª Ù…Ø±Ø¶ÙŠØ©')) return '[]';
+    if (!cats.includes('عمليات طبية') && !cats.includes('كفالات مرضية')) return '[]';
     const rows = [];
-    if (cats.includes('Ø¹Ù…Ù„ÙŠØ§Øª Ø·Ø¨ÙŠØ©')) {
+    if (cats.includes('عمليات طبية')) {
       rows.push({
-        name: 'Ø¹Ù…Ù„ÙŠØ©',
-        diseaseType: pick(['Ø¹ÙŠÙˆÙ†', 'Ù‚Ù„Ø¨', 'Ø¹Ø¸Ø§Ù…', 'Ø£ÙˆØ±Ø§Ù…', 'Ø¨Ø§Ø·Ù†Ø©'], i),
-        treatmentSources: 'ØªÙ‚Ø±ÙŠØ± Ù…Ø³ØªØ´ÙÙ‰',
-        specialty: pick(['Ø±Ù…Ø¯', 'Ø¬Ø±Ø§Ø­Ø©', 'Ø¹Ø¸Ø§Ù…', 'Ù‚Ù„Ø¨'], i + 2),
-        hospital: pick(['Ù…Ø³ØªØ´ÙÙ‰ Ø¹Ø§Ù…', 'Ù…Ø³ØªØ´ÙÙ‰ Ø¬Ø§Ù…Ø¹ÙŠ', 'Ù…Ø³ØªØ´ÙÙ‰ Ø®Ø§Øµ'], i + 1),
-        doctor: `Ø¯/ ${pick(['Ø£Ø­Ù…Ø¯', 'Ù…Ø­Ù…Ø¯', 'Ù…Ø­Ù…ÙˆØ¯', 'ÙŠÙˆØ³Ù', 'Ø³Ø¹ÙŠØ¯'], i)}`,
-        report: 'ØªÙ…Øª Ù…Ø±Ø§Ø¬Ø¹Ø© Ø§Ù„Ø­Ø§Ù„Ø© ÙˆØªØ­ØªØ§Ø¬ ØªØ¯Ø®Ù„',
-        required: 'ØªÙ†ÙÙŠØ° Ø§Ù„Ø¹Ù…Ù„ÙŠØ©',
+        name: 'عملية',
+        diseaseType: pick(['عيون', 'قلب', 'عظام', 'أورام', 'باطنة'], i),
+        treatmentSources: 'تقرير مستشفى',
+        specialty: pick(['رمد', 'جراحة', 'عظام', 'قلب'], i + 2),
+        hospital: pick(['مستشفى عام', 'مستشفى جامعي', 'مستشفى خاص'], i + 1),
+        doctor: `د/ ${pick(['أحمد', 'محمد', 'محمود', 'يوسف', 'سعيد'], i)}`,
+        report: 'تمت مراجعة الحالة وتحتاج تدخل',
+        required: 'تنفيذ العملية',
         estimatedCost: String(4000 + (i % 10) * 700)
       });
     }
-    if (cats.includes('ÙƒÙØ§Ù„Ø§Øª Ù…Ø±Ø¶ÙŠØ©')) {
+    if (cats.includes('كفالات مرضية')) {
       rows.push({
-        name: 'ÙƒÙØ§Ù„Ø© Ø¹Ù„Ø§Ø¬',
-        diseaseType: pick(['Ø³ÙƒØ±', 'Ø¶ØºØ·', 'ÙØ´Ù„ ÙƒÙ„ÙˆÙŠ', 'Ø§Ù„ØªÙ‡Ø§Ø¨ ÙƒØ¨Ø¯', 'Ø±Ø¨Ùˆ'], i + 3),
-        treatmentSources: 'Ø±ÙˆØ´ØªØ© Ø´Ù‡Ø±ÙŠØ©',
-        specialty: 'Ø¨Ø§Ø·Ù†Ø©',
-        hospital: pick(['Ù…Ø³ØªØ´ÙÙ‰ Ø¹Ø§Ù…', 'ÙˆØ­Ø¯Ø© ØµØ­ÙŠØ©'], i + 4),
-        doctor: `Ø¯/ ${pick(['Ø¹Ù„ÙŠ', 'Ø®Ø§Ù„Ø¯', 'Ù‡Ø´Ø§Ù…', 'Ø¥Ø¨Ø±Ø§Ù‡ÙŠÙ…'], i + 1)}`,
-        report: 'ÙŠØªØ·Ù„Ø¨ Ø¹Ù„Ø§Ø¬ Ø´Ù‡Ø±ÙŠ Ù…Ù†ØªØ¸Ù…',
-        required: 'Ø¯ÙˆØ§Ø¡ Ø´Ù‡Ø±ÙŠ',
+        name: 'كفالة علاج',
+        diseaseType: pick(['سكر', 'ضغط', 'فشل كلوي', 'التهاب كبد', 'ربو'], i + 3),
+        treatmentSources: 'روشتة شهرية',
+        specialty: 'باطنة',
+        hospital: pick(['مستشفى عام', 'وحدة صحية'], i + 4),
+        doctor: `د/ ${pick(['علي', 'خالد', 'هشام', 'إبراهيم'], i + 1)}`,
+        report: 'يتطلب علاج شهري منتظم',
+        required: 'دواء شهري',
         estimatedCost: String(500 + (i % 6) * 120)
       });
     }
@@ -3529,25 +3529,25 @@ function downloadSampleCasesExcel() {
     const status = pick(statusList, i);
     const urgency = pick(urgencyList, i);
     const grade = pick(grades, i);
-    const maritalStatus = (i % 17 === 0) ? 'ÙŠØªÙŠÙ…' : pick(maritalList, i);
+    const maritalStatus = (i % 17 === 0) ? 'يتيم' : pick(maritalList, i);
 
     const categories = makeCategories(i);
 
     const needBathroom = (i % 9 === 0);
     const needWater = (i % 8 === 0);
     const needRoof = (i % 10 === 0);
-    const bathroomType = needBathroom ? 'Ù„Ø§ ÙŠÙˆØ¬Ø¯' : pick(bathroomTypes, i);
-    const waterExists = needWater ? 'Ù„Ø§ ÙŠÙˆØ¬Ø¯' : 'ÙŠÙˆØ¬Ø¯';
-    const roofExists = needRoof ? 'Ù„Ø§ ÙŠÙˆØ¬Ø¯' : 'ÙŠÙˆØ¬Ø¯';
+    const bathroomType = needBathroom ? 'لا يوجد' : pick(bathroomTypes, i);
+    const waterExists = needWater ? 'لا يوجد' : 'يوجد';
+    const roofExists = needRoof ? 'لا يوجد' : 'يوجد';
     const rooms = String(((i % 4) + 1));
     const areaType = pick(areaTypes, i);
-    const housingDesc = `Ø³ÙƒÙ† ${areaType} - ${rooms} ØºØ±Ù`;
+    const housingDesc = `سكن ${areaType} - ${rooms} غرف`;
 
     const hasDebts = (i % 6 === 0);
     const debtAmount = hasDebts ? String(1500 + (i % 10) * 350) : '';
     const debtOwner = hasDebts ? pick(debtOwners, i) : '';
     const courtOrder = hasDebts ? pick(courtOrders, i) : '';
-    const debtReason = hasDebts ? pick(['Ù…ØµØ±ÙˆÙØ§Øª Ø¹Ù„Ø§Ø¬', 'Ø¥ÙŠØ¬Ø§Ø± Ù…ØªØ£Ø®Ø±', 'ÙÙˆØ§ØªÙŠØ±', 'ØªØ¬Ù‡ÙŠØ²Ø§Øª', 'Ù…ØµØ§Ø±ÙŠÙ Ø¯Ø±Ø§Ø³Ø©'], i) : '';
+    const debtReason = hasDebts ? pick(['مصروفات علاج', 'إيجار متأخر', 'فواتير', 'تجهيزات', 'مصاريف دراسة'], i) : '';
 
     const salary = (i % 7 === 0) ? 0 : (1200 + (i % 8) * 250);
     const pension = (i % 5 === 0) ? (600 + (i % 4) * 200) : 0;
@@ -3565,8 +3565,8 @@ function downloadSampleCasesExcel() {
     const netMonthly = incomeTotal - expensesTotal;
 
     const marriageEnabled = (i % 13 === 0);
-    const brideName = marriageEnabled ? `Ø¹Ø±ÙˆØ³Ø© ${i}` : '';
-    const groomName = marriageEnabled ? `Ø¹Ø±ÙŠØ³ ${i}` : '';
+    const brideName = marriageEnabled ? `عروسة ${i}` : '';
+    const groomName = marriageEnabled ? `عريس ${i}` : '';
     const groomJob = marriageEnabled ? pick(jobs, i) : '';
     const contractDate = marriageEnabled ? fmtDate(addDays(today, -i - 60)) : '';
     const weddingDate = marriageEnabled ? fmtDate(addDays(today, -i - 20)) : '';
@@ -3575,22 +3575,22 @@ function downloadSampleCasesExcel() {
 
     const projectEnabled = (i % 14 === 0);
     const projectType = projectEnabled ? pick(projectTypes, i) : '';
-    const projectExp = projectEnabled ? pick(['Ø®Ø¨Ø±Ø© Ù…ØªÙˆØ³Ø·Ø©', 'Ø®Ø¨Ø±Ø© Ø¬ÙŠØ¯Ø©', 'Ù„Ø§ ØªÙˆØ¬Ø¯ Ø®Ø¨Ø±Ø©'], i) : '';
+    const projectExp = projectEnabled ? pick(['خبرة متوسطة', 'خبرة جيدة', 'لا توجد خبرة'], i) : '';
     const projectNeed = projectEnabled ? pick(projectNeeds, i) : '';
 
     const estAmount = 5000 + (i % 12) * 900;
-    const delAmount = status === 'Ù…Ù†ÙØ°Ø©' ? Math.max(0, estAmount - (i % 4) * 400) : '';
+    const delAmount = status === 'منفذة' ? Math.max(0, estAmount - (i % 4) * 400) : '';
     const fundingSource = pick(fundingSources, i);
 
     const tags = [];
-    if (hasDebts) tags.push('Ø¯ÙŠÙˆÙ†');
-    if (maritalStatus === 'ÙŠØªÙŠÙ…') tags.push('ÙŠØªÙŠÙ…');
-    if (needBathroom || needRoof || needWater) tags.push('Ø³ÙƒÙ†');
-    if (urgency !== 'Ø¹Ø§Ø¯ÙŠ') tags.push('Ø¹Ø§Ø¬Ù„');
-    if (categories.includes('Ø¹Ù…Ù„ÙŠØ§Øª Ø·Ø¨ÙŠØ©') || categories.includes('ÙƒÙØ§Ù„Ø§Øª Ù…Ø±Ø¶ÙŠØ©')) tags.push('Ø·Ø¨ÙŠ');
-    if (categories.includes('ÙƒÙØ§Ù„Ø© Ø´Ù‡Ø±ÙŠØ©')) tags.push('ÙƒÙØ§Ù„Ø© Ø´Ù‡Ø±ÙŠØ©');
-    if (marriageEnabled) tags.push('Ø²ÙˆØ§Ø¬');
-    if (projectEnabled) tags.push('Ù…Ø´Ø±ÙˆØ¹');
+    if (hasDebts) tags.push('ديون');
+    if (maritalStatus === 'يتيم') tags.push('يتيم');
+    if (needBathroom || needRoof || needWater) tags.push('سكن');
+    if (urgency !== 'عادي') tags.push('عاجل');
+    if (categories.includes('عمليات طبية') || categories.includes('كفالات مرضية')) tags.push('طبي');
+    if (categories.includes('كفالة شهرية')) tags.push('كفالة شهرية');
+    if (marriageEnabled) tags.push('زواج');
+    if (projectEnabled) tags.push('مشروع');
     const extraTags = (i % 3 === 0) ? [pick(tagsPool, i + 1)] : [];
     const tagsStr = Array.from(new Set([...tags, ...extraTags])).join('|');
 
@@ -3599,21 +3599,21 @@ function downloadSampleCasesExcel() {
     const wantOrphanMember = (i % 19 === 0);
     const familyMembers = JSON.stringify(makeFamilyMembers(i, famCount, wantDropout, wantOrphanMember));
 
-    const familyNeeds = `Ø§Ø­ØªÙŠØ§Ø¬Ø§Øª: ${needWater ? 'Ù…ÙŠØ§Ù‡ ' : ''}${needRoof ? 'Ø³Ù‚Ù ' : ''}${needBathroom ? 'Ø­Ù…Ø§Ù… ' : ''}`.trim() || 'Ø§Ø­ØªÙŠØ§Ø¬Ø§Øª Ù…ØªÙ†ÙˆØ¹Ø©';
-    const researcherReport = `ØªÙ…Øª Ø²ÙŠØ§Ø±Ø© Ø§Ù„Ø­Ø§Ù„Ø© ÙˆØªÙ‚ÙŠÙŠÙ…Ù‡Ø§ (${grade})`;
+    const familyNeeds = `احتياجات: ${needWater ? 'مياه ' : ''}${needRoof ? 'سقف ' : ''}${needBathroom ? 'حمام ' : ''}`.trim() || 'احتياجات متنوعة';
+    const researcherReport = `تمت زيارة الحالة وتقييمها (${grade})`;
     const medicalCasesJson = makeMedicalCases(i, categories);
 
     const row = [
       id,
-      `Ø±Ø¨ Ø§Ù„Ø£Ø³Ø±Ø© ${i}`,
+      `رب الأسرة ${i}`,
       `010${String(10000000 + i).slice(-8)}`,
-      `Ø¹Ù†ÙˆØ§Ù† ØªØ¬Ø±ÙŠØ¨ÙŠ Ø±Ù‚Ù… ${i} - ${area}`,
+      `عنوان تجريبي رقم ${i} - ${area}`,
       gov,
       area,
       String(famCount),
       categories,
       urgency,
-      `ÙˆØµÙ Ø§Ù„Ø­Ø§Ù„Ø© Ø±Ù‚Ù… ${i} (Ø¨ÙŠØ§Ù†Ø§Øª ØªØ¬Ø±ÙŠØ¨ÙŠØ© ÙƒØ§Ù…Ù„Ø©)` ,
+      `وصف الحالة رقم ${i} (بيانات تجريبية كاملة)` ,
       explorer,
       date,
       status,
@@ -3636,12 +3636,12 @@ function downloadSampleCasesExcel() {
       String(projectsIncome),
       String(ngoIncome),
       incExtras,
-      'Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ø¯Ø®Ù„',
+      'ملاحظات دخل',
       String(incomeTotal),
       String(rent),
       String(utilities),
       expExtras,
-      'Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ù…ØµØ±ÙˆÙØ§Øª',
+      'ملاحظات مصروفات',
       String(expensesTotal),
       String(netMonthly),
       yn(marriageEnabled),
@@ -3691,7 +3691,7 @@ function downloadSampleCasesExcel() {
     wb.Workbook.Views = [{ RTL: true }];
     window.XLSX.writeFile(wb, 'sample-cases-100.xlsx');
   } catch {
-    alert('ØªØ¹Ø°Ø± Ø¥Ù†Ø´Ø§Ø¡ Ù…Ù„Ù Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„ØªØ¬Ø±ÙŠØ¨ÙŠØ©');
+    alert('تعذر إنشاء ملف البيانات التجريبية');
   }
 }
 
@@ -3701,7 +3701,7 @@ function onImportFile(e) {
   const file = e.target.files[0]; if (!file) return;
   const name = (file.name || '').toLowerCase();
   if (name.endsWith('.xlsx')) {
-    if (!window.XLSX) { alert('Ù…ÙƒØªØ¨Ø© Excel ØºÙŠØ± Ù…ØªØ§Ø­Ø© Ø­Ø§Ù„ÙŠØ§Ù‹. ØªØ£ÙƒØ¯ Ù…Ù† Ø§ØªØµØ§Ù„ Ø§Ù„Ø¥Ù†ØªØ±Ù†Øª.'); e.target.value = ''; return; }
+    if (!window.XLSX) { alert('مكتبة Excel غير متاحة حالياً. تأكد من اتصال الإنترنت.'); e.target.value = ''; return; }
     const reader = new FileReader();
     reader.onload = async () => {
       try {
@@ -3709,19 +3709,19 @@ function onImportFile(e) {
         const wb = window.XLSX.read(data, { type: 'array' });
         const sheetName = wb.SheetNames?.[0];
         const ws = sheetName ? wb.Sheets?.[sheetName] : null;
-        if (!ws) throw new Error('Ù„Ù… ÙŠØªÙ… Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Sheet Ø¯Ø§Ø®Ù„ Ù…Ù„Ù Excel');
+        if (!ws) throw new Error('لم يتم العثور على Sheet داخل ملف Excel');
 
         const aoa = window.XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', blankrows: false, raw: false });
         importFromAOA_(aoa);
       } catch (err) {
         try { console.error('Excel import failed', err); } catch { }
-        const msg = (err && err.message) ? `\n\nØ§Ù„ØªÙØ§ØµÙŠÙ„: ${err.message}` : '';
-        alert(`ØªØ¹Ø°Ø± Ù‚Ø±Ø§Ø¡Ø© Ù…Ù„Ù Excel${msg}`);
+        const msg = (err && err.message) ? `\n\nالتفاصيل: ${err.message}` : '';
+        alert(`تعذر قراءة ملف Excel${msg}`);
       }
     };
     reader.readAsArrayBuffer(file);
   } else {
-    alert('ØµÙŠØºØ© Ø§Ù„Ù…Ù„Ù ØºÙŠØ± Ù…Ø¯Ø¹ÙˆÙ…Ø©. ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Excel (XLSX) ÙÙ‚Ø·.');
+    alert('صيغة الملف غير مدعومة. يرجى اختيار Excel (XLSX) فقط.');
   }
   e.target.value = '';
 }
@@ -3735,13 +3735,13 @@ function onJSONImportFile(e) {
   const file = e.target.files[0];
   if (!file) return;
   const name = (file.name || '').toLowerCase();
-  if (!name.endsWith('.json')) { alert('ÙŠØ±Ø¬Ù‰ Ø§Ø®ØªÙŠØ§Ø± Ù…Ù„Ù JSON'); e.target.value = ''; return; }
+  if (!name.endsWith('.json')) { alert('يرجى اختيار ملف JSON'); e.target.value = ''; return; }
   const reader = new FileReader();
   reader.onload = () => {
     try {
       importFromJSONBackup(reader.result);
     } catch {
-      alert('ØªØ¹Ø°Ø± Ù‚Ø±Ø§Ø¡Ø© Ù…Ù„Ù Ø§Ù„Ù†Ø³Ø®Ø© Ø§Ù„Ø§Ø­ØªÙŠØ§Ø·ÙŠØ©');
+      alert('تعذر قراءة ملف النسخة الاحتياطية');
     }
   };
   reader.readAsText(file, 'utf-8');
@@ -3765,16 +3765,16 @@ function exportToJSONBackup() {
 
 function importFromJSONBackup(text) {
   let data;
-  try { data = JSON.parse(text); } catch { alert('Ù…Ù„Ù JSON ØºÙŠØ± ØµØ§Ù„Ø­'); return; }
+  try { data = JSON.parse(text); } catch { alert('ملف JSON غير صالح'); return; }
   const raw = Array.isArray(data) ? data : (Array.isArray(data.cases) ? data.cases : null);
-  if (!raw) { alert('Ø§Ù„Ù…Ù„Ù Ù„Ø§ ÙŠØ­ØªÙˆÙŠ Ø¹Ù„Ù‰ Ø¨ÙŠØ§Ù†Ø§Øª Ø­Ø§Ù„Ø§Øª'); return; }
-  const ok = confirm('Ø³ÙŠØªÙ… Ø§Ø³ØªØ¨Ø¯Ø§Ù„ ÙƒÙ„ Ø§Ù„Ø­Ø§Ù„Ø§Øª Ø§Ù„Ø­Ø§Ù„ÙŠØ© Ø¨Ø§Ù„Ù†Ø³Ø®Ø© Ø§Ù„Ø§Ø­ØªÙŠØ§Ø·ÙŠØ©. Ù‡Ù„ ØªØ±ÙŠØ¯ Ø§Ù„Ù…ØªØ§Ø¨Ø¹Ø©ØŸ');
+  if (!raw) { alert('الملف لا يحتوي على بيانات حالات'); return; }
+  const ok = confirm('سيتم استبدال كل الحالات الحالية بالنسخة الاحتياطية. هل تريد المتابعة؟');
   if (!ok) return;
-  const ok2 = confirm('ØªØ­Ø°ÙŠØ±: Ù‡Ø°Ù‡ Ø§Ù„Ø¹Ù…Ù„ÙŠØ© Ù‚Ø¯ ØªØ­Ø°Ù Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ù…Ù† Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª (Supabase) ÙˆØªØ³ØªØ¨Ø¯Ù„Ù‡Ø§ Ø¨Ø§Ù„ÙƒØ§Ù…Ù„. Ù‡Ù„ ØªØ±ÙŠØ¯ Ø§Ù„Ù…ØªØ§Ø¨Ø¹Ø©ØŸ');
+  const ok2 = confirm('تحذير: هذه العملية قد تحذف البيانات من قاعدة البيانات (Supabase) وتستبدلها بالكامل. هل تريد المتابعة؟');
   if (!ok2) return;
   let ok3 = false;
-  try { ok3 = (prompt('Ø§ÙƒØªØ¨ ÙƒÙ„Ù…Ø© CONFIRM Ù„Ù„ØªØ£ÙƒÙŠØ¯ Ø§Ù„Ù†Ù‡Ø§Ø¦ÙŠ:') || '').toString().trim().toUpperCase() === 'CONFIRM'; } catch { ok3 = false; }
-  if (!ok3) { alert('ØªÙ… Ø¥Ù„ØºØ§Ø¡ Ø§Ù„Ø¹Ù…Ù„ÙŠØ©'); return; }
+  try { ok3 = (prompt('اكتب كلمة CONFIRM للتأكيد النهائي:') || '').toString().trim().toUpperCase() === 'CONFIRM'; } catch { ok3 = false; }
+  if (!ok3) { alert('تم إلغاء العملية'); return; }
   const sanitized = raw.map(x => {
     const obj = { ...(x || {}) };
     obj.id = (obj.id || '').toString();
@@ -3789,7 +3789,7 @@ function importFromJSONBackup(text) {
     obj.description = (obj.description || '').toString();
     obj.explorerName = (obj.explorerName || '').toString();
     obj.date = (obj.date || '').toString();
-    obj.status = (obj.status || 'Ø¬Ø¯ÙŠØ¯Ø©').toString();
+    obj.status = (obj.status || 'جديدة').toString();
     obj.medicalCases = Array.isArray(obj.medicalCases) ? obj.medicalCases : [];
     obj.tags = Array.isArray(obj.tags) ? obj.tags : [];
     if (!Array.isArray(obj.sponsorships)) obj.sponsorships = [];
@@ -3813,20 +3813,20 @@ function importFromJSONBackup(text) {
   try { updateDashboardStats(); } catch { }
   try { generateReportPreview(); } catch { }
   try { updateNavBadges(); } catch { }
-  logAction('Ø§Ø³ØªØ¹Ø§Ø¯Ø© JSON', '', `Ø¹Ø¯Ø¯ Ø§Ù„Ø­Ø§Ù„Ø§Øª: ${sanitized.length}`);
-  alert(`ØªÙ…Øª Ø§Ù„Ø§Ø³ØªØ¹Ø§Ø¯Ø© Ø¨Ù†Ø¬Ø§Ø­: ${sanitized.length} Ø­Ø§Ù„Ø©`);
+  logAction('استعادة JSON', '', `عدد الحالات: ${sanitized.length}`);
+  alert(`تمت الاستعادة بنجاح: ${sanitized.length} حالة`);
 }
 
 function importFromCSV(text) {
   const rows = text.split(/\r?\n/).filter(r => r.trim().length > 0);
-  if (rows.length < 2) { alert('Ù…Ù„Ù ÙØ§Ø±Øº'); return; }
+  if (rows.length < 2) { alert('ملف فارغ'); return; }
   const headers = rows[0].split(',').map(h => h.replace(/^"|"$/g, '').trim());
   const dataRows = rows.slice(1);
   importFromParsedRows_(headers, dataRows, (row) => parseCSVLine(row));
 }
 
 function importFromAOA_(aoa) {
-  if (!Array.isArray(aoa) || aoa.length < 2) { alert('Ù…Ù„Ù ÙØ§Ø±Øº'); return; }
+  if (!Array.isArray(aoa) || aoa.length < 2) { alert('ملف فارغ'); return; }
   const headers = (aoa[0] || []).map(h => (h ?? '').toString().trim());
   const dataRows = aoa.slice(1);
   importFromParsedRows_(headers, dataRows, (row) => (Array.isArray(row) ? row.map(v => (v ?? '').toString()) : []));
@@ -3853,76 +3853,76 @@ function importFromParsedRows_(headers, dataRows, parseRow) {
   };
   // Support Arabic header names used by export
   const map = {
-    caseNo: idxAny(['Ø±Ù‚Ù… Ø§Ù„Ø­Ø§Ù„Ø©', 'caseNo', 'case_no']),
-    id: idxAny(['Ø§Ù„Ø±Ù‚Ù… Ø§Ù„Ù‚ÙˆÙ…ÙŠ', 'Ø±Ù‚Ù… Ù‚ÙˆÙ…ÙŠ', 'National ID', 'nationalId']),
-    familyHead: idxAny(['Ø§Ø³Ù… Ø±Ø¨ Ø§Ù„Ø£Ø³Ø±Ø©', 'Ø§Ø³Ù… Ø§Ù„Ø­Ø§Ù„Ø©']),
-    phone: idxAny(['Ø§Ù„Ù‡Ø§ØªÙ', 'Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ', 'Ø±Ù‚Ù… Ø§Ù„ØªÙ„ÙŠÙÙˆÙ†']),
-    address: idx('Ø§Ù„Ø¹Ù†ÙˆØ§Ù†'),
-    governorate: idx('Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©'),
-    area: idxAny(['Ø§Ù„Ù…Ù†Ø·Ù‚Ø©', 'Ø§Ù„Ù‚Ø±ÙŠØ©']),
-    familyCount: idxAny(['Ø¹Ø¯Ø¯ Ø§Ù„Ø£ÙØ±Ø§Ø¯', 'Ø¹Ø¯Ø¯ Ø£ÙØ±Ø§Ø¯ Ø§Ù„Ø£Ø³Ø±Ø©', 'Ø¹Ø¯Ø¯ Ø§Ù„Ø§Ø¨Ù†Ø§Ø¡']),
-    category: idx('Ø§Ù„ÙØ¦Ø©') >= 0 ? idx('Ø§Ù„ÙØ¦Ø©') : idx('ÙØ¦Ø© Ø§Ù„Ø­Ø§Ù„Ø©'),
-    urgency: idx('Ø§Ù„Ø§Ø³ØªØ¹Ø¬Ø§Ù„'),
-    description: idxAny(['Ø§Ù„ÙˆØµÙ', 'ÙˆØµÙ Ø§Ù„Ø­Ø§Ù„Ø©']),
-    explorerName: idx('Ø§Ù„Ù…Ø³ØªÙƒØ´Ù') >= 0 ? idx('Ø§Ù„Ù…Ø³ØªÙƒØ´Ù') : idx('Ø§Ø³Ù… Ø§Ù„Ù…Ø³ØªÙƒØ´Ù'),
-    date: idx('Ø§Ù„ØªØ§Ø±ÙŠØ®'),
-    status: idx('Ø§Ù„Ø­Ø§Ù„Ø©'),
-    hospital: idx('Ø§Ù„Ù…Ø³ØªØ´ÙÙ‰'),
-    doctor: idx('Ø§Ù„Ø·Ø¨ÙŠØ¨') >= 0 ? idx('Ø§Ù„Ø·Ø¨ÙŠØ¨') : idx('Ø§Ø³Ù… Ø§Ù„Ø·Ø¨ÙŠØ¨'),
-    medicalReport: idx('Ø§Ù„ØªÙ‚Ø±ÙŠØ± Ø§Ù„Ø·Ø¨ÙŠ'),
-    estimatedCost: idx('Ø§Ù„ØªÙƒÙ„ÙØ© Ø§Ù„Ø·Ø¨ÙŠØ© Ø§Ù„ØªÙ‚Ø¯ÙŠØ±ÙŠØ©') >= 0 ? idx('Ø§Ù„ØªÙƒÙ„ÙØ© Ø§Ù„Ø·Ø¨ÙŠØ© Ø§Ù„ØªÙ‚Ø¯ÙŠØ±ÙŠØ©') : idx('Ø§Ù„ØªÙƒÙ„ÙØ© Ø§Ù„ØªÙ‚Ø¯ÙŠØ±ÙŠØ©'),
-    estimatedAmount: idx('Ù…Ø¨Ù„Øº ØªÙ‚Ø¯ÙŠØ±ÙŠ'),
-    deliveredAmount: idx('Ù…Ø¨Ù„Øº Ù…Ù†ÙØ°'),
-    fundingSource: idx('Ù…ØµØ¯Ø± Ø§Ù„ØªÙ…ÙˆÙŠÙ„'),
-    tags: idx('ÙˆØ³ÙˆÙ…'),
-    medicalCases: idx('Ø§Ù„Ø­Ø§Ù„Ø§Øª Ø§Ù„Ø·Ø¨ÙŠØ©'),
-    caseGrade: idx('ØªÙ‚ÙŠÙŠÙ… Ø§Ù„Ø­Ø§Ù„Ø©'),
-    maritalStatus: idx('Ø§Ù„Ø­Ø§Ù„Ø© Ø§Ù„Ø§Ø¬ØªÙ…Ø§Ø¹ÙŠØ©'),
-    whatsapp: idx('Ø±Ù‚Ù… ÙˆØ§ØªØ³Ø§Ø¨'),
-    housingDesc: idx('ÙˆØµÙ Ø§Ù„Ø³ÙƒÙ†'),
-    roomsCount: idx('Ø¹Ø¯Ø¯ Ø§Ù„ØºØ±Ù'),
-    bathroomType: idx('Ø§Ù„Ø­Ù…Ø§Ù…'),
-    waterExists: idx('Ø§Ù„Ù…ÙŠØ§Ù‡'),
-    roofExists: idx('Ø§Ù„Ø³Ù‚Ù'),
-    areaType: idx('Ù†ÙˆØ¹ Ø§Ù„Ù…Ù†Ø·Ù‚Ø©'),
-    debtsEnabled: idx('Ù‡Ù„ ØªÙˆØ¬Ø¯ Ø¯ÙŠÙˆÙ†ØŸ'),
-    debtAmount: idx('Ù‚ÙŠÙ…Ø© Ø§Ù„Ø¯ÙŠÙ†'),
-    debtOwner: idx('ØµØ§Ø­Ø¨ Ø§Ù„Ø¯ÙŠÙ†'),
-    hasCourtOrder: idx('Ø­ÙƒÙ… Ù‚Ø¶Ø§Ø¦ÙŠØŸ'),
-    debtReason: idx('Ø³Ø¨Ø¨ Ø§Ù„Ø¯ÙŠÙ†'),
-    incomeSalary: idx('Ø§Ù„Ø¯Ø®Ù„: Ø§Ù„Ø±ÙˆØ§ØªØ¨'),
-    incomePension: idx('Ø§Ù„Ø¯Ø®Ù„: Ø§Ù„Ù…Ø¹Ø§Ø´Ø§Øª'),
-    incomeProjects: idx('Ø§Ù„Ø¯Ø®Ù„: Ø§Ù„Ù…Ø´Ø§Ø±ÙŠØ¹'),
-    incomeNgo: idx('Ø§Ù„Ø¯Ø®Ù„: Ù…Ø³Ø§Ø¹Ø¯Ø§Øª Ø§Ù„Ø¬Ù…Ø¹ÙŠØ§Øª'),
-    incomeExtras: idx('Ø§Ù„Ø¯Ø®Ù„: Ø¨Ù†ÙˆØ¯ Ø¥Ø¶Ø§ÙÙŠØ© (JSON)'),
-    incomeNotes: idx('Ø§Ù„Ø¯Ø®Ù„: Ù…Ù„Ø§Ø­Ø¸Ø§Øª'),
-    incomeTotal: idx('Ø§Ù„Ø¯Ø®Ù„: Ø¥Ø¬Ù…Ø§Ù„ÙŠ'),
-    expenseRent: idx('Ø§Ù„Ù…ØµØ±ÙˆÙØ§Øª: Ø¥ÙŠØ¬Ø§Ø± Ø§Ù„Ø³ÙƒÙ†'),
-    expenseUtilities: idx('Ø§Ù„Ù…ØµØ±ÙˆÙØ§Øª: Ø§Ù„Ù…Ø±Ø§ÙÙ‚'),
-    expenseExtras: idx('Ø§Ù„Ù…ØµØ±ÙˆÙØ§Øª: Ø¨Ù†ÙˆØ¯ Ø¥Ø¶Ø§ÙÙŠØ© (JSON)'),
-    expensesNotes: idx('Ø§Ù„Ù…ØµØ±ÙˆÙØ§Øª: Ù…Ù„Ø§Ø­Ø¸Ø§Øª'),
-    expensesTotal: idx('Ø§Ù„Ù…ØµØ±ÙˆÙØ§Øª: Ø¥Ø¬Ù…Ø§Ù„ÙŠ'),
-    netMonthly: idx('ØµØ§ÙÙŠ Ø´Ù‡Ø±ÙŠ'),
-    marriageEnabled: idx('Ù‡Ù„ ÙŠÙˆØ¬Ø¯ Ø­Ø§Ù„Ø© Ø²ÙˆØ§Ø¬ØŸ'),
-    brideName: idx('Ø§Ø³Ù… Ø§Ù„Ø¹Ø±ÙˆØ³Ø©'),
-    groomName: idx('Ø§Ø³Ù… Ø§Ù„Ø¹Ø±ÙŠØ³'),
-    groomJob: idx('Ù…Ù‡Ù†Ø© Ø§Ù„Ø¹Ø±ÙŠØ³'),
-    contractDate: idx('ØªØ§Ø±ÙŠØ® ÙƒØªØ¨ Ø§Ù„ÙƒØªØ§Ø¨'),
-    weddingDate: idx('ØªØ§Ø±ÙŠØ® Ø§Ù„Ø²ÙˆØ§Ø¬'),
-    marriageAvailable: idx('Ø§Ù„Ø§Ø­ØªÙŠØ§Ø¬Ø§Øª Ø§Ù„Ù…ØªÙˆÙØ±Ø© (Ø²ÙˆØ§Ø¬)'),
-    marriageNeeded: idx('Ø§Ù„Ø§Ø­ØªÙŠØ§Ø¬Ø§Øª Ø§Ù„Ù…Ø·Ù„ÙˆØ¨Ø© (Ø²ÙˆØ§Ø¬)'),
-    projectsEnabled: idx('Ù‡Ù„ ÙŠÙˆØ¬Ø¯ Ù…Ø´Ø±ÙˆØ¹ØŸ'),
-    projectType: idx('Ù†ÙˆØ¹ Ø§Ù„Ù…Ø´Ø±ÙˆØ¹'),
-    projectExperience: idx('Ø§Ù„Ø®Ø¨Ø±Ø© ÙˆØ§Ù„Ø§Ø³ØªØ¹Ø¯Ø§Ø¯'),
-    projectNeeds: idx('Ø§Ù„Ø§Ø­ØªÙŠØ§Ø¬Ø§Øª Ø§Ù„Ù…Ø·Ù„ÙˆØ¨Ø© Ù„Ù„Ù…Ø´Ø±ÙˆØ¹'),
-    familyMembers: idx('Ø£ÙØ±Ø§Ø¯ Ø§Ù„Ø£Ø³Ø±Ø© (JSON)'),
-    familyNeeds: idxAny(['Ø§Ø­ØªÙŠØ§Ø¬Ø§Øª Ø§Ù„Ø£Ø³Ø±Ø©', 'Ø§Ø­ØªÙŠØ§Ø¬ Ø§Ù„Ø§Ø³Ø±Ø©', 'Ø§Ø­ØªÙŠØ§Ø¬Ø§ØªÙ‡Ù…']),
-    researcherReport: idx('ØªÙ‚Ø±ÙŠØ± Ø§Ù„Ø¨Ø§Ø­Ø«'),
-    fatherJob: idx('Ø¹Ù…Ù„ Ø§Ù„Ø§Ø¨'),
-    motherJob: idx('Ø¹Ù…Ù„ Ø§Ù„Ø§Ù…'),
-    illnesses: idx('Ø§Ù„Ù…Ø±Ø¶ÙŠ'),
-    monthlyIncome: idx('Ø§Ù„Ø¯Ø®Ù„ Ø§Ù„Ø´Ù‡Ø±ÙŠ'),
-    needsShort: idx('Ø§Ø­ØªÙŠØ§Ø¬Ø§ØªÙ‡Ù…')
+    caseNo: idxAny(['رقم الحالة', 'caseNo', 'case_no']),
+    id: idxAny(['الرقم القومي', 'رقم قومي', 'National ID', 'nationalId']),
+    familyHead: idxAny(['اسم رب الأسرة', 'اسم الحالة']),
+    phone: idxAny(['الهاتف', 'رقم الهاتف', 'رقم التليفون']),
+    address: idx('العنوان'),
+    governorate: idx('المحافظة'),
+    area: idxAny(['المنطقة', 'القرية']),
+    familyCount: idxAny(['عدد الأفراد', 'عدد أفراد الأسرة', 'عدد الابناء']),
+    category: idx('الفئة') >= 0 ? idx('الفئة') : idx('فئة الحالة'),
+    urgency: idx('الاستعجال'),
+    description: idxAny(['الوصف', 'وصف الحالة']),
+    explorerName: idx('المستكشف') >= 0 ? idx('المستكشف') : idx('اسم المستكشف'),
+    date: idx('التاريخ'),
+    status: idx('الحالة'),
+    hospital: idx('المستشفى'),
+    doctor: idx('الطبيب') >= 0 ? idx('الطبيب') : idx('اسم الطبيب'),
+    medicalReport: idx('التقرير الطبي'),
+    estimatedCost: idx('التكلفة الطبية التقديرية') >= 0 ? idx('التكلفة الطبية التقديرية') : idx('التكلفة التقديرية'),
+    estimatedAmount: idx('مبلغ تقديري'),
+    deliveredAmount: idx('مبلغ منفذ'),
+    fundingSource: idx('مصدر التمويل'),
+    tags: idx('وسوم'),
+    medicalCases: idx('الحالات الطبية'),
+    caseGrade: idx('تقييم الحالة'),
+    maritalStatus: idx('الحالة الاجتماعية'),
+    whatsapp: idx('رقم واتساب'),
+    housingDesc: idx('وصف السكن'),
+    roomsCount: idx('عدد الغرف'),
+    bathroomType: idx('الحمام'),
+    waterExists: idx('المياه'),
+    roofExists: idx('السقف'),
+    areaType: idx('نوع المنطقة'),
+    debtsEnabled: idx('هل توجد ديون؟'),
+    debtAmount: idx('قيمة الدين'),
+    debtOwner: idx('صاحب الدين'),
+    hasCourtOrder: idx('حكم قضائي؟'),
+    debtReason: idx('سبب الدين'),
+    incomeSalary: idx('الدخل: الرواتب'),
+    incomePension: idx('الدخل: المعاشات'),
+    incomeProjects: idx('الدخل: المشاريع'),
+    incomeNgo: idx('الدخل: مساعدات الجمعيات'),
+    incomeExtras: idx('الدخل: بنود إضافية (JSON)'),
+    incomeNotes: idx('الدخل: ملاحظات'),
+    incomeTotal: idx('الدخل: إجمالي'),
+    expenseRent: idx('المصروفات: إيجار السكن'),
+    expenseUtilities: idx('المصروفات: المرافق'),
+    expenseExtras: idx('المصروفات: بنود إضافية (JSON)'),
+    expensesNotes: idx('المصروفات: ملاحظات'),
+    expensesTotal: idx('المصروفات: إجمالي'),
+    netMonthly: idx('صافي شهري'),
+    marriageEnabled: idx('هل يوجد حالة زواج؟'),
+    brideName: idx('اسم العروسة'),
+    groomName: idx('اسم العريس'),
+    groomJob: idx('مهنة العريس'),
+    contractDate: idx('تاريخ كتب الكتاب'),
+    weddingDate: idx('تاريخ الزواج'),
+    marriageAvailable: idx('الاحتياجات المتوفرة (زواج)'),
+    marriageNeeded: idx('الاحتياجات المطلوبة (زواج)'),
+    projectsEnabled: idx('هل يوجد مشروع؟'),
+    projectType: idx('نوع المشروع'),
+    projectExperience: idx('الخبرة والاستعداد'),
+    projectNeeds: idx('الاحتياجات المطلوبة للمشروع'),
+    familyMembers: idx('أفراد الأسرة (JSON)'),
+    familyNeeds: idxAny(['احتياجات الأسرة', 'احتياج الاسرة', 'احتياجاتهم']),
+    researcherReport: idx('تقرير الباحث'),
+    fatherJob: idx('عمل الاب'),
+    motherJob: idx('عمل الام'),
+    illnesses: idx('المرضي'),
+    monthlyIncome: idx('الدخل الشهري'),
+    needsShort: idx('احتياجاتهم')
   };
   const importFileName = (AppState.lastImportFileName || '').toString();
   const imported = [];
@@ -3932,7 +3932,7 @@ function importFromParsedRows_(headers, dataRows, parseRow) {
     if (!cols || cols.length === 0) continue;
     const yn = (v) => {
       const s = (v || '').toString().trim();
-      return (s === 'Ù†Ø¹Ù…' || s.toLowerCase() === 'yes' || s === 'true' || s === '1');
+      return (s === 'نعم' || s.toLowerCase() === 'yes' || s === 'true' || s === '1');
     };
     const numOr = (v, fallback) => {
       const s = (v || '').toString().trim();
@@ -3963,7 +3963,7 @@ function importFromParsedRows_(headers, dataRows, parseRow) {
       description: getVal(cols, map.description),
       explorerName: getVal(cols, map.explorerName),
       date: getVal(cols, map.date),
-      status: getVal(cols, map.status) || 'Ø¬Ø¯ÙŠØ¯Ø©',
+      status: getVal(cols, map.status) || 'جديدة',
       caseGrade: normalizeCaseGrade_(getVal(cols, map.caseGrade)),
       maritalStatus: getVal(cols, map.maritalStatus),
       whatsapp: getVal(cols, map.whatsapp),
@@ -4088,7 +4088,7 @@ function importFromParsedRows_(headers, dataRows, parseRow) {
     } catch { }
     imported.push(obj);
   }
-  if (!imported.length) { alert('Ù„Ù… ÙŠØªÙ… Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ø¨ÙŠØ§Ù†Ø§Øª ØµØ§Ù„Ø­Ø©'); return; }
+  if (!imported.length) { alert('لم يتم العثور على بيانات صالحة'); return; }
   // Merge locally
   imported.forEach(c => {
     if (!Array.isArray(c.sponsorships)) c.sponsorships = [];
@@ -4109,8 +4109,8 @@ function importFromParsedRows_(headers, dataRows, parseRow) {
   } catch { }
   renderCasesTable(); updateDashboardStats(); generateReportPreview();
   try { updateNavBadges(); } catch { }
-  logAction('Ø§Ø³ØªÙŠØ±Ø§Ø¯ CSV', '', `Ø¹Ø¯Ø¯ Ø§Ù„Ø³Ø¬Ù„Ø§Øª: ${imported.length}`);
-  alert(`ØªÙ… Ø§Ø³ØªÙŠØ±Ø§Ø¯ ${imported.length} Ø³Ø¬Ù„Ù‹Ø§ Ø¨Ù†Ø¬Ø§Ø­`);
+  logAction('استيراد CSV', '', `عدد السجلات: ${imported.length}`);
+  alert(`تم استيراد ${imported.length} سجلًا بنجاح`);
 }
 
 function getLastSponsorship(it) {
@@ -4151,7 +4151,7 @@ function formatSponsorshipLabel(last) {
   const amt = (last.amount ?? '') !== '' ? `${last.amount}` : '';
   const start = last.startDate || '';
   const end = last.endDate || '';
-  if (amt && start && end) return `${amt} (${start} â†’ ${end})`;
+  if (amt && start && end) return `${amt} (${start} → ${end})`;
   if (amt && start) return `${amt} (${start})`;
   if (amt) return `${amt}`;
   return start || '';
@@ -4198,14 +4198,14 @@ function getMedicalCases_() {
   const cases = Array.isArray(AppState.cases) ? AppState.cases : [];
   return cases.filter(c => {
     const cat = (c.category || '').toString();
-    return cat.includes('Ø¹Ù…Ù„ÙŠØ§Øª Ø·Ø¨ÙŠØ©') || cat.includes('ÙƒÙØ§Ù„Ø§Øª Ù…Ø±Ø¶ÙŠØ©');
+    return cat.includes('عمليات طبية') || cat.includes('كفالات مرضية');
   });
 }
 
 function getMedicalType_(c) {
   const cat = (c.category || '').toString();
-  if (cat.includes('Ø¹Ù…Ù„ÙŠØ§Øª Ø·Ø¨ÙŠØ©')) return 'ops';
-  if (cat.includes('ÙƒÙØ§Ù„Ø§Øª Ù…Ø±Ø¶ÙŠØ©')) return 'sponsorship';
+  if (cat.includes('عمليات طبية')) return 'ops';
+  if (cat.includes('كفالات مرضية')) return 'sponsorship';
   return '';
 }
 
@@ -4234,7 +4234,7 @@ function updateMedicalCommitteeStats() {
   const ops = list.filter(c => getMedicalType_(c) === 'ops').length;
   const spons = list.filter(c => getMedicalType_(c) === 'sponsorship').length;
   const gradeA = list.filter(c => String(c.caseGrade || '').trim().toUpperCase() === 'A').length;
-  const inReview = list.filter(c => String(c.status || '').trim() === 'Ù‚ÙŠØ¯ Ø§Ù„Ø¨Ø­Ø«').length;
+  const inReview = list.filter(c => String(c.status || '').trim() === 'قيد البحث').length;
   const need = list.reduce((acc, c) => acc + Math.max(0, sumNum(c.estimatedAmount) - sumNum(c.deliveredAmount)), 0);
 
   try { const el = document.getElementById('medKpiTotal'); if (el) el.textContent = fmt(filtered.length); } catch { }
@@ -4257,7 +4257,7 @@ function updateMedicalCommitteeStats() {
     if (gv && gv.options && gv.options.length <= 1) {
       const opts = Array.from(new Set(list.map(c => String(c.governorate || '').trim()).filter(Boolean)));
       opts.sort((a, b) => a.localeCompare(b));
-      gv.innerHTML = ['<option value="">Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©: Ø§Ù„ÙƒÙ„</option>'].concat(opts.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`)).join('');
+      gv.innerHTML = ['<option value="">المحافظة: الكل</option>'].concat(opts.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`)).join('');
     }
   } catch { }
 }
@@ -4324,15 +4324,15 @@ function renderMedicalTable() {
 
   const top = list.slice(0, 200);
   tb.innerHTML = top.map(c => {
-    const typ = getMedicalType_(c) === 'ops' ? 'Ø¹Ù…Ù„ÙŠØ§Øª Ø·Ø¨ÙŠØ©' : 'ÙƒÙØ§Ù„Ø§Øª Ù…Ø±Ø¶ÙŠØ©';
-    const grade = String(c.caseGrade || '').trim() || 'â€”';
-    const gov = String(c.governorate || '').trim() || 'â€”';
-    const st = String(c.status || '').trim() || 'â€”';
+    const typ = getMedicalType_(c) === 'ops' ? 'عمليات طبية' : 'كفالات مرضية';
+    const grade = String(c.caseGrade || '').trim() || '—';
+    const gov = String(c.governorate || '').trim() || '—';
+    const st = String(c.status || '').trim() || '—';
     const medInfo = c.medicalInfo || {};
     const med0 = Array.isArray(c.medicalCases) && c.medicalCases.length ? (c.medicalCases[0] || {}) : {};
     const hosp = String(medInfo.hospital || med0.hospital || '').trim();
     const doc = String(medInfo.doctor || med0.doctor || '').trim();
-    const hospDoc = [hosp, doc].filter(Boolean).join(' / ') || 'â€”';
+    const hospDoc = [hosp, doc].filter(Boolean).join(' / ') || '—';
     const need = getNeed(c);
     return `
       <tr>
@@ -4345,11 +4345,11 @@ function renderMedicalTable() {
         <td>${escapeHtml(st)}</td>
         <td><button class="btn mini" type="button" onclick="openCaseDetails('${escapeHtml(c.id)}')">Ø¹Ø±Ø¶</button></td>
       </tr>`;
-  }).join('') || '<tr><td colspan="8" style="text-align:center">Ù„Ø§ ØªÙˆØ¬Ø¯ Ù†ØªØ§Ø¦Ø¬</td></tr>';
+  }).join('') || '<tr><td colspan="8" style="text-align:center">لا توجد نتائج</td></tr>';
 
   try {
     const meta = document.getElementById('medTableMeta');
-    if (meta) meta.textContent = `ÙŠØ¹Ø±Ø¶ ${Math.min(200, list.length)} Ù…Ù† ${list.length}`;
+    if (meta) meta.textContent = `يعرض ${Math.min(200, list.length)} من ${list.length}`;
   } catch { }
 }
 
@@ -4390,10 +4390,10 @@ function renderCasesTable() {
     const lastSponsor = getLastSponsorship(x);
     const sponsorLabel = formatSponsorshipLabel(lastSponsor);
     const title = (x.familyHead || '').toString().trim() || x.id;
-    const urgencyClass = x.urgency === 'Ø¹Ø§Ø¬Ù„ Ø¬Ø¯Ù‹Ø§' ? 'b-new' : x.urgency === 'Ø¹Ø§Ø¬Ù„' ? 'b-proc' : 'b-done';
-    const statusClass = x.status === 'Ø¬Ø¯ÙŠØ¯Ø©' ? 'b-new' : x.status === 'Ù…Ø­ÙˆÙ„Ø©' ? 'b-proc' : 'b-done';
+    const urgencyClass = x.urgency === 'عاجل جدًا' ? 'b-new' : x.urgency === 'عاجل' ? 'b-proc' : 'b-done';
+    const statusClass = x.status === 'جديدة' ? 'b-new' : x.status === 'محولة' ? 'b-proc' : 'b-done';
     const shortDesc = (x.description || '').toString().trim();
-    const clipped = shortDesc.length > 140 ? shortDesc.slice(0, 140) + 'â€¦' : shortDesc;
+    const clipped = shortDesc.length > 140 ? shortDesc.slice(0, 140) + '…' : shortDesc;
     return `
       <div class="case-card" data-case-row="${x.id}">
         <div class="case-card-head">
@@ -4411,16 +4411,16 @@ function renderCasesTable() {
         </div>
 
         <div class="case-card-body">
-          <div class="case-card-line"><strong>Ø§Ù„ÙØ¦Ø©:</strong> ${escapeHtml((x.category || '').toString())}</div>
-          <div class="case-card-line"><strong>Ø¢Ø®Ø± ÙƒÙØ§Ù„Ø©:</strong> ${escapeHtml((sponsorLabel || '').toString())}</div>
+          <div class="case-card-line"><strong>الفئة:</strong> ${escapeHtml((x.category || '').toString())}</div>
+          <div class="case-card-line"><strong>آخر كفالة:</strong> ${escapeHtml((sponsorLabel || '').toString())}</div>
           <div class="case-card-line"><strong>ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¨Ø­Ø«:</strong> ${escapeHtml((x.date || '').toString())}</div>
-          <div class="case-card-line"><strong>Ø§Ù„Ù…Ø³ØªÙƒØ´Ù:</strong> ${escapeHtml((x.explorerName || '').toString())}</div>
+          <div class="case-card-line"><strong>المستكشف:</strong> ${escapeHtml((x.explorerName || '').toString())}</div>
           ${clipped ? `<div class="case-card-desc">${escapeHtml(clipped)}</div>` : ''}
         </div>
 
         <div class="case-card-actions" onclick="event.stopPropagation();">
-          <button type="button" class="btn" onclick="openSingleSponsorshipModal('${x.id}')">ðŸ’³ Ø¯ÙØ¹ Ø§Ù„ÙƒÙØ§Ù„Ø© Ø§Ù„Ø´Ù‡Ø±ÙŠØ©</button>
-          <button type="button" class="btn light" style="color:#1f2937;border-color:#e5e7eb" onclick="openCaseDetails('${x.id}')">Ø¹Ø±Ø¶ Ø§Ù„ØªÙØ§ØµÙŠÙ„</button>
+          <button type="button" class="btn" onclick="openSingleSponsorshipModal('${x.id}')">💳 دفع الكفالة الشهرية</button>
+          <button type="button" class="btn light" style="color:#1f2937;border-color:#e5e7eb" onclick="openCaseDetails('${x.id}')">عرض التفاصيل</button>
         </div>
       </div>`;
   }).join('');
@@ -4429,7 +4429,7 @@ function renderCasesTable() {
   if (window.noCasesMessage) {
     noCasesMessage.classList.toggle('hidden', list.length > 0);
   }
-  // Ø§ÙØªØ­ ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ø­Ø§Ù„Ø© Ø¹Ù†Ø¯ Ø§Ù„Ø¶ØºØ· Ø¹Ù„Ù‰ Ø§Ù„Ø¨Ø·Ø§Ù‚Ø© (Ù…Ø¹ ØªØ¬Ø§Ù‡Ù„ Ø§Ù„Ø£Ø²Ø±Ø§Ø± ÙˆØ§Ù„Ø­Ù‚ÙˆÙ„)
+  // افتح تفاصيل الحالة عند الضغط على البطاقة (مع تجاهل الأزرار والحقول)
   Array.from(grid.querySelectorAll('[data-case-row]')).forEach(card => {
     const key = card.getAttribute('data-case-row');
     if (!key) return;
@@ -4446,7 +4446,7 @@ function renderCasesTable() {
 
   try {
     const meta = document.getElementById('casesListMeta');
-    if (meta) meta.textContent = `ÙŠØ¹Ø±Ø¶ ${Math.min(visible.length, list.length)} Ù…Ù† ${list.length}`;
+    if (meta) meta.textContent = `يعرض ${Math.min(visible.length, list.length)} من ${list.length}`;
   } catch { }
   try {
     const btn = document.getElementById('casesLoadMoreBtn');
@@ -4458,13 +4458,13 @@ function setFilterOptions() {
   // Governorates for filters and import
   try {
     if (window.filterGovernorate) {
-      filterGovernorate.innerHTML = ['<option value="">ÙƒÙ„ Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø§Øª</option>'].concat(GOVS.map(g => `<option>${g}</option>`)).join('');
+      filterGovernorate.innerHTML = ['<option value="">كل المحافظات</option>'].concat(GOVS.map(g => `<option>${g}</option>`)).join('');
     }
   } catch { }
   try {
     const ig = document.getElementById('importGovernorate');
     if (ig) {
-      ig.innerHTML = ['<option value="">Ø§Ø®ØªØ± Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©</option>'].concat(GOVS.map(g => `<option>${g}</option>`)).join('');
+      ig.innerHTML = ['<option value="">اختر المحافظة</option>'].concat(GOVS.map(g => `<option>${g}</option>`)).join('');
     }
   } catch { }
 
@@ -4472,11 +4472,11 @@ function setFilterOptions() {
   try {
     if (window.filterCaseGrade) {
       filterCaseGrade.innerHTML = [
-        '<option value="">ÙƒÙ„ Ø§Ù„ØªÙ‚ÙŠÙŠÙ…Ø§Øª</option>',
-        '<option>Ø­Ø§Ù„Ø© Ù…Ø³ØªØ¯ÙŠÙ…Ø©</option>',
-        '<option>Ø­Ø§Ù„Ø© Ù…ÙˆØ³Ù…ÙŠØ©</option>',
-        '<option>Ø­Ø§Ù„Ø© Ù…Ø±ÙÙˆØ¶Ø©</option>',
-        '<option>Ø­Ø§Ù„Ø© Ù‚ÙŠØ¯ Ø§Ù„Ø§Ù†ØªØ¸Ø§Ø±</option>'
+        '<option value="">كل التقييمات</option>',
+        '<option>حالة مستديمة</option>',
+        '<option>حالة موسمية</option>',
+        '<option>حالة مرفوضة</option>',
+        '<option>حالة قيد الانتظار</option>'
       ].join('');
     }
   } catch { }
@@ -4521,9 +4521,9 @@ function toggleSelectAllCases(checked) {
 }
 
 function openSingleSponsorshipModal(caseId) {
-  if (!hasPerm('cases_edit')) { alert('Ù„Ø§ ØªÙ…Ù„Ùƒ ØµÙ„Ø§Ø­ÙŠØ© ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ø­Ø§Ù„Ø§Øª'); return; }
+  if (!hasPerm('cases_edit')) { alert('لا تملك صلاحية تعديل الحالات'); return; }
   const it = AppState.cases.find(c => c.id === caseId);
-  if (!it) { alert('Ø§Ù„Ø­Ø§Ù„Ø© ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯Ø©'); return; }
+  if (!it) { alert('الحالة غير موجودة'); return; }
   const m = document.getElementById('bulkSponsorshipModal');
   if (!m) return;
   m.setAttribute('data-single-case-id', (caseId || '').toString());
@@ -4544,9 +4544,9 @@ function openSingleSponsorshipModal(caseId) {
 
 
 function openBulkSponsorshipModal() {
-  if (!hasPerm('cases_edit')) { alert('Ù„Ø§ ØªÙ…Ù„Ùƒ ØµÙ„Ø§Ø­ÙŠØ© ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ø­Ø§Ù„Ø§Øª'); return; }
+  if (!hasPerm('cases_edit')) { alert('لا تملك صلاحية تعديل الحالات'); return; }
   const ids = getSelectedCaseIds();
-  if (!ids.length) { alert('Ø§Ø®ØªØ± Ø­Ø§Ù„Ø© ÙˆØ§Ø­Ø¯Ø© Ø¹Ù„Ù‰ Ø§Ù„Ø£Ù‚Ù„'); return; }
+  if (!ids.length) { alert('اختر حالة واحدة على الأقل'); return; }
   const m = document.getElementById('bulkSponsorshipModal');
   if (!m) return;
   try { m.removeAttribute('data-single-case-id'); } catch { }
@@ -4642,16 +4642,16 @@ function syncCaseDetailsButtons() {
     if (toggleBtn) {
       toggleBtn.style.display = (canEdit && !inPayments) ? 'inline-flex' : 'none';
       if (mode === 'edit') {
-        toggleBtn.textContent = 'ðŸ’¾ Ø­ÙØ¸ Ø§Ù„ØªØ¹Ø¯ÙŠÙ„Ø§Øª';
+        toggleBtn.textContent = '💾 حفظ التعديلات';
         toggleBtn.classList.add('primary-save');
       } else {
-        toggleBtn.textContent = 'âœï¸ ØªØ¹Ø¯ÙŠÙ„';
+        toggleBtn.textContent = '✏️ تعديل';
         toggleBtn.classList.remove('primary-save');
       }
     }
     if (delBtn) delBtn.style.display = (canEdit && !inPayments) ? 'inline-flex' : 'none';
     if (printBtn) {
-      try { printBtn.textContent = inPayments ? 'ðŸ–¨ï¸ Ø·Ø¨Ø§Ø¹Ø©' : 'ðŸ–¨ï¸ Ø·Ø¨Ø§Ø¹Ø©'; } catch { }
+      try { printBtn.textContent = inPayments ? '🖨️ طباعة' : '🖨️ طباعة'; } catch { }
     }
     if (shotBtn) shotBtn.classList.toggle('hidden', !inPayments);
     if (detailsShotBtn) detailsShotBtn.classList.toggle('hidden', inPayments);
@@ -4730,7 +4730,7 @@ function toggleCaseEditSave() {
     }
     enterCaseEditMode();
   } catch (e) {
-    alert(`ØªØ¹Ø°Ø± ØªÙ†ÙÙŠØ° Ø§Ù„Ø¹Ù…Ù„ÙŠØ©.\n\nØ§Ù„Ø®Ø·Ø£: ${e?.message || 'ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ'}`);
+    alert(`تعذر تنفيذ العملية.\n\nالخطأ: ${e?.message || 'غير معروف'}`);
   }
 }
 
@@ -4755,7 +4755,7 @@ function setSponsorScopeUiMode_(mode) {
 }
 
 function openSponsorshipModalAdvanced() {
-  if (!hasPerm('cases_edit')) { alert('Ù„Ø§ ØªÙ…Ù„Ùƒ ØµÙ„Ø§Ø­ÙŠØ© ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ø­Ø§Ù„Ø§Øª'); return; }
+  if (!hasPerm('cases_edit')) { alert('لا تملك صلاحية تعديل الحالات'); return; }
   const m = document.getElementById('bulkSponsorshipModal');
   if (!m) return;
   try { m.removeAttribute('data-single-case-id'); } catch { }
@@ -4791,7 +4791,7 @@ function populateSponsorScopeOptions_() {
   try {
     const govSel = document.getElementById('sponsorScopeGov');
     if (govSel && (!govSel.options || govSel.options.length <= 1)) {
-      govSel.innerHTML = ['<option value="">Ø§Ø®ØªØ± Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©</option>'].concat(GOVS.map(g => `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`)).join('');
+      govSel.innerHTML = ['<option value="">اختر المحافظة</option>'].concat(GOVS.map(g => `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`)).join('');
     }
   } catch { }
 
@@ -4799,7 +4799,7 @@ function populateSponsorScopeOptions_() {
   try {
     const catSel = document.getElementById('sponsorScopeCategory');
     if (catSel && (!catSel.options || catSel.options.length <= 1)) {
-      catSel.innerHTML = ['<option value="">Ø§Ø®ØªØ± Ø§Ù„ÙØ¦Ø©</option>'].concat(CATEGORIES.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`)).join('');
+      catSel.innerHTML = ['<option value="">اختر الفئة</option>'].concat(CATEGORIES.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`)).join('');
     }
   } catch { }
 }
@@ -4819,12 +4819,12 @@ function onSponsorScopeChange() {
 
   if (hint) {
     const msg =
-      scope === 'selected' ? 'Ø³ÙŠØªÙ… ØªØ·Ø¨ÙŠÙ‚ Ø§Ù„ÙƒÙØ§Ù„Ø© Ø¹Ù„Ù‰ Ø§Ù„Ø­Ø§Ù„Ø§Øª Ø§Ù„Ù…Ø­Ø¯Ø¯Ø© ÙÙ‚Ø·.' :
-        scope === 'filtered' ? 'Ø³ÙŠØªÙ… ØªØ·Ø¨ÙŠÙ‚ Ø§Ù„ÙƒÙØ§Ù„Ø© Ø¹Ù„Ù‰ Ø§Ù„Ø­Ø§Ù„Ø§Øª Ø§Ù„Ù…Ø¹Ø±ÙˆØ¶Ø© Ø­Ø§Ù„ÙŠØ§Ù‹ Ø­Ø³Ø¨ Ø§Ù„ÙÙ„Ø§ØªØ±.' :
-          scope === 'all' ? 'Ø³ÙŠØªÙ… ØªØ·Ø¨ÙŠÙ‚ Ø§Ù„ÙƒÙØ§Ù„Ø© Ø¹Ù„Ù‰ ÙƒÙ„ Ø§Ù„Ø­Ø§Ù„Ø§Øª.' :
-            scope === 'gov' ? 'Ø§Ø®ØªØ± Ù…Ø­Ø§ÙØ¸Ø© Ù„ØªØ·Ø¨ÙŠÙ‚ Ø§Ù„ÙƒÙØ§Ù„Ø© Ø¹Ù„Ù‰ ÙƒÙ„ Ø­Ø§Ù„Ø§Øª Ù‡Ø°Ù‡ Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©.' :
-              scope === 'area' ? 'Ø§ÙƒØªØ¨ Ø¬Ø²Ø¡ Ù…Ù† Ø§Ø³Ù… Ø§Ù„Ù…Ù†Ø·Ù‚Ø© Ù„ØªØ·Ø¨ÙŠÙ‚ Ø§Ù„ÙƒÙØ§Ù„Ø© Ø¹Ù„Ù‰ Ø§Ù„Ø­Ø§Ù„Ø§Øª Ø§Ù„Ù…Ø·Ø§Ø¨Ù‚Ø©.' :
-                scope === 'category' ? 'Ø§Ø®ØªØ± ÙØ¦Ø© Ù„ØªØ·Ø¨ÙŠÙ‚ Ø§Ù„ÙƒÙØ§Ù„Ø© Ø¹Ù„Ù‰ Ø§Ù„Ø­Ø§Ù„Ø§Øª Ø§Ù„ØªØ§Ø¨Ø¹Ø© Ù„Ù‡Ø°Ù‡ Ø§Ù„ÙØ¦Ø©.' :
+      scope === 'selected' ? 'سيتم تطبيق الكفالة على الحالات المحددة فقط.' :
+        scope === 'filtered' ? 'سيتم تطبيق الكفالة على الحالات المعروضة حالياً حسب الفلاتر.' :
+          scope === 'all' ? 'سيتم تطبيق الكفالة على كل الحالات.' :
+            scope === 'gov' ? 'اختر محافظة لتطبيق الكفالة على كل حالات هذه المحافظة.' :
+              scope === 'area' ? 'اكتب جزء من اسم المنطقة لتطبيق الكفالة على الحالات المطابقة.' :
+                scope === 'category' ? 'اختر فئة لتطبيق الكفالة على الحالات التابعة لهذه الفئة.' :
                   '';
     hint.textContent = msg;
   }
@@ -4853,18 +4853,18 @@ function computeSponsorTargetIds_() {
   }
   if (scope === 'gov') {
     const gov = (document.getElementById('sponsorScopeGov')?.value || '').toString().trim();
-    if (!gov) { alert('Ø§Ø®ØªØ± Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©'); return []; }
+    if (!gov) { alert('اختر المحافظة'); return []; }
     return (AppState.cases || []).filter(c => String(c.governorate || '').trim() === gov).map(c => c.id).filter(Boolean);
   }
   if (scope === 'area') {
     const areaQ = (document.getElementById('sponsorScopeArea')?.value || '').toString().trim();
-    if (!areaQ) { alert('Ø§ÙƒØªØ¨ Ø§Ø³Ù… Ø§Ù„Ù…Ù†Ø·Ù‚Ø©'); return []; }
+    if (!areaQ) { alert('اكتب اسم المنطقة'); return []; }
     const q = areaQ.toLowerCase();
     return (AppState.cases || []).filter(c => String(c.area || '').toLowerCase().includes(q)).map(c => c.id).filter(Boolean);
   }
   if (scope === 'category') {
     const cat = (document.getElementById('sponsorScopeCategory')?.value || '').toString().trim();
-    if (!cat) { alert('Ø§Ø®ØªØ± Ø§Ù„ÙØ¦Ø©'); return []; }
+    if (!cat) { alert('اختر الفئة'); return []; }
     return (AppState.cases || []).filter(c => String(c.category || '').includes(cat)).map(c => c.id).filter(Boolean);
   }
   // default: selected
@@ -4909,12 +4909,12 @@ function renderPaymentsTabHtml_(it) {
       const canEdit = hasPerm('cases_edit');
       return `
         <tr>
-          <td>${escapeHtml(t === 'sponsorship' ? 'ÙƒÙØ§Ù„Ø©' : t)}</td>
+          <td>${escapeHtml(t === 'sponsorship' ? 'كفالة' : t)}</td>
           <td>${escapeHtml(d)}</td>
           <td>${escapeHtml(amt)}</td>
           <td>${escapeHtml(by)}</td>
           <td style="max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${escapeHtml(notes)}">${escapeHtml(notes)}</td>
-          <td style="white-space:nowrap">${canEdit ? `<button type="button" class="btn light" style="padding:6px 10px;color:#1f2937;border-color:#e5e7eb" onclick="openEditPaymentModal('${it.id}','${escapeHtml(uid)}')">ØªØ¹Ø¯ÙŠÙ„</button>` : ''}</td>
+          <td style="white-space:nowrap">${canEdit ? `<button type="button" class="btn light" style="padding:6px 10px;color:#1f2937;border-color:#e5e7eb" onclick="openEditPaymentModal('${it.id}','${escapeHtml(uid)}')">تعديل</button>` : ''}</td>
         </tr>`;
     }).join('');
 
@@ -4924,10 +4924,10 @@ function renderPaymentsTabHtml_(it) {
 
   const filterBox = `
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:8px 0">
-      <div class="form-group" style="margin:0"><label class="label">ÙÙ„ØªØ± Ø§Ù„Ù†ÙˆØ¹</label>
+      <div class="form-group" style="margin:0"><label class="label">فلتر النوع</label>
         <select id="paymentsFilterType" class="control" onchange="onPaymentsFilterChange()">
           <option value="">Ø§Ù„ÙƒÙ„</option>
-          ${uniqTypes.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t === 'sponsorship' ? 'ÙƒÙØ§Ù„Ø©' : t)}</option>`).join('')}
+          ${uniqTypes.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t === 'sponsorship' ? 'كفالة' : t)}</option>`).join('')}
         </select>
       </div>
       <div class="form-group" style="margin:0"><label class="label">Ù…Ù† ØªØ§Ø±ÙŠØ®</label><input id="paymentsFilterFrom" type="date" class="control" onchange="onPaymentsFilterChange()" /></div>
@@ -4937,19 +4937,19 @@ function renderPaymentsTabHtml_(it) {
   const totalsBox = `
     <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:8px 0">
       <div style="border:1px solid #e5e7eb;border-radius:12px;padding:10px;background:#fff">
-        <div style="color:#64748b;font-size:.9rem">Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„ÙƒÙØ§Ù„Ø§Øª (Ø­Ø³Ø¨ Ø§Ù„ÙÙ„ØªØ±)</div>
+        <div style="color:#64748b;font-size:.9rem">إجمالي الكفالات (حسب الفلتر)</div>
         <div style="font-weight:900;font-size:1.35rem;margin-top:6px">${escapeHtml(sumS.toLocaleString('en-US'))}</div>
       </div>
       <div style="border:1px solid #e5e7eb;border-radius:12px;padding:10px;background:#fff">
-        <div style="color:#64748b;font-size:.9rem">Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…Ø³Ø§Ø¹Ø¯Ø§Øª (Ø­Ø³Ø¨ Ø§Ù„ÙÙ„ØªØ±)</div>
+        <div style="color:#64748b;font-size:.9rem">إجمالي المساعدات (حسب الفلتر)</div>
         <div style="font-weight:900;font-size:1.35rem;margin-top:6px">${escapeHtml(sumA.toLocaleString('en-US'))}</div>
       </div>
     </div>`;
 
   const actions = canEdit ? `
     <div style="display:flex;gap:8px;justify-content:flex-start;flex-wrap:wrap;margin:8px 0">
-      <button type="button" class="btn" onclick="openSingleSponsorshipModal('${it.id}')">ðŸ’³ Ø¯ÙØ¹ ÙƒÙØ§Ù„Ø©</button>
-      <button type="button" class="btn light" onclick="openAddAssistanceModal('${it.id}')" style="color:#1f2937;border-color:#e5e7eb">âž• Ø¥Ø¶Ø§ÙØ© Ù…Ø³Ø§Ø¹Ø¯Ø©</button>
+      <button type="button" class="btn" onclick="openSingleSponsorshipModal('${it.id}')">💳 دفع كفالة</button>
+      <button type="button" class="btn light" onclick="openAddAssistanceModal('${it.id}')" style="color:#1f2937;border-color:#e5e7eb">➕ إضافة مساعدة</button>
     </div>` : '';
 
   return `
@@ -4980,7 +4980,7 @@ function renderPaymentsTabHtml_(it) {
           </tr>
         </thead>
         <tbody>
-          ${rows || '<tr><td colspan="6" style="text-align:center">Ù„Ø§ ØªÙˆØ¬Ø¯ Ù…Ø¯ÙÙˆØ¹Ø§Øª/Ù…Ø³Ø§Ø¹Ø¯Ø§Øª Ù…Ø³Ø¬Ù„Ø©</td></tr>'}
+          ${rows || '<tr><td colspan="6" style="text-align:center">لا توجد مدفوعات/مساعدات مسجلة</td></tr>'}
         </tbody>
       </table>
     </div>
@@ -4988,19 +4988,19 @@ function renderPaymentsTabHtml_(it) {
 }
 
 function openEditPaymentModal(caseId, uid) {
-  if (!hasPerm('cases_edit')) { alert('Ù„Ø§ ØªÙ…Ù„Ùƒ ØµÙ„Ø§Ø­ÙŠØ© ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ø­Ø§Ù„Ø§Øª'); return; }
+  if (!hasPerm('cases_edit')) { alert('لا تملك صلاحية تعديل الحالات'); return; }
   const it = AppState.cases.find(c => c.id === (caseId || '').toString());
-  if (!it) { alert('Ø§Ù„Ø­Ø§Ù„Ø© ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯Ø©'); return; }
+  if (!it) { alert('الحالة غير موجودة'); return; }
   try {
     const changed = ensurePaymentUids_(it);
     if (changed) { try { if (SupabaseClient) void upsertCaseToDb(it); } catch { } }
   } catch { }
   const hist = Array.isArray(it.assistanceHistory) ? it.assistanceHistory : [];
   const idx = hist.findIndex((x) => (x?.uid || '').toString() === (uid || '').toString());
-  if (idx < 0) { alert('ØªØ¹Ø°Ø± Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ø§Ù„Ø¹Ù…Ù„ÙŠØ©'); return; }
+  if (idx < 0) { alert('تعذر العثور على العملية'); return; }
   const rec = hist[idx] || {};
   const m = document.getElementById('editPaymentModal');
-  if (!m) { alert('ØªØ¹Ø°Ø± ÙØªØ­ Ù†Ø§ÙØ°Ø© Ø§Ù„ØªØ¹Ø¯ÙŠÙ„'); return; }
+  if (!m) { alert('تعذر فتح نافذة التعديل'); return; }
   const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = (v ?? '').toString(); };
   set('editPaymentCaseId', it.id);
   set('editPaymentUid', (uid || '').toString());
@@ -5026,7 +5026,7 @@ function closeEditPaymentModal() {
 }
 
 async function applyEditPayment() {
-  if (!hasPerm('cases_edit')) { alert('Ù„Ø§ ØªÙ…Ù„Ùƒ ØµÙ„Ø§Ø­ÙŠØ© ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ø­Ø§Ù„Ø§Øª'); return; }
+  if (!hasPerm('cases_edit')) { alert('لا تملك صلاحية تعديل الحالات'); return; }
   const caseId = (document.getElementById('editPaymentCaseId')?.value || '').toString().trim();
   const uid = (document.getElementById('editPaymentUid')?.value || '').toString().trim();
   const type = (document.getElementById('editPaymentType')?.value || '').toString().trim();
@@ -5035,18 +5035,18 @@ async function applyEditPayment() {
   const by = (document.getElementById('editPaymentBy')?.value || '').toString().trim();
   const notes = (document.getElementById('editPaymentNotes')?.value || '').toString().trim();
 
-  if (!caseId) { alert('ØªØ¹Ø°Ø± ØªØ­Ø¯ÙŠØ¯ Ø§Ù„Ø­Ø§Ù„Ø©'); return; }
-  if (!uid) { alert('ØªØ¹Ø°Ø± ØªØ­Ø¯ÙŠØ¯ Ø§Ù„Ø¹Ù…Ù„ÙŠØ©'); return; }
-  if (!type) { alert('Ø§Ù„Ù†ÙˆØ¹ Ù…Ø·Ù„ÙˆØ¨'); return; }
-  if (!date) { alert('Ø§Ù„ØªØ§Ø±ÙŠØ® Ù…Ø·Ù„ÙˆØ¨'); return; }
+  if (!caseId) { alert('تعذر تحديد الحالة'); return; }
+  if (!uid) { alert('تعذر تحديد العملية'); return; }
+  if (!type) { alert('النوع مطلوب'); return; }
+  if (!date) { alert('التاريخ مطلوب'); return; }
   const amount = amountRaw ? Number(amountRaw) : '';
-  if (amountRaw && (Number.isNaN(amount) || amount < 0)) { alert('Ù‚ÙŠÙ…Ø© Ø§Ù„Ù…Ø¨Ù„Øº ØºÙŠØ± ØµØ§Ù„Ø­Ø©'); return; }
+  if (amountRaw && (Number.isNaN(amount) || amount < 0)) { alert('قيمة المبلغ غير صالحة'); return; }
 
   const it = AppState.cases.find(c => c.id === caseId);
-  if (!it) { alert('Ø§Ù„Ø­Ø§Ù„Ø© ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯Ø©'); return; }
+  if (!it) { alert('الحالة غير موجودة'); return; }
   if (!Array.isArray(it.assistanceHistory)) it.assistanceHistory = [];
   const idx = it.assistanceHistory.findIndex((x) => (x?.uid || '').toString() === uid);
-  if (idx < 0) { alert('ØªØ¹Ø°Ø± Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ø§Ù„Ø¹Ù…Ù„ÙŠØ©'); return; }
+  if (idx < 0) { alert('تعذر العثور على العملية'); return; }
 
   const old = it.assistanceHistory[idx] || {};
   const updated = {
@@ -5062,7 +5062,7 @@ async function applyEditPayment() {
   it.assistanceHistory[idx] = updated;
 
   try {
-    logAction('ØªØ¹Ø¯ÙŠÙ„ Ø¹Ù…Ù„ÙŠØ©', caseId, JSON.stringify({ uid, type, date, amount, by, notes }));
+    logAction('تعديل عملية', caseId, JSON.stringify({ uid, type, date, amount, by, notes }));
   } catch { }
 
   try {
@@ -5071,7 +5071,7 @@ async function applyEditPayment() {
     }
   } catch (e) {
     try { console.error('upsertCaseToDb (edit payment) error:', e); } catch { }
-    await onSupabaseWriteError_('ØªØ¹Ø°Ø± Ø­ÙØ¸ Ø§Ù„ØªØ¹Ø¯ÙŠÙ„ ÙÙŠ Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø­Ø§Ù„ÙŠØ§Ù‹.', e);
+    await onSupabaseWriteError_('تعذر حفظ التعديل في قاعدة البيانات حالياً.', e);
     return;
   }
   try {
@@ -5085,24 +5085,24 @@ async function applyEditPayment() {
   try { updateDashboardStats(); } catch { }
   try { generateReportPreview(); } catch { }
   closeEditPaymentModal();
-  alert('ØªÙ… Ø­ÙØ¸ Ø§Ù„ØªØ¹Ø¯ÙŠÙ„');
+  alert('تم حفظ التعديل');
 }
 
 async function deletePaymentRecord() {
-  if (!hasPerm('cases_edit')) { alert('Ù„Ø§ ØªÙ…Ù„Ùƒ ØµÙ„Ø§Ø­ÙŠØ© ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ø­Ø§Ù„Ø§Øª'); return; }
+  if (!hasPerm('cases_edit')) { alert('لا تملك صلاحية تعديل الحالات'); return; }
   const caseId = (document.getElementById('editPaymentCaseId')?.value || '').toString().trim();
   const uid = (document.getElementById('editPaymentUid')?.value || '').toString().trim();
-  if (!caseId || !uid) { alert('ØªØ¹Ø°Ø± ØªØ­Ø¯ÙŠØ¯ Ø§Ù„Ø¹Ù…Ù„ÙŠØ©'); return; }
-  if (!confirm('Ù‡Ù„ ØªØ±ÙŠØ¯ Ø­Ø°Ù Ù‡Ø°Ù‡ Ø§Ù„Ø¹Ù…Ù„ÙŠØ©ØŸ')) return;
+  if (!caseId || !uid) { alert('تعذر تحديد العملية'); return; }
+  if (!confirm('هل تريد حذف هذه العملية؟')) return;
 
   const it = AppState.cases.find(c => c.id === caseId);
-  if (!it) { alert('Ø§Ù„Ø­Ø§Ù„Ø© ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯Ø©'); return; }
+  if (!it) { alert('الحالة غير موجودة'); return; }
   if (!Array.isArray(it.assistanceHistory)) it.assistanceHistory = [];
   const idx = it.assistanceHistory.findIndex((x) => (x?.uid || '').toString() === uid);
-  if (idx < 0) { alert('ØªØ¹Ø°Ø± Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ø§Ù„Ø¹Ù…Ù„ÙŠØ©'); return; }
+  if (idx < 0) { alert('تعذر العثور على العملية'); return; }
   const deleted = it.assistanceHistory[idx] || null;
   it.assistanceHistory.splice(idx, 1);
-  try { logAction('Ø­Ø°Ù Ø¹Ù…Ù„ÙŠØ©', caseId, JSON.stringify({ uid, deleted })); } catch { }
+  try { logAction('حذف عملية', caseId, JSON.stringify({ uid, deleted })); } catch { }
 
   try {
     if (SupabaseClient) {
@@ -5110,7 +5110,7 @@ async function deletePaymentRecord() {
     }
   } catch (e) {
     try { console.error('upsertCaseToDb (delete payment) error:', e); } catch { }
-    await onSupabaseWriteError_('ØªØ¹Ø°Ø± Ø­Ø°Ù Ø§Ù„Ø¹Ù…Ù„ÙŠØ© Ù…Ù† Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø­Ø§Ù„ÙŠØ§Ù‹.', e);
+    await onSupabaseWriteError_('تعذر حذف العملية من قاعدة البيانات حالياً.', e);
     return;
   }
   try {
@@ -5124,21 +5124,21 @@ async function deletePaymentRecord() {
   try { updateDashboardStats(); } catch { }
   try { generateReportPreview(); } catch { }
   closeEditPaymentModal();
-  alert('ØªÙ… Ø­Ø°Ù Ø§Ù„Ø¹Ù…Ù„ÙŠØ©');
+  alert('تم حذف العملية');
 }
 
 async function applyBulkSponsorship() {
-  if (!hasPerm('cases_edit')) { alert('Ù„Ø§ ØªÙ…Ù„Ùƒ ØµÙ„Ø§Ø­ÙŠØ© ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ø­Ø§Ù„Ø§Øª'); return; }
+  if (!hasPerm('cases_edit')) { alert('لا تملك صلاحية تعديل الحالات'); return; }
   if (AppState.bulkSponsorshipInProgress) return;
   const m = document.getElementById('bulkSponsorshipModal');
   const singleId = (m?.getAttribute('data-single-case-id') || '').toString().trim();
   const ids = computeSponsorTargetIds_();
-  if (!ids.length) { alert('Ù„Ø§ ØªÙˆØ¬Ø¯ Ø­Ø§Ù„Ø§Øª Ù…Ø·Ø§Ø¨Ù‚Ø© Ù„Ù„Ù†Ø·Ø§Ù‚ Ø§Ù„Ù…Ø®ØªØ§Ø±'); return; }
+  if (!ids.length) { alert('لا توجد حالات مطابقة للنطاق المختار'); return; }
   const startDate = (document.getElementById('sponsorStart')?.value || '').trim();
   const amountRaw = (document.getElementById('sponsorAmount')?.value || '').toString().trim();
   const amount = Number(amountRaw);
-  if (!startDate) { alert('ØªØ§Ø±ÙŠØ® Ø¨Ø¯Ø§ÙŠØ© Ø§Ù„ÙƒÙØ§Ù„Ø© Ù…Ø·Ù„ÙˆØ¨'); return; }
-  if (!amountRaw || Number.isNaN(amount) || amount <= 0) { alert('Ù‚ÙŠÙ…Ø© Ø§Ù„ÙƒÙØ§Ù„Ø© Ù…Ø·Ù„ÙˆØ¨Ø©'); return; }
+  if (!startDate) { alert('تاريخ بداية الكفالة مطلوب'); return; }
+  if (!amountRaw || Number.isNaN(amount) || amount <= 0) { alert('قيمة الكفالة مطلوبة'); return; }
 
   let saveBtn = null;
   let watchdog = null;
@@ -5154,7 +5154,7 @@ async function applyBulkSponsorship() {
         if (AppState.bulkSponsorshipInProgress) {
           AppState.bulkSponsorshipInProgress = false;
           if (saveBtn) saveBtn.disabled = false;
-          alert('Ø§Ø³ØªØºØ±Ù‚Øª Ø§Ù„Ø¹Ù…Ù„ÙŠØ© ÙˆÙ‚ØªØ§Ù‹ Ø·ÙˆÙŠÙ„Ø§Ù‹. ØªØ­Ù‚Ù‚ Ù…Ù† Ø§Ù„Ø§ØªØµØ§Ù„ Ø«Ù… Ø­Ø§ÙˆÙ„ Ù…Ø±Ø© Ø£Ø®Ø±Ù‰.');
+          alert('استغرقت العملية وقتاً طويلاً. تحقق من الاتصال ثم حاول مرة أخرى.');
         }
       } catch { }
     }, 25000);
@@ -5181,7 +5181,7 @@ async function applyBulkSponsorship() {
         }
       } catch (e) {
         try { console.error('upsertCaseToDb (sponsorship) error:', e); } catch { }
-        failed.push({ id, message: e?.message || 'Ø®Ø·Ø£ ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ' });
+        failed.push({ id, message: e?.message || 'خطأ غير معروف' });
       }
       updated += 1;
     }
@@ -5192,9 +5192,9 @@ async function applyBulkSponsorship() {
       try { generateReportPreview(); } catch { }
       try {
         const scope = (document.getElementById('sponsorScope')?.value || (singleId ? 'selected' : 'selected')).toString();
-        logAction('ØªØ³Ù„ÙŠÙ… ÙƒÙØ§Ù„Ø©', '', `scope: ${scope} | Ø¹Ø¯Ø¯ Ø§Ù„Ø­Ø§Ù„Ø§Øª: ${updated} | failed: ${failed.length}`);
+        logAction('تسليم كفالة', '', `scope: ${scope} | عدد الحالات: ${updated} | failed: ${failed.length}`);
       } catch {
-        logAction('ØªØ³Ù„ÙŠÙ… ÙƒÙØ§Ù„Ø©', '', `Ø¹Ø¯Ø¯ Ø§Ù„Ø­Ø§Ù„Ø§Øª: ${updated} | failed: ${failed.length}`);
+        logAction('تسليم كفالة', '', `عدد الحالات: ${updated} | failed: ${failed.length}`);
       }
     } catch { }
 
@@ -5207,18 +5207,18 @@ async function applyBulkSponsorship() {
       }
     } catch { }
 
-    try { logAction('Ø¥Ø¶Ø§ÙØ© ÙƒÙØ§Ù„Ø©', '', `Ø¹Ø¯Ø¯ Ø§Ù„Ø­Ø§Ù„Ø§Øª: ${updated} | failed: ${failed.length}`); } catch { }
+    try { logAction('إضافة كفالة', '', `عدد الحالات: ${updated} | failed: ${failed.length}`); } catch { }
 
     if (failed.length) {
       const msg = failed.slice(0, 8).map(x => `${x.id}: ${x.message}`).join('\n');
-      setTimeout(() => alert(`ØªØ¹Ø°Ø± Ø­ÙØ¸ Ø¨Ø¹Ø¶ Ø¹Ù…Ù„ÙŠØ§Øª Ø§Ù„ÙƒÙØ§Ù„Ø© ÙÙŠ Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª (${failed.length}).\n\n${msg}`), 100);
+      setTimeout(() => alert(`تعذر حفظ بعض عمليات الكفالة في قاعدة البيانات (${failed.length}).\n\n${msg}`), 100);
       try { await reloadCasesFromSupabase_(); } catch { }
       return;
     }
-    setTimeout(() => alert(`ØªÙ… ØªØ³Ø¬ÙŠÙ„ Ø§Ù„ÙƒÙØ§Ù„Ø© Ù„Ø¹Ø¯Ø¯ ${updated} Ø­Ø§Ù„Ø©`), 100);
+    setTimeout(() => alert(`تم تسجيل الكفالة لعدد ${updated} حالة`), 100);
   } catch (e) {
     try { console.error('applyBulkSponsorship unexpected error:', e); } catch { }
-    alert(`Ø­Ø¯Ø« Ø®Ø·Ø£ ØºÙŠØ± Ù…ØªÙˆÙ‚Ø¹ Ø£Ø«Ù†Ø§Ø¡ ØªØ³Ù„ÙŠÙ… Ø§Ù„ÙƒÙØ§Ù„Ø©.\n\nØ§Ù„Ø®Ø·Ø£: ${e?.message || 'Ø®Ø·Ø£ ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ'}\n\nØ­Ø§ÙˆÙ„ Ù…Ø±Ø© Ø£Ø®Ø±Ù‰.`);
+    alert(`حدث خطأ غير متوقع أثناء تسليم الكفالة.\n\nالخطأ: ${e?.message || 'خطأ غير معروف'}\n\nحاول مرة أخرى.`);
   } finally {
     try { if (watchdog) clearTimeout(watchdog); } catch { }
     try { closeBulkSponsorshipModal(); } catch { }
@@ -5229,7 +5229,7 @@ async function applyBulkSponsorship() {
 }
 
 function openAddAssistanceModal(caseId) {
-  if (!hasPerm('cases_edit')) { alert('Ù„Ø§ ØªÙ…Ù„Ùƒ ØµÙ„Ø§Ø­ÙŠØ© ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ø­Ø§Ù„Ø§Øª'); return; }
+  if (!hasPerm('cases_edit')) { alert('لا تملك صلاحية تعديل الحالات'); return; }
   const m = document.getElementById('addAssistanceModal');
   if (!m) return;
   const cid = document.getElementById('assistanceCaseId');
@@ -5268,12 +5268,12 @@ function onAssistanceTypeChange() {
   const typeSel = document.getElementById('assistanceType');
   const otherWrap = document.getElementById('assistanceOtherWrap');
   if (!typeSel || !otherWrap) return;
-  const isOther = (typeSel.value || '') === 'Ø£Ø®Ø±Ù‰';
+  const isOther = (typeSel.value || '') === 'أخرى';
   otherWrap.classList.toggle('hidden', !isOther);
 }
 
 async function applyAddAssistance() {
-  if (!hasPerm('cases_edit')) { alert('Ù„Ø§ ØªÙ…Ù„Ùƒ ØµÙ„Ø§Ø­ÙŠØ© ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ø­Ø§Ù„Ø§Øª'); return; }
+  if (!hasPerm('cases_edit')) { alert('لا تملك صلاحية تعديل الحالات'); return; }
   const caseId = (document.getElementById('assistanceCaseId')?.value || '').toString().trim();
   const typeVal = (document.getElementById('assistanceType')?.value || '').toString().trim();
   const otherType = (document.getElementById('assistanceOtherType')?.value || '').toString().trim();
@@ -5281,17 +5281,17 @@ async function applyAddAssistance() {
   const amountRaw = (document.getElementById('assistanceAmount')?.value || '').toString().trim();
   const notes = (document.getElementById('assistanceNotes')?.value || '').toString().trim();
 
-  const finalType = (typeVal === 'Ø£Ø®Ø±Ù‰') ? otherType : typeVal;
-  if (!caseId) { alert('ØªØ¹Ø°Ø± ØªØ­Ø¯ÙŠØ¯ Ø§Ù„Ø­Ø§Ù„Ø©'); return; }
-  if (!finalType) { alert('Ù†ÙˆØ¹ Ø§Ù„Ù…Ø³Ø§Ø¹Ø¯Ø© Ù…Ø·Ù„ÙˆØ¨'); return; }
-  if (!date) { alert('ØªØ§Ø±ÙŠØ® Ø§Ù„Ù…Ø³Ø§Ø¹Ø¯Ø© Ù…Ø·Ù„ÙˆØ¨'); return; }
-  if (!notes) { alert('Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ø§Ù„Ù…Ø³Ø§Ø¹Ø¯Ø© Ù…Ø·Ù„ÙˆØ¨Ø©'); return; }
+  const finalType = (typeVal === 'أخرى') ? otherType : typeVal;
+  if (!caseId) { alert('تعذر تحديد الحالة'); return; }
+  if (!finalType) { alert('نوع المساعدة مطلوب'); return; }
+  if (!date) { alert('تاريخ المساعدة مطلوب'); return; }
+  if (!notes) { alert('ملاحظات المساعدة مطلوبة'); return; }
 
   const amount = amountRaw ? Number(amountRaw) : '';
-  if (amountRaw && (Number.isNaN(amount) || amount < 0)) { alert('Ù‚ÙŠÙ…Ø© Ø§Ù„Ù…Ø¨Ù„Øº ØºÙŠØ± ØµØ§Ù„Ø­Ø©'); return; }
+  if (amountRaw && (Number.isNaN(amount) || amount < 0)) { alert('قيمة المبلغ غير صالحة'); return; }
 
   const it = AppState.cases.find(c => c.id === caseId);
-  if (!it) { alert('Ø§Ù„Ø­Ø§Ù„Ø© ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯Ø©'); return; }
+  if (!it) { alert('الحالة غير موجودة'); return; }
   if (!Array.isArray(it.assistanceHistory)) it.assistanceHistory = [];
 
   const createdAt = new Date().toISOString();
@@ -5300,7 +5300,7 @@ async function applyAddAssistance() {
   const uid = `${createdAt}__${Math.random().toString(16).slice(2)}`;
   const rec = { uid, type: finalType, date, amount, notes, createdAt, byName, byUser };
   it.assistanceHistory.push(rec);
-  try { logAction('Ø¥Ø¶Ø§ÙØ© Ù…Ø³Ø§Ø¹Ø¯Ø©', caseId, JSON.stringify(rec)); } catch { }
+  try { logAction('إضافة مساعدة', caseId, JSON.stringify(rec)); } catch { }
   try {
     if (SupabaseClient) {
       await upsertCaseToDb(it);
@@ -5308,13 +5308,13 @@ async function applyAddAssistance() {
     }
   } catch (e) {
     try { console.error('upsertCaseToDb (assistance) error:', e); } catch { }
-    await onSupabaseWriteError_('ØªØ¹Ø°Ø± Ø­ÙØ¸ Ø§Ù„Ù…Ø³Ø§Ø¹Ø¯Ø© ÙÙŠ Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø­Ø§Ù„ÙŠØ§Ù‹.', e);
+    await onSupabaseWriteError_('تعذر حفظ المساعدة في قاعدة البيانات حالياً.', e);
     return;
   }
   renderCasesTable();
   try { updateDashboardStats(); } catch { }
   try { generateReportPreview(); } catch { }
-  logAction('Ø¥Ø¶Ø§ÙØ© Ù…Ø³Ø§Ø¹Ø¯Ø©', caseId, `Ø§Ù„Ù†ÙˆØ¹: ${finalType}${amountRaw ? ` - Ø§Ù„Ù…Ø¨Ù„Øº: ${amount}` : ''}`);
+  logAction('إضافة مساعدة', caseId, `النوع: ${finalType}${amountRaw ? ` - المبلغ: ${amount}` : ''}`);
   closeAddAssistanceModal();
   try {
     if ((AppState.currentCaseId || '') === caseId) {
@@ -5323,7 +5323,7 @@ async function applyAddAssistance() {
       setCaseDetailsTab((AppState.caseDetailsTab || 'details').toString());
     }
   } catch { }
-  alert('ØªÙ…Øª Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ù…Ø³Ø§Ø¹Ø¯Ø©');
+  alert('تمت إضافة المساعدة');
 }
 
 function onCaseDetailsPrintClick() {
@@ -5338,7 +5338,7 @@ function onCaseDetailsPrintClick() {
 function printPaymentsForCurrentCase() {
   const id = AppState.currentCaseId;
   const it = AppState.cases.find(c => c.id === id);
-  if (!it) { alert('Ù„Ø§ ØªÙˆØ¬Ø¯ Ø­Ø§Ù„Ø© Ù„Ù„Ø·Ø¨Ø§Ø¹Ø©'); return; }
+  if (!it) { alert('لا توجد حالة للطباعة'); return; }
   const hist = Array.isArray(it.assistanceHistory) ? it.assistanceHistory : [];
   const rows = hist
     .slice()
@@ -5351,7 +5351,7 @@ function printPaymentsForCurrentCase() {
       const notes = String(x?.notes || '');
       return `
         <tr>
-          <td>${escapeHtml(t === 'sponsorship' ? 'ÙƒÙØ§Ù„Ø©' : t)}</td>
+          <td>${escapeHtml(t === 'sponsorship' ? 'كفالة' : t)}</td>
           <td>${escapeHtml(d)}</td>
           <td>${escapeHtml(amt)}</td>
           <td>${escapeHtml(by)}</td>
@@ -5360,8 +5360,8 @@ function printPaymentsForCurrentCase() {
     }).join('');
 
   const w = window.open('', '_blank');
-  if (!w) { alert('ÙŠØ±Ø¬Ù‰ Ø§Ù„Ø³Ù…Ø§Ø­ Ø¨Ø§Ù„Ù†ÙˆØ§ÙØ° Ø§Ù„Ù…Ù†Ø¨Ø«Ù‚Ø©'); return; }
-  w.document.write(`<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>Ø·Ø¨Ø§Ø¹Ø© Ø§Ù„Ù…Ø¯ÙÙˆØ¹Ø§Øª</title>
+  if (!w) { alert('يرجى السماح بالنوافذ المنبثقة'); return; }
+  w.document.write(`<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>طباعة المدفوعات</title>
     <style>
       body{font-family:Tajawal,Arial,sans-serif;padding:16px;color:#111827}
       h2{margin:0 0 8px 0}
@@ -5374,32 +5374,32 @@ function printPaymentsForCurrentCase() {
       @media print{.no-print{display:none}}
     </style>
   </head><body>
-    <div class="no-print" style="margin-bottom:10px"><button onclick="window.print()">Ø·Ø¨Ø§Ø¹Ø©</button></div>
-    <h2>Ø§Ù„Ù…Ø¯ÙÙˆØ¹Ø§Øª/Ø§Ù„Ù…Ø³Ø§Ø¹Ø¯Ø§Øª</h2>
+    <div class="no-print" style="margin-bottom:10px"><button onclick="window.print()">طباعة</button></div>
+    <h2>المدفوعات/المساعدات</h2>
     <div class="head">
       <div class="title">${escapeHtml(it.familyHead || '')}</div>
-      <div class="muted">Ø±Ù‚Ù… Ø§Ù„Ø­Ø§Ù„Ø©: <strong>${escapeHtml(it.id || '')}</strong>${it.date ? ` â€” ØªØ§Ø±ÙŠØ®: <strong>${escapeHtml(it.date)}</strong>` : ''}</div>
-      <div class="muted">${it.governorate ? `Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©: <strong>${escapeHtml(it.governorate)}</strong>` : ''}${it.governorate && it.area ? ' â€” ' : ''}${it.area ? `Ø§Ù„Ù‚Ø±ÙŠØ©: <strong>${escapeHtml(it.area)}</strong>` : ''}</div>
+      <div class="muted">رقم الحالة: <strong>${escapeHtml(it.id || '')}</strong>${it.date ? ` — تاريخ: <strong>${escapeHtml(it.date)}</strong>` : ''}</div>
+      <div class="muted">${it.governorate ? `المحافظة: <strong>${escapeHtml(it.governorate)}</strong>` : ''}${it.governorate && it.area ? ' — ' : ''}${it.area ? `القرية: <strong>${escapeHtml(it.area)}</strong>` : ''}</div>
     </div>
     <table>
-      <thead><tr><th>Ø§Ù„Ù†ÙˆØ¹</th><th>Ø§Ù„ØªØ§Ø±ÙŠØ®</th><th>Ø§Ù„Ù…Ø¨Ù„Øº</th><th>Ø¨ÙˆØ§Ø³Ø·Ø©</th><th>Ù…Ù„Ø§Ø­Ø¸Ø§Øª</th></tr></thead>
-      <tbody>${rows || '<tr><td colspan="5" style="text-align:center">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¨ÙŠØ§Ù†Ø§Øª</td></tr>'}</tbody>
+      <thead><tr><th>النوع</th><th>التاريخ</th><th>المبلغ</th><th>بواسطة</th><th>ملاحظات</th></tr></thead>
+      <tbody>${rows || '<tr><td colspan="5" style="text-align:center">لا توجد بيانات</td></tr>'}</tbody>
     </table>
   </body></html>`);
   w.document.close();
   w.focus();
-  logAction('Ø·Ø¨Ø§Ø¹Ø© Ù…Ø¯ÙÙˆØ¹Ø§Øª/Ù…Ø³Ø§Ø¹Ø¯Ø§Øª', it.id, 'ØªÙ… ÙØªØ­ ØµÙØ­Ø© Ø·Ø¨Ø§Ø¹Ø© Ø§Ù„Ù…Ø¯ÙÙˆØ¹Ø§Øª');
+  logAction('طباعة مدفوعات/مساعدات', it.id, 'تم فتح صفحة طباعة المدفوعات');
 }
 
 function capturePaymentsScreenshot() {
   try {
     const wrap = document.getElementById('paymentsTableWrap');
-    if (!wrap) { alert('ØªØ¹Ø°Ø± Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ø¬Ø¯ÙˆÙ„ Ø§Ù„Ù…Ø¯ÙÙˆØ¹Ø§Øª'); return; }
-    if (!window.html2canvas) { alert('ØªØ¹Ø°Ø± Ø¥Ù†Ø´Ø§Ø¡ Ù„Ù‚Ø·Ø© Ø´Ø§Ø´Ø© (html2canvas ØºÙŠØ± Ù…Ø­Ù…Ù‘Ù„).'); return; }
+    if (!wrap) { alert('تعذر العثور على جدول المدفوعات'); return; }
+    if (!window.html2canvas) { alert('تعذر إنشاء لقطة شاشة (html2canvas غير محمّل).'); return; }
 
     const id = (AppState.currentCaseId || '').toString();
     const it = (AppState.cases || []).find(c => (c?.id || '').toString() === id) || {};
-    const family = (it.familyHead || it.name || 'Ø­Ø§Ù„Ø©').toString().trim() || 'Ø­Ø§Ù„Ø©';
+    const family = (it.familyHead || it.name || 'حالة').toString().trim() || 'حالة';
     const gov = (it.governorate || '').toString().trim();
     const area = (it.area || '').toString().trim();
     const dt = (it.date || '').toString().trim();
@@ -5452,21 +5452,21 @@ function capturePaymentsScreenshot() {
       a.href = url;
       a.download = `${safeName(family)}.png`;
       a.click();
-      try { logAction('Ù„Ù‚Ø·Ø© Ø´Ø§Ø´Ø© Ù…Ø¯ÙÙˆØ¹Ø§Øª/Ù…Ø³Ø§Ø¹Ø¯Ø§Øª', AppState.currentCaseId || '', 'PNG'); } catch { }
+      try { logAction('لقطة شاشة مدفوعات/مساعدات', AppState.currentCaseId || '', 'PNG'); } catch { }
       try { document.body.removeChild(temp); } catch { }
     }).catch(() => {
       try { document.body.removeChild(temp); } catch { }
-      alert('ØªØ¹Ø°Ø± Ø¥Ù†Ø´Ø§Ø¡ Ù„Ù‚Ø·Ø© Ø´Ø§Ø´Ø©. Ø§Ø³ØªØ®Ø¯Ù… Ø²Ø± Ø§Ù„Ø·Ø¨Ø§Ø¹Ø© Ø«Ù… Ø­ÙØ¸ PDF.');
+      alert('تعذر إنشاء لقطة شاشة. استخدم زر الطباعة ثم حفظ PDF.');
     });
   } catch {
-    alert('ØªØ¹Ø°Ø± Ø¥Ù†Ø´Ø§Ø¡ Ù„Ù‚Ø·Ø© Ø´Ø§Ø´Ø©. Ø§Ø³ØªØ®Ø¯Ù… Ø²Ø± Ø§Ù„Ø·Ø¨Ø§Ø¹Ø© Ø«Ù… Ø­ÙØ¸ PDF.');
+    alert('تعذر إنشاء لقطة شاشة. استخدم زر الطباعة ثم حفظ PDF.');
   }
 }
 
 function captureCaseDetailsScreenshot() {
   try {
     const panel = document.getElementById('casePanelDetails');
-    if (!panel) { alert('ØªØ¹Ø°Ø± Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ø­Ø§Ù„Ø©'); return; }
+    if (!panel) { alert('تعذر العثور على تفاصيل الحالة'); return; }
     if (!window.html2canvas) { alert('ØªØ¹Ø°Ø± Ø¥Ù†Ø´Ø§Ø¡ Ù„Ù‚Ø·Ø© Ø´Ø§Ø´Ø© (html2canvas ØºÙŠØ± Ù…Ø­Ù…Ù‘Ù„).'); return; }
 
     const id = (AppState.currentCaseId || '').toString();
@@ -5504,8 +5504,8 @@ function captureCaseDetailsScreenshot() {
     head.style.background = '#f8fafc';
     head.innerHTML = `
       <div style="font-weight:900;font-size:18px;color:#0f172a">${escapeHtml(family)}</div>
-      <div style="color:#64748b;font-size:13px">Ø±Ù‚Ù… Ø§Ù„Ø­Ø§Ù„Ø©: <strong>${escapeHtml(id || '')}</strong>${dt ? ` â€” ØªØ§Ø±ÙŠØ®: <strong>${escapeHtml(dt)}</strong>` : ''}</div>
-      <div style="color:#64748b;font-size:13px">${gov ? `Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©: <strong>${escapeHtml(gov)}</strong>` : ''}${gov && area ? ' â€” ' : ''}${area ? `Ø§Ù„Ù…Ù†Ø·Ù‚Ø©: <strong>${escapeHtml(area)}</strong>` : ''}</div>
+      <div style="color:#64748b;font-size:13px">رقم الحالة: <strong>${escapeHtml(id || '')}</strong>${dt ? ` — تاريخ: <strong>${escapeHtml(dt)}</strong>` : ''}</div>
+      <div style="color:#64748b;font-size:13px">${gov ? `المحافظة: <strong>${escapeHtml(gov)}</strong>` : ''}${gov && area ? ' — ' : ''}${area ? `المنطقة: <strong>${escapeHtml(area)}</strong>` : ''}</div>
     `;
 
     const clonedPanel = panel.cloneNode(true);
@@ -5519,14 +5519,14 @@ function captureCaseDetailsScreenshot() {
       a.href = url;
       a.download = `${safeName(family)}.png`;
       a.click();
-      try { logAction('Ù„Ù‚Ø·Ø© Ø´Ø§Ø´Ø© ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ø­Ø§Ù„Ø©', AppState.currentCaseId || '', 'PNG'); } catch { }
+      try { logAction('لقطة شاشة تفاصيل الحالة', AppState.currentCaseId || '', 'PNG'); } catch { }
       try { document.body.removeChild(temp); } catch { }
     }).catch(() => {
       try { document.body.removeChild(temp); } catch { }
-      alert('ØªØ¹Ø°Ø± Ø¥Ù†Ø´Ø§Ø¡ Ù„Ù‚Ø·Ø© Ø´Ø§Ø´Ø©. Ø§Ø³ØªØ®Ø¯Ù… Ø²Ø± Ø§Ù„Ø·Ø¨Ø§Ø¹Ø© Ø«Ù… Ø­ÙØ¸ PDF.');
+      alert('تعذر إنشاء لقطة شاشة. استخدم زر الطباعة ثم حفظ PDF.');
     });
   } catch {
-    alert('ØªØ¹Ø°Ø± Ø¥Ù†Ø´Ø§Ø¡ Ù„Ù‚Ø·Ø© Ø´Ø§Ø´Ø©. Ø§Ø³ØªØ®Ø¯Ù… Ø²Ø± Ø§Ù„Ø·Ø¨Ø§Ø¹Ø© Ø«Ù… Ø­ÙØ¸ PDF.');
+    alert('تعذر إنشاء لقطة شاشة. استخدم زر الطباعة ثم حفظ PDF.');
   }
 }
 
@@ -5599,13 +5599,13 @@ function getFilteredCasesCached_() {
   return list;
 }
 function updateCaseStatus(id, val) {
-  if (!hasPerm('case_status_change')) { alert('Ù„Ø§ ØªÙ…Ù„Ùƒ ØµÙ„Ø§Ø­ÙŠØ© ØªØºÙŠÙŠØ± Ø§Ù„Ø­Ø§Ù„Ø©'); return; }
+  if (!hasPerm('case_status_change')) { alert('لا تملك صلاحية تغيير الحالة'); return; }
   const it = AppState.cases.find(x => x.id === id);
   if (it) {
     it.status = val; renderCasesTable();
     try { if (SupabaseClient) void upsertCaseToDb(it); } catch { }
     sendStatusUpdateToSheets({ id: it.id, status: it.status });
-    logAction('ØªØºÙŠÙŠØ± Ø­Ø§Ù„Ø©', it.id, val);
+    logAction('تغيير حالة', it.id, val);
   }
 }
 
@@ -5623,10 +5623,10 @@ function saveSettings() {
     const b = document.getElementById('syncBadge');
     if (b) b.textContent = '';
   } catch { }
-  alert('ØªÙ… Ø­ÙØ¸ Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª');
+  alert('تم حفظ الإعدادات');
 }
 function openSettings() {
-  if (!hasPerm('settings')) { alert('Ù„Ø§ ØªÙ…Ù„Ùƒ ØµÙ„Ø§Ø­ÙŠØ© ÙØªØ­ Ø§Ù„Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª'); return; }
+  if (!hasPerm('settings')) { alert('لا تملك صلاحية فتح الإعدادات'); return; }
   const m = document.getElementById('settingsModal');
   if (!m) return;
   const urlInput = document.getElementById('settingsUrlInput');
@@ -5652,7 +5652,7 @@ function getActiveRegion() {
 function populateRegionSelect() {
   const sel = document.getElementById('regionSelect'); if (!sel) return;
   const regions = AppState.settings.regions || [];
-  sel.innerHTML = ['<option value="">Ø§Ù„ÙƒÙ„/Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠ</option>'].concat(regions.map(r => `<option>${r.name}</option>`)).join('');
+  sel.innerHTML = ['<option value="">الكل/الرئيسي</option>'].concat(regions.map(r => `<option>${r.name}</option>`)).join('');
   if (AppState.settings.activeRegion) { sel.value = AppState.settings.activeRegion; }
   sel.onchange = onRegionChange;
 }
@@ -5665,8 +5665,8 @@ function onRegionChange(e) {
 function renderRegions() {
   const list = document.getElementById('regionsList'); if (!list) return;
   const regs = AppState.settings.regions || [];
-  if (!regs.length) { list.innerHTML = 'Ù„Ø§ ØªÙˆØ¬Ø¯ Ù…Ù†Ø§Ø·Ù‚ Ù…Ø¶Ø§ÙØ© Ø¨Ø¹Ø¯'; return; }
-  list.innerHTML = regs.map(r => `<div style="display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid #eee;padding:6px 0"><div><strong>${r.name}</strong><br><small>${r.url || ''}</small></div><div><button class="btn" type="button" onclick="prefillRegion('${r.name.replace(/"/g, '')}')">ØªØ¹Ø¯ÙŠÙ„</button></div></div>`).join('');
+  if (!regs.length) { list.innerHTML = 'لا توجد مناطق مضافة بعد'; return; }
+  list.innerHTML = regs.map(r => `<div style="display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid #eee;padding:6px 0"><div><strong>${r.name}</strong><br><small>${r.url || ''}</small></div><div><button class="btn" type="button" onclick="prefillRegion('${r.name.replace(/"/g, '')}')">تعديل</button></div></div>`).join('');
 }
 function prefillRegion(name) {
   const r = (AppState.settings.regions || []).find(x => x.name === name); if (!r) return;
@@ -5678,7 +5678,7 @@ function addOrUpdateRegion() {
   const name = (document.getElementById('regionNameInput').value || '').trim();
   const url = (document.getElementById('regionUrlInput').value || '').trim();
   const token = (document.getElementById('regionTokenInput').value || '').trim();
-  if (!name || !url) { alert('Ø§Ø³Ù… Ø§Ù„Ù…Ù†Ø·Ù‚Ø© ÙˆØ±Ø§Ø¨Ø·Ù‡Ø§ Ù…Ø·Ù„ÙˆØ¨Ø§Ù†'); return; }
+  if (!name || !url) { alert('اسم المنطقة ورابطها مطلوبان'); return; }
   let regs = AppState.settings.regions || [];
   const idx = regs.findIndex(r => r.name === name);
   const obj = { name, url, token: token || null };
@@ -5688,7 +5688,7 @@ function addOrUpdateRegion() {
 }
 function removeRegion() {
   const name = (document.getElementById('regionNameInput').value || '').trim();
-  if (!name) { alert('Ø£Ø¯Ø®Ù„ Ø§Ø³Ù… Ø§Ù„Ù…Ù†Ø·Ù‚Ø© Ù„Ø­Ø°ÙÙ‡Ø§'); return; }
+  if (!name) { alert('أدخل اسم المنطقة لحذفها'); return; }
   AppState.settings.regions = (AppState.settings.regions || []).filter(r => r.name !== name);
   if (AppState.settings.activeRegion === name) AppState.settings.activeRegion = null;
   renderRegions(); populateRegionSelect();
@@ -5731,14 +5731,14 @@ function updateDashboardStats() {
   let deficitCount = 0;
 
   const catBoxes = {
-    'ØªØ¬Ù‡ÙŠØ² Ø¹Ø±Ø§Ø¦Ø³': 0,
-    'Ø£Ø³Ù‚Ù': 0,
-    'ÙˆØµÙ„Ø§Øª Ù…ÙŠØ§Ù‡': 0,
-    'Ø§Ø­ØªÙŠØ§Ø¬Ø§Øª Ø¶Ø±ÙˆØ±ÙŠØ© Ù…Ù„Ø­Ø©': 0,
-    'Ù…Ø´Ø±ÙˆØ¹Ø§Øª ØµØºÙŠØ±Ø©': 0,
-    'Ø¹Ù…Ù„ÙŠØ§Øª Ø·Ø¨ÙŠØ©': 0,
-    'ÙƒÙØ§Ù„Ø§Øª Ù…Ø±Ø¶ÙŠØ©': 0,
-    'ÙƒÙØ§Ù„Ø© Ø´Ù‡Ø±ÙŠØ©': 0
+    'تجهيز عرائس': 0,
+    'أسقف': 0,
+    'وصلات مياه': 0,
+    'احتياجات ضرورية ملحة': 0,
+    'مشروعات صغيرة': 0,
+    'عمليات طبية': 0,
+    'كفالات مرضية': 0,
+    'كفالة شهرية': 0
   };
 
   const inc = (obj, key) => { obj[key] = (obj[key] || 0) + 1; };
@@ -5758,7 +5758,7 @@ function updateDashboardStats() {
   };
 
   cases.forEach(c => {
-    const st = String(c.status || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯').trim() || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯';
+    const st = String(c.status || 'غير محدد').trim() || 'غير محدد';
     inc(byStatus, st);
 
     const d = getCaseDate(c);
@@ -5769,8 +5769,8 @@ function updateDashboardStats() {
 
     const cat = (c.category || '').trim();
     const parts = cat ? cat.split(',').map(s => s.trim()).filter(Boolean) : [];
-    const cats = parts.length ? parts : (cat ? [cat] : ['ØºÙŠØ± Ù…Ø­Ø¯Ø¯']);
-    const primary = cats[0] || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯';
+    const cats = parts.length ? parts : (cat ? [cat] : ['غير محدد']);
+    const primary = cats[0] || 'غير محدد';
     inc(byType, primary);
 
     // Category boxes counts (match any category in the case)
@@ -5786,8 +5786,8 @@ function updateDashboardStats() {
     else if (gr === 'C') byGrade.C += 1;
     else byGrade.other += 1;
 
-    inc(byGov, String(c.governorate || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯').trim() || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯');
-    inc(byArea, String(c.area || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯').trim() || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯');
+    inc(byGov, String(c.governorate || 'غير محدد').trim() || 'غير محدد');
+    inc(byArea, String(c.area || 'غير محدد').trim() || 'غير محدد');
 
     sumEstimated += sumNum(c.estimatedAmount);
     sumDelivered += sumNum(c.deliveredAmount);
@@ -5818,7 +5818,7 @@ function updateDashboardStats() {
 
   try { document.getElementById('kpiTotalCases').textContent = fmt(kTotal); } catch { }
   try { document.getElementById('kpiNewThisMonth').textContent = fmt(kNewMonth); } catch { }
-  try { document.getElementById('kpiNewThisMonthMeta').textContent = monthLabel ? `Ø§Ù„Ø´Ù‡Ø±: ${monthLabel}` : 'â€”'; } catch { }
+  try { document.getElementById('kpiNewThisMonthMeta').textContent = monthLabel ? `الشهر: ${monthLabel}` : '—'; } catch { }
   try { document.getElementById('kpiCurrentNeed').textContent = fmt(currentNeed); } catch { }
 
   try { document.getElementById('finIncomeTotal').textContent = fmt(sumIncome); } catch { }
@@ -5830,14 +5830,14 @@ function updateDashboardStats() {
   try { document.getElementById('finMonthlySponsorship').textContent = fmt(sumMonthlySponsorship); } catch { }
 
   // Category boxes UI
-  try { document.getElementById('catBrides').textContent = fmt(catBoxes['ØªØ¬Ù‡ÙŠØ² Ø¹Ø±Ø§Ø¦Ø³']); } catch { }
-  try { document.getElementById('catRoofs').textContent = fmt(catBoxes['Ø£Ø³Ù‚Ù']); } catch { }
-  try { document.getElementById('catWaterLinks').textContent = fmt(catBoxes['ÙˆØµÙ„Ø§Øª Ù…ÙŠØ§Ù‡']); } catch { }
-  try { document.getElementById('catUrgentNeeds').textContent = fmt(catBoxes['Ø§Ø­ØªÙŠØ§Ø¬Ø§Øª Ø¶Ø±ÙˆØ±ÙŠØ© Ù…Ù„Ø­Ø©']); } catch { }
-  try { document.getElementById('catSmallProjects').textContent = fmt(catBoxes['Ù…Ø´Ø±ÙˆØ¹Ø§Øª ØµØºÙŠØ±Ø©']); } catch { }
-  try { document.getElementById('catMedicalOps').textContent = fmt(catBoxes['Ø¹Ù…Ù„ÙŠØ§Øª Ø·Ø¨ÙŠØ©']); } catch { }
-  try { document.getElementById('catMedicalSponsorship').textContent = fmt(catBoxes['ÙƒÙØ§Ù„Ø§Øª Ù…Ø±Ø¶ÙŠØ©']); } catch { }
-  try { document.getElementById('catMonthlySponsorship').textContent = fmt(catBoxes['ÙƒÙØ§Ù„Ø© Ø´Ù‡Ø±ÙŠØ©']); } catch { }
+  try { document.getElementById('catBrides').textContent = fmt(catBoxes['تجهيز عرائس']); } catch { }
+  try { document.getElementById('catRoofs').textContent = fmt(catBoxes['أسقف']); } catch { }
+  try { document.getElementById('catWaterLinks').textContent = fmt(catBoxes['وصلات مياه']); } catch { }
+  try { document.getElementById('catUrgentNeeds').textContent = fmt(catBoxes['احتياجات ضرورية ملحة']); } catch { }
+  try { document.getElementById('catSmallProjects').textContent = fmt(catBoxes['مشروعات صغيرة']); } catch { }
+  try { document.getElementById('catMedicalOps').textContent = fmt(catBoxes['عمليات طبية']); } catch { }
+  try { document.getElementById('catMedicalSponsorship').textContent = fmt(catBoxes['كفالات مرضية']); } catch { }
+  try { document.getElementById('catMonthlySponsorship').textContent = fmt(catBoxes['كفالة شهرية']); } catch { }
 
   try {
     AppState.dashboardGeoMode = AppState.dashboardGeoMode || 'gov';
@@ -5893,7 +5893,7 @@ function updateDashboardStats() {
           const idx = els[0].index;
           const label = labels[idx];
           if (!label) return;
-          applyDashboardFilter(`cat:${label}`, `Ø§Ù„Ù†ÙˆØ¹: ${label}`);
+          applyDashboardFilter(`cat:${label}`, `النوع: ${label}`);
         }
       }
     });
@@ -5904,7 +5904,7 @@ function updateDashboardStats() {
     const values = [byGrade.A, byGrade.B, byGrade.C];
     upsertChart('grade', 'chartByGrade', {
       type: 'pie',
-      data: { labels: ['A (Ø­Ø±Ø¬Ø©)', 'B (Ù…ØªÙˆØ³Ø·Ø©)', 'C (Ø£Ù‚Ù„ Ø£ÙˆÙ„ÙˆÙŠØ©)'], datasets: [{ data: values, backgroundColor: ['#dc2626', '#f59e0b', '#16a34a'] }] },
+      data: { labels: ['A (حرجة)', 'B (متوسطة)', 'C (أقل أولوية)'], datasets: [{ data: values, backgroundColor: ['#dc2626', '#f59e0b', '#16a34a'] }] },
       options: {
         plugins: {
           legend: { position: 'bottom', labels: { font: { family: 'Tajawal' } } },
@@ -5915,7 +5915,7 @@ function updateDashboardStats() {
           const idx = els[0].index;
           const g = labels[idx];
           if (!g) return;
-          applyDashboardFilter(`grade:${g}`, `Ø§Ù„ØªÙ‚ÙŠÙŠÙ…: ${g}`);
+          applyDashboardFilter(`grade:${g}`, `التقييم: ${g}`);
         }
       }
     });
@@ -5945,7 +5945,7 @@ function updateDashboardStats() {
           const idx = els[0].index;
           const label = labels[idx];
           if (!label) return;
-          applyDashboardFilter(geoMode === 'gov' ? `gov:${label}` : `area:${label}`, `${geoMode === 'gov' ? 'Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©' : 'Ø§Ù„Ù…Ù†Ø·Ù‚Ø©'}: ${label}`);
+          applyDashboardFilter(geoMode === 'gov' ? `gov:${label}` : `area:${label}`, `${geoMode === 'gov' ? 'المحافظة' : 'المنطقة'}: ${label}`);
         }
       }
     });
@@ -5967,14 +5967,14 @@ function updateDashboardStats() {
             </div>
             <div class="alert-actions">
               <span class="alert-count">${fmt(count)}</span>
-              <button class="btn mini" type="button" ${disabled} onclick="applyDashboardFilter('${key}','${escapeHtml(title)}')">Ø¹Ø±Ø¶</button>
+              <button class="btn mini" type="button" ${disabled} onclick="applyDashboardFilter('${key}','${escapeHtml(title)}')">عرض</button>
             </div>
           </div>`;
       };
       host.innerHTML = [
-        row('Ø­Ø§Ù„Ø§Øª A ØºÙŠØ± Ù…Ø¹ØªÙ…Ø¯Ø©', 'Ø­Ø§Ù„Ø§Øª Ø­Ø±Ø¬Ø© ØªØ­ØªØ§Ø¬ Ø§Ø¹ØªÙ…Ø§Ø¯/Ø¥Ø¬Ø±Ø§Ø¡', a1, 'alert:a_unapproved'),
-        row('Ø­Ø§Ù„Ø§Øª Ù…Ø± Ø¹Ù„ÙŠÙ‡Ø§ Ø£ÙƒØ«Ø± Ù…Ù† 30 ÙŠÙˆÙ… Ø¨Ø¯ÙˆÙ† Ø¥Ø¬Ø±Ø§Ø¡', 'ØªØ­Ø³ÙŠÙ† Ø§Ù„Ù…ØªØ§Ø¨Ø¹Ø© ÙˆØªØ­Ø¯ÙŠØ« Ø§Ù„Ø­Ø§Ù„Ø©', a2, 'alert:stale_30'),
-        row('Ø­Ø§Ù„Ø§Øª Ø¹Ù„Ø§Ø¬ Ø¹Ø§Ø¬Ù„Ø©', 'Ø£ÙˆÙ„ÙˆÙŠØ© Ø¹Ø§Ù„ÙŠØ© Ù„Ù„Ø­Ø§Ù„Ø§Øª Ø§Ù„Ø·Ø¨ÙŠØ©', a3, 'alert:medical_urgent')
+        row('حالات A غير معتمدة', 'حالات حرجة تحتاج اعتماد/إجراء', a1, 'alert:a_unapproved'),
+        row('حالات مر عليها أكثر من 30 يوم بدون إجراء', 'تحسين المتابعة وتحديث الحالة', a2, 'alert:stale_30'),
+        row('حالات علاج عاجلة', 'أولوية عالية للحالات الطبية', a3, 'alert:medical_urgent')
       ].join('');
     }
   } catch { }
@@ -6017,9 +6017,9 @@ function initDashboardSelectors_() {
     try { el.value = cur; } catch { }
   };
 
-  fill('dashFilterStatus', statuses, 'Ø§Ù„Ø­Ø§Ù„Ø© Ø§Ù„Ø¥Ø¯Ø§Ø±ÙŠØ©: Ø§Ù„ÙƒÙ„');
-  fill('dashFilterGov', govs, 'Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©: Ø§Ù„ÙƒÙ„');
-  fill('dashFilterType', types, 'Ø§Ù„Ù†ÙˆØ¹: Ø§Ù„ÙƒÙ„');
+  fill('dashFilterStatus', statuses, 'الحالة الإدارية: الكل');
+  fill('dashFilterGov', govs, 'المحافظة: الكل');
+  fill('dashFilterType', types, 'النوع: الكل');
 }
 
 function renderDashboardTable() {
@@ -6072,11 +6072,11 @@ function renderDashboardTable() {
   const fmt = (n) => (Math.round((Number(n) || 0) * 100) / 100).toLocaleString('en-US');
   tb.innerHTML = top.map(c => {
     const name = (c.familyHead || '').toString().trim() || (c.id || '').toString();
-    const t = getType(c) || 'â€”';
-    const g = (c.caseGrade || 'â€”').toString();
-    const gov2 = (c.governorate || 'â€”').toString();
+    const t = getType(c) || '—';
+    const g = (c.caseGrade || '—').toString();
+    const gov2 = (c.governorate || '—').toString();
     const need = getNeed(c);
-    const st2 = (c.status || 'â€”').toString();
+    const st2 = (c.status || '—').toString();
     return `
       <tr>
         <td>${escapeHtml(name)}</td>
@@ -6087,11 +6087,11 @@ function renderDashboardTable() {
         <td>${escapeHtml(st2)}</td>
         <td><button class="btn mini" type="button" onclick="openCaseDetails('${escapeHtml(c.id)}')">Ø¹Ø±Ø¶</button></td>
       </tr>`;
-  }).join('') || '<tr><td colspan="7" style="text-align:center">Ù„Ø§ ØªÙˆØ¬Ø¯ Ù†ØªØ§Ø¦Ø¬</td></tr>';
+  }).join('') || '<tr><td colspan="7" style="text-align:center">لا توجد نتائج</td></tr>';
 
   try {
     const meta = document.getElementById('dashTableMeta');
-    if (meta) meta.textContent = `ÙŠØ¹Ø±Ø¶ ${Math.min(20, list.length)} Ù…Ù† ${list.length}`;
+    if (meta) meta.textContent = `يعرض ${Math.min(20, list.length)} من ${list.length}`;
   } catch { }
 }
 function generateReportPreview() {
@@ -6099,7 +6099,7 @@ function generateReportPreview() {
   if (!host) return;
   const cases = Array.isArray(AppState.cases) ? AppState.cases : [];
   if (!cases.length) {
-    host.innerHTML = '<div class="section" style="border-color:#e5e7eb;background:#fff">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¨ÙŠØ§Ù†Ø§Øª Ù„Ø¹Ø±Ø¶ Ø§Ù„ØªÙ‚Ø§Ø±ÙŠØ± Ø§Ù„Ø¢Ù†. Ø§ÙØªØ­ Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ø­Ø§Ù„Ø§Øª Ø£Ùˆ Ø§Ù†ØªØ¸Ø± Ø§ÙƒØªÙ…Ø§Ù„ Ø§Ù„ØªØ­Ù…ÙŠÙ„.</div>';
+    host.innerHTML = '<div class="section" style="border-color:#e5e7eb;background:#fff">لا توجد بيانات لعرض التقارير الآن. افتح قائمة الحالات أو انتظر اكتمال التحميل.</div>';
     return;
   }
 
@@ -6117,11 +6117,11 @@ function generateReportPreview() {
   const needOf = (c) => Math.max(0, sumNum(c.estimatedAmount) - sumNum(c.deliveredAmount));
 
   const total = list.length;
-  const done = list.filter(c => c.status === 'Ù…Ù†ÙØ°Ø©').length;
-  const urgent = list.filter(c => c.urgency === 'Ø¹Ø§Ø¬Ù„' || c.urgency === 'Ø¹Ø§Ø¬Ù„ Ø¬Ø¯Ù‹Ø§').length;
-  const medical = list.filter(c => c.category === 'Ø¹Ù…Ù„ÙŠØ§Øª Ø·Ø¨ÙŠØ©' || c.category === 'ÙƒÙØ§Ù„Ø§Øª Ù…Ø±Ø¶ÙŠØ©').length;
+  const done = list.filter(c => c.status === 'منفذة').length;
+  const urgent = list.filter(c => c.urgency === 'عاجل' || c.urgency === 'عاجل جدًا').length;
+  const medical = list.filter(c => c.category === 'عمليات طبية' || c.category === 'كفالات مرضية').length;
   const rate = total ? ((done / total) * 100).toFixed(1) : 0;
-  const byGov = {}; list.forEach(c => { const g = c.governorate || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯'; byGov[g] = (byGov[g] || 0) + 1 });
+  const byGov = {}; list.forEach(c => { const g = c.governorate || 'غير محدد'; byGov[g] = (byGov[g] || 0) + 1 });
   const topGov = Object.entries(byGov).sort((a, b) => b[1] - a[1]).slice(0, 6)
     .map(([g, n]) => `<div style=\"display:flex;justify-content:space-between\"><span>${escapeHtml(g)}</span><strong>${escapeHtml(n)}</strong></div>`).join('');
 
@@ -6131,7 +6131,7 @@ function generateReportPreview() {
   const sponsTotal = spons.reduce((a, x) => a + (Number(x?.amount ?? 0) || 0), 0);
   const otherTotal = other.reduce((a, x) => a + (Number(x?.amount ?? 0) || 0), 0);
 
-  const rangeLabel = range.active ? `Ø§Ù„ÙØªØ±Ø©: ${escapeHtml(range.label)}` : 'Ø§Ù„ÙØªØ±Ø©: ÙƒÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª';
+  const rangeLabel = range.active ? `الفترة: ${escapeHtml(range.label)}` : 'الفترة: كل البيانات';
 
   const typeFilter = (AppState._reportsTypeFilter || 'all').toString();
   try { syncReportsTypeTabsUi_(); } catch { }
@@ -6156,7 +6156,7 @@ function generateReportPreview() {
         <div style="font-size:1.8rem;font-weight:900;color:var(--text-primary)">${escapeHtml(total)}</div>
       </div>
       <div class="ds-content-card" style="padding:16px;border-top:3px solid var(--status-success);background:rgba(16,185,129,0.02)">
-        <div style="font-size:.85rem;color:var(--status-success);font-weight:700;margin-bottom:4px">Ø§Ù„Ø­Ø§Ù„Ø§Øª Ø§Ù„Ù…Ù†ÙØ°Ø©</div>
+        <div style="font-size:.85rem;color:var(--status-success);font-weight:700;margin-bottom:4px">الحالات المنفذة</div>
         <div style="font-size:1.8rem;font-weight:900;color:var(--status-success)">${escapeHtml(done)}</div>
       </div>
       <div class="ds-content-card" style="padding:16px;border-top:3px solid var(--brand-secondary)">
@@ -6172,11 +6172,11 @@ function generateReportPreview() {
         <div style="font-size:1.8rem;font-weight:900;color:var(--text-primary)">${escapeHtml(medical)}</div>
       </div>
       <div class="ds-content-card" style="padding:16px;border-top:3px solid var(--text-muted)">
-        <div style="font-size:.85rem;color:var(--text-muted);font-weight:700;margin-bottom:8px">ØªÙˆØ²ÙŠØ¹ Ø£Ø¹Ù„Ù‰ Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø§Øª</div>
+        <div style="font-size:.85rem;color:var(--text-muted);font-weight:700;margin-bottom:8px">توزيع أعلى المحافظات</div>
         <div style="font-size:.9rem;color:var(--text-primary)">${topGov || 'Ù„Ø§ Ø¨ÙŠØ§Ù†Ø§Øª'}</div>
       </div>
       <div class="ds-content-card" style="padding:16px;border-top:3px solid #0284c7">
-        <div style="font-size:.85rem;color:var(--text-muted);font-weight:700;margin-bottom:4px">Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø¹Ù…Ù„ÙŠØ§Øª ÙƒÙØ§Ù„Ø©</div>
+        <div style="font-size:.85rem;color:var(--text-muted);font-weight:700;margin-bottom:4px">إجمالي عمليات كفالة</div>
         <div style="font-size:1.8rem;font-weight:900;color:var(--text-primary)">${escapeHtml(spons.length)}</div>
         <div style="font-size:.8rem;color:var(--text-muted);margin-top:4px">Ø¨Ø¥Ø¬Ù…Ø§Ù„ÙŠ ${escapeHtml(Math.round(sponsTotal).toLocaleString('en-US'))} Ø¬Ù†ÙŠÙ‡</div>
       </div>
@@ -6191,23 +6191,23 @@ function generateReportPreview() {
         <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-left:8px"><polyline points="20 6 9 17 4 12"></polyline></svg>
         Ù†Øµ Ø§Ù„Ø¥Ù†Ø¬Ø§Ø²Ø§Øª Ø§Ù„Ù…Ø¬Ù…Ø¹ (ÙŠÙ…ÙƒÙ† Ù†Ø³Ø®Ù‡ ÙˆØ§Ù„Ù…Ø´Ø§Ø±ÙƒØ© Ø¨Ù‡)
       </div>
-      <pre id="reportsAchievementsText" style="white-space:pre-wrap;margin:16px;padding:20px;background:#f8fafc;border:1px solid #e2eaf0;border-radius:12px;font-family:inherit;line-height:1.85;color:var(--text-primary);font-size:.95rem">${escapeHtml(achievementsText || 'Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¥Ù†Ø¬Ø§Ø²Ø§Øª Ø¯Ø§Ø®Ù„ Ø§Ù„ÙØªØ±Ø© ÙˆÙÙ‚Ø§Ù‹ Ù„Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø­Ø§Ù„ÙŠØ©.')}</pre>
+      <pre id="reportsAchievementsText" style="white-space:pre-wrap;margin:16px;padding:20px;background:#f8fafc;border:1px solid #e2eaf0;border-radius:12px;font-family:inherit;line-height:1.85;color:var(--text-primary);font-size:.95rem">${escapeHtml(achievementsText || 'لا توجد إنجازات داخل الفترة وفقاً للبيانات الحالية.')}</pre>
     </div>
     <div class="ds-section-panel" style="margin-bottom:24px">
-      <div class="ds-section-panel-title">Ø£ÙØ¶Ù„ 10 Ù…Ù†Ø§Ø·Ù‚ Ø¥Ù†Ø¬Ø§Ø²Ù‹Ø§</div>
+      <div class="ds-section-panel-title">أفضل 10 مناطق إنجازًا</div>
       <div style="margin:16px">${topAreasHtml}</div>
     </div>
     <div class="ds-section-panel" style="margin-bottom:24px">
-      <div class="ds-section-panel-title">Ø§Ù„Ø¥Ù†Ø¬Ø§Ø²Ø§Øª Ø­Ø³Ø¨ Ø§Ù„Ù…Ù†ÙÙ‘Ø°</div>
+      <div class="ds-section-panel-title">الإنجازات حسب المنفّذ</div>
       <div style="margin:16px">${byExecutorHtml}</div>
     </div>
     <div class="ds-section-panel" style="margin-bottom:24px">
-      <div class="ds-section-panel-title">ØªÙ‚Ø±ÙŠØ± Ø·Ø¨ÙŠ (Ø§Ø­ØªØ±Ø§ÙÙŠ)</div>
+      <div class="ds-section-panel-title">تقرير طبي (احترافي)</div>
       <div style="margin:16px">${medicalHtml}</div>
     </div>
     ${achievementsOnly ? '' : `
       <div class="ds-section-panel" style="margin-bottom:24px">
-        <div class="ds-section-panel-title">ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ø­Ø§Ù„Ø§Øª</div>
+        <div class="ds-section-panel-title">تفاصيل الحالات</div>
         <div style="margin:16px">${previewTable}</div>
       </div>`}
     `;
@@ -6222,9 +6222,9 @@ function renderReportsDashboard_(casesInRange, range, typeFilter, flatAssists) {
   const fmt = (n) => (Math.round((Number(n) || 0) * 100) / 100).toLocaleString('en-US');
   const needOf = (c) => Math.max(0, sumNum(c.estimatedAmount) - sumNum(c.deliveredAmount));
 
-  const rangeLabel = range?.active ? `Ø§Ù„ÙØªØ±Ø©: ${range.label}` : 'Ø§Ù„ÙØªØ±Ø©: ÙƒÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª';
+  const rangeLabel = range?.active ? `الفترة: ${range.label}` : 'الفترة: كل البيانات';
   const total = list.length;
-  const done = list.filter(c => c.status === 'Ù…Ù†ÙØ°Ø©').length;
+  const done = list.filter(c => c.status === 'منفذة').length;
   const rate = total ? `${((done / total) * 100).toFixed(1)}%` : '0%';
   const totalNeed = list.reduce((a, c) => a + needOf(c), 0);
 
@@ -6249,7 +6249,7 @@ function renderReportsDashboard_(casesInRange, range, typeFilter, flatAssists) {
   const inc = (obj, key) => { obj[key] = (obj[key] || 0) + 1; };
   const getType = (c) => {
     const cat = (c?.category || '').toString().trim();
-    if (!cat) return 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯';
+    if (!cat) return 'غير محدد';
     const parts = cat.split(',').map(s => s.trim()).filter(Boolean);
     return parts[0] || cat;
   };
@@ -6260,7 +6260,7 @@ function renderReportsDashboard_(casesInRange, range, typeFilter, flatAssists) {
     else if (gr === 'B') byGrade.B += 1;
     else if (gr === 'C') byGrade.C += 1;
     else byGrade.other += 1;
-    inc(byGov, String(c.governorate || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯').trim() || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯');
+    inc(byGov, String(c.governorate || 'غير محدد').trim() || 'غير محدد');
   });
 
   const topEntries = (obj, limit = 10) => Object.entries(obj).sort((a, b) => b[1] - a[1]).slice(0, limit);
@@ -6301,7 +6301,7 @@ function renderReportsDashboard_(casesInRange, range, typeFilter, flatAssists) {
     const values = [byGrade.A, byGrade.B, byGrade.C];
     upsert('grade', 'repChartByGrade', {
       type: 'pie',
-      data: { labels: ['A (Ø­Ø±Ø¬Ø©)', 'B (Ù…ØªÙˆØ³Ø·Ø©)', 'C (Ø£Ù‚Ù„ Ø£ÙˆÙ„ÙˆÙŠØ©)'], datasets: [{ data: values, backgroundColor: ['#dc2626', '#f59e0b', '#16a34a'] }] },
+      data: { labels: ['A (حرجة)', 'B (متوسطة)', 'C (أقل أولوية)'], datasets: [{ data: values, backgroundColor: ['#dc2626', '#f59e0b', '#16a34a'] }] },
       options: {
         plugins: {
           legend: { position: 'bottom', labels: { font: { family: 'Tajawal' } } },
@@ -6335,12 +6335,12 @@ function renderReportsDashboard_(casesInRange, range, typeFilter, flatAssists) {
 
 function buildReportsAchievementsText_(cases, range, typeFilter) {
   const list = Array.isArray(cases) ? cases : [];
-  const safeRange = range?.active ? `${range.label}` : 'ÙƒÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª';
+  const safeRange = range?.active ? `${range.label}` : 'كل البيانات';
   const lines = [];
-  lines.push(`ðŸ“Š ØªÙ‚Ø±ÙŠØ± Ø¥Ù†Ø¬Ø§Ø²Ø§Øª Ù„Ø¬Ù†Ø© Ø£Ø³Ø±Ø© ÙƒØ±ÙŠÙ…Ø©`);
-  lines.push(`ðŸ“… Ø§Ù„ÙØªØ±Ø©: ${safeRange}`);
+  lines.push(`📊 تقرير إنجازات لجنة أسرة كريمة`);
+  lines.push(`📅 الفترة: ${safeRange}`);
   if (typeFilter && typeFilter !== 'all') {
-    lines.push(`ðŸ·ï¸ Ù†ÙˆØ¹ Ø§Ù„ØªÙ‚Ø±ÙŠØ±: ${escapeHtml(getReportsTypeLabel_(typeFilter))}`);
+    lines.push(`🏷️ نوع التقرير: ${escapeHtml(getReportsTypeLabel_(typeFilter))}`);
   }
   lines.push(`--------------------------------------------------`);
   lines.push('');
@@ -6357,20 +6357,20 @@ function buildReportsAchievementsText_(cases, range, typeFilter) {
   }).length;
 
   if (totalCases || addedCases) {
-    lines.push(`ðŸ‘¥ Ù…Ù„Ø®Øµ Ø§Ù„Ø­Ø§Ù„Ø§Øª Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ:`);
+    lines.push(`👥 ملخص الحالات الإجمالي:`);
   }
   if (totalCases) {
-    lines.push(`   ðŸ”¸ Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø­Ø§Ù„Ø§Øª Ø§Ù„Ù…ØªÙØ§Ø¹Ù„Ø©: ${totalCases} Ø­Ø§Ù„Ø©${range?.active ? ' (Ø¶Ù…Ù† Ø§Ù„ÙØªØ±Ø©)' : ''}`);
+    lines.push(`   🔸 إجمالي الحالات المتفاعلة: ${totalCases} حالة${range?.active ? ' (ضمن الفترة)' : ''}`);
   }
   if (addedCases && range?.active) {
-    lines.push(`   ðŸ”¸ Ø­Ø§Ù„Ø§Øª Ø¬Ø¯ÙŠØ¯Ø© Ù…Ø³Ø¬Ù„Ø©: ${addedCases} Ø­Ø§Ù„Ø© Ù…Ø³ØªØ¬Ø¯Ø©`);
+    lines.push(`   🔸 حالات جديدة مسجلة: ${addedCases} حالة مستجدة`);
   }
 
   const assistsAll = flattenAssistanceInRange_(list, range);
   const assists = filterAssistsByReportsType_(assistsAll, typeFilter);
   if (assists.length) {
     lines.push('');
-    lines.push('ðŸ’° ØªÙØµÙŠÙ„ Ø§Ù„Ù…Ø³Ø§Ø¹Ø¯Ø§Øª ÙˆØ§Ù„ÙƒÙØ§Ù„Ø§Øª (Ø§Ù„Ù…Ù†ÙØ°Ø©):');
+    lines.push('💰 تفصيل المساعدات والكفالات (المنفذة):');
     lines.push('--------------------------------------------------');
 
     const fmtMoney = (n) => Math.round(Number(n || 0)).toLocaleString('en-US');
@@ -6378,9 +6378,9 @@ function buildReportsAchievementsText_(cases, range, typeFilter) {
     // Grouping by Governorate and Area for better hierarchy
     const govGroups = {};
     assists.forEach(x => {
-      const gov = (x?.governorate || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯').trim();
-      const area = (x?.area || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯').trim();
-      const type = (x?.type || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯').trim();
+      const gov = (x?.governorate || 'غير محدد').trim();
+      const area = (x?.area || 'غير محدد').trim();
+      const type = (x?.type || 'غير محدد').trim();
 
       govGroups[gov] = govGroups[gov] || { total: 0, areas: {} };
       govGroups[gov].total += Number(x?.amount ?? 0) || 0;
@@ -6397,19 +6397,19 @@ function buildReportsAchievementsText_(cases, range, typeFilter) {
     const sortedGovs = Object.keys(govGroups).sort((a,b) => govGroups[b].total - govGroups[a].total);
 
     sortedGovs.forEach(gov => {
-      lines.push(`\nðŸ“ Ù…Ø­Ø§ÙØ¸Ø© ${gov}`);
+      lines.push(`\n📍 محافظة ${gov}`);
 
       const sortedAreas = Object.values(govGroups[gov].areas).sort((a,b) => b.total - a.total);
       sortedAreas.forEach(g => {
-        const typeLabel = g.type === 'sponsorship' ? 'ÙƒÙØ§Ù„Ø© Ù…Ø§Ù„ÙŠØ©' : g.type;
-        const areaText = g.area && g.area !== 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯' ? g.area : 'Ù…Ù†Ø§Ø·Ù‚ Ø¹Ø§Ù…Ø©';
-        const moneyPart = g.total ? ` (Ø¨Ø¥Ø¬Ù…Ø§Ù„ÙŠ ${fmtMoney(g.total)} Ø¬Ù†ÙŠÙ‡)` : '';
+        const typeLabel = g.type === 'sponsorship' ? 'كفالة مالية' : g.type;
+        const areaText = g.area && g.area !== 'غير محدد' ? g.area : 'مناطق عامة';
+        const moneyPart = g.total ? ` (بإجمالي ${fmtMoney(g.total)} جنيه)` : '';
 
-        lines.push(`   ðŸ”¸ ${areaText}: ${g.count} Ø¹Ù…Ù„ÙŠØ© ${typeLabel}${moneyPart}`);
+        lines.push(`   🔸 ${areaText}: ${g.count} عملية ${typeLabel}${moneyPart}`);
 
         const uniq = Array.from(new Set((g.names || []).filter(Boolean)));
         if (uniq.length > 0 && uniq.length <= 15) {
-          lines.push(`      ðŸ‘¤ Ø´Ù…Ù„Øª: ${uniq.join('ØŒ ')}`);
+          lines.push(`      👤 شملت: ${uniq.join('، ')}`);
         }
       });
     });
@@ -6418,15 +6418,15 @@ function buildReportsAchievementsText_(cases, range, typeFilter) {
   // Category highlights within list
   const byCat = {};
   list.forEach(c => {
-    const cat = (c?.category || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯').toString().trim();
+    const cat = (c?.category || 'غير محدد').toString().trim();
     byCat[cat] = (byCat[cat] || 0) + 1;
   });
   const topCats = Object.entries(byCat).sort((a, b) => b[1] - a[1]).slice(0, 10);
   if (topCats.length) {
     lines.push('');
-    lines.push('ðŸ“ˆ ØªÙˆØ²ÙŠØ¹ Ø§Ù„Ø­Ø§Ù„Ø§Øª Ø§Ù„Ù…ØªÙØ§Ø¹Ù„Ø© Ø­Ø³Ø¨ Ø§Ù„ÙØ¦Ø©:');
+    lines.push('📈 توزيع الحالات المتفاعلة حسب الفئة:');
     topCats.forEach(([cat, n]) => {
-      lines.push(`- ${cat}: ${n} Ø­Ø§Ù„Ø©`);
+      lines.push(`- ${cat}: ${n} حالة`);
     });
   }
 
@@ -6435,11 +6435,11 @@ function buildReportsAchievementsText_(cases, range, typeFilter) {
 
 function getReportsTypeLabel_(t) {
   const v = (t || 'all').toString();
-  if (v === 'sponsorship') return 'ÙƒÙØ§Ù„Ø§Øª Ù…Ø§Ù„ÙŠØ©';
-  if (v === 'ramadan_bags') return 'Ø´Ù†Ø· Ø±Ù…Ø¶Ø§Ù†';
-  if (v === 'in_kind') return 'Ù…Ø³Ø§Ø¹Ø¯Ø§Øª Ø¹ÙŠÙ†ÙŠØ©';
-  if (v === 'medical') return 'Ø¹Ù…Ù„ÙŠØ§Øª Ø·Ø¨ÙŠØ©';
-  if (v === 'all') return 'Ø§Ù„ÙƒÙ„';
+  if (v === 'sponsorship') return 'كفالات مالية';
+  if (v === 'ramadan_bags') return 'شنط رمضان';
+  if (v === 'in_kind') return 'مساعدات عينية';
+  if (v === 'medical') return 'عمليات طبية';
+  if (v === 'all') return 'الكل';
   return v;
 }
 
@@ -6451,7 +6451,7 @@ function filterAssistsByReportsType_(assists, typeFilter) {
     // medical achievements are case-based, not assistance-based
     return list.filter(x => {
       const type = (x?.type || '').toString();
-      return type === 'Ø¹Ù…Ù„ÙŠØ§Øª Ø·Ø¨ÙŠØ©' || type === 'ÙƒÙØ§Ù„Ø§Øª Ù…Ø±Ø¶ÙŠØ©' || type === 'Ø±Ø¹Ø§ÙŠØ© ØµØ­ÙŠØ©';
+      return type === 'عمليات طبية' || type === 'كفالات مرضية' || type === 'رعاية صحية';
     });
   }
   return list.filter(x => (x?.type || '').toString() === t);
@@ -6470,7 +6470,7 @@ function syncReportsTypeTabsUi_() {
     { id: 'reportsTypeSponsorshipBtn', key: 'sponsorship' },
     { id: 'reportsTypeRamadanBtn', key: 'ramadan_bags' },
     { id: 'reportsTypeInKindBtn', key: 'in_kind' },
-    { id: 'reportsTypeBridesBtn', key: 'ØªØ¬Ù‡ÙŠØ² Ø¹Ø±Ø§Ø¦Ø³' },
+    { id: 'reportsTypeBridesBtn', key: 'تجهيز عرائس' },
     { id: 'reportsTypeMedicalBtn', key: 'medical' }
   ];
   all.forEach(x => {
@@ -6489,8 +6489,8 @@ function renderReportsTopAreas_(cases, range, typeFilter) {
 
   const groups = {};
   assists.forEach(x => {
-    const gov = (x?.governorate || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯').toString().trim();
-    const area = (x?.area || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯').toString().trim();
+    const gov = (x?.governorate || 'غير محدد').toString().trim();
+    const area = (x?.area || 'غير محدد').toString().trim();
     const k = `${gov}||${area}`;
     groups[k] = groups[k] || { gov, area, count: 0, total: 0 };
     groups[k].count += 1;
@@ -6510,8 +6510,8 @@ function renderReportsTopAreas_(cases, range, typeFilter) {
   return `
     <div style="overflow:auto;border:1px solid #e5e7eb;border-radius:12px;background:#fff">
       <table class="table" style="min-width:760px">
-        <thead><tr><th>#</th><th>Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©</th><th>Ø§Ù„Ù…Ù†Ø·Ù‚Ø©</th><th>Ø¹Ø¯Ø¯ Ø§Ù„Ø¹Ù…Ù„ÙŠØ§Øª</th><th>Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…Ø¨Ø§Ù„Øº</th></tr></thead>
-        <tbody>${rows || '<tr><td colspan="5" style="text-align:center">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¨ÙŠØ§Ù†Ø§Øª</td></tr>'}</tbody>
+        <thead><tr><th>#</th><th>المحافظة</th><th>المنطقة</th><th>عدد العمليات</th><th>إجمالي المبالغ</th></tr></thead>
+        <tbody>${rows || '<tr><td colspan="5" style="text-align:center">لا توجد بيانات</td></tr>'}</tbody>
       </table>
     </div>`;
 }
@@ -6524,7 +6524,7 @@ function renderReportsByExecutor_(cases, range, typeFilter) {
 
   const groups = {};
   assists.forEach(x => {
-    const by = (x?.by || x?.byName || x?.byUser || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯').toString().trim() || 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯';
+    const by = (x?.by || x?.byName || x?.byUser || 'غير محدد').toString().trim() || 'غير محدد';
     groups[by] = groups[by] || { by, count: 0, total: 0 };
     groups[by].count += 1;
     groups[by].total += Number(x?.amount ?? 0) || 0;
@@ -6541,8 +6541,8 @@ function renderReportsByExecutor_(cases, range, typeFilter) {
   return `
     <div style="overflow:auto;border:1px solid #e5e7eb;border-radius:12px;background:#fff">
       <table class="table" style="min-width:680px">
-        <thead><tr><th>#</th><th>Ø§Ù„Ù…Ù†ÙÙ‘Ø°</th><th>Ø¹Ø¯Ø¯ Ø§Ù„Ø¹Ù…Ù„ÙŠØ§Øª</th><th>Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…Ø¨Ø§Ù„Øº</th></tr></thead>
-        <tbody>${rows || '<tr><td colspan="4" style="text-align:center">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¨ÙŠØ§Ù†Ø§Øª</td></tr>'}</tbody>
+        <thead><tr><th>#</th><th>المنفّذ</th><th>عدد العمليات</th><th>إجمالي المبالغ</th></tr></thead>
+        <tbody>${rows || '<tr><td colspan="4" style="text-align:center">لا توجد بيانات</td></tr>'}</tbody>
       </table>
     </div>`;
 }
@@ -6551,10 +6551,10 @@ function renderReportsMedicalPro_(cases, range) {
   const list = Array.isArray(cases) ? cases : [];
   const medicalCases = list.filter(c => {
     const cat = (c?.category || '').toString();
-    return cat === 'Ø¹Ù…Ù„ÙŠØ§Øª Ø·Ø¨ÙŠØ©' || cat === 'ÙƒÙØ§Ù„Ø§Øª Ù…Ø±Ø¶ÙŠØ©' || (Array.isArray(c?.medicalCases) && c.medicalCases.length);
+    return cat === 'عمليات طبية' || cat === 'كفالات مرضية' || (Array.isArray(c?.medicalCases) && c.medicalCases.length);
   });
   if (!medicalCases.length) {
-    return '<div style="color:#64748b">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø­Ø§Ù„Ø§Øª Ø·Ø¨ÙŠØ© Ø¯Ø§Ø®Ù„ Ø§Ù„ÙØªØ±Ø©.</div>';
+    return '<div style="color:#64748b">لا توجد حالات طبية داخل الفترة.</div>';
   }
 
   const sumNum = (v) => Number(v ?? 0) || 0;
@@ -6604,22 +6604,22 @@ function renderReportsMedicalPro_(cases, range) {
       <table class="table" style="min-width:1200px">
         <thead>
           <tr>
-            <th>Ø±Ù‚Ù…</th>
-            <th>Ø§Ø³Ù… Ø§Ù„Ø­Ø§Ù„Ø©</th>
-            <th>Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©</th>
-            <th>Ø§Ù„Ù…Ù†Ø·Ù‚Ø©</th>
-            <th>Ø§Ù„Ù…Ø±Ø¶/Ø§Ù„Ø­Ø§Ù„Ø©</th>
-            <th>Ø§Ù„ØªØ®ØµØµ/Ø§Ù„Ø®Ø·ÙˆØ±Ø©</th>
-            <th>Ø§Ù„Ù…Ø³ØªØ´ÙÙ‰</th>
-            <th>Ø§Ù„Ø·Ø¨ÙŠØ¨</th>
-            <th>Ø§Ù„ØªÙƒÙ„ÙØ© Ø§Ù„ØªÙ‚Ø¯ÙŠØ±ÙŠØ©</th>
-            <th>Ø§Ù„Ø§Ø­ØªÙŠØ§Ø¬ Ø§Ù„Ù…ØªØ¨Ù‚ÙŠ (Ø¹Ø§Ù…)</th>
+            <th>رقم</th>
+            <th>اسم الحالة</th>
+            <th>المحافظة</th>
+            <th>المنطقة</th>
+            <th>المرض/الحالة</th>
+            <th>التخصص/الخطورة</th>
+            <th>المستشفى</th>
+            <th>الطبيب</th>
+            <th>التكلفة التقديرية</th>
+            <th>الاحتياج المتبقي (عام)</th>
           </tr>
         </thead>
         <tbody>${htmlRows || '<tr><td colspan="10" style="text-align:center">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¨ÙŠØ§Ù†Ø§Øª</td></tr>'}</tbody>
       </table>
     </div>
-    <div style="color:#64748b;font-size:.9rem;margin-top:8px">ÙŠØ¹Ø±Ø¶ ${escapeHtml(Math.min(rows.length, 250))} Ù…Ù† ${escapeHtml(rows.length)} Ø³Ø¬Ù„ Ø·Ø¨ÙŠ</div>`;
+    <div style="color:#64748b;font-size:.9rem;margin-top:8px">يعرض ${escapeHtml(Math.min(rows.length, 250))} من ${escapeHtml(rows.length)} سجل طبي</div>`;
 }
 
 function exportMedicalReportToExcel() {
@@ -6635,28 +6635,28 @@ function exportMedicalReportToExcel() {
 
   const medicalCases = list.filter(c => {
     const cat = (c?.category || '').toString();
-    return cat === 'Ø¹Ù…Ù„ÙŠØ§Øª Ø·Ø¨ÙŠØ©' || cat === 'ÙƒÙØ§Ù„Ø§Øª Ù…Ø±Ø¶ÙŠØ©' || (Array.isArray(c?.medicalCases) && c.medicalCases.length);
+    return cat === 'عمليات طبية' || cat === 'كفالات مرضية' || (Array.isArray(c?.medicalCases) && c.medicalCases.length);
   });
-  if (!medicalCases.length) { alert('Ù„Ø§ ØªÙˆØ¬Ø¯ Ø­Ø§Ù„Ø§Øª Ø·Ø¨ÙŠØ© Ù„Ù„ØªØµØ¯ÙŠØ± Ø¯Ø§Ø®Ù„ Ø§Ù„ÙØªØ±Ø©'); return; }
+  if (!medicalCases.length) { alert('لا توجد حالات طبية للتصدير داخل الفترة'); return; }
 
   const sumNum = (v) => Number(v ?? 0) || 0;
   const needOf = (c) => Math.max(0, sumNum(c.estimatedAmount) - sumNum(c.deliveredAmount));
 
   const headers = [
-    'Ø±Ù‚Ù… Ø§Ù„Ø­Ø§Ù„Ø©',
-    'Ø§Ø³Ù… Ø§Ù„Ø­Ø§Ù„Ø©',
-    'Ø§Ù„Ø±Ù‚Ù… Ø§Ù„Ù‚ÙˆÙ…ÙŠ',
-    'Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©',
-    'Ø§Ù„Ù…Ù†Ø·Ù‚Ø©',
-    'Ø§Ù„ÙØ¦Ø©',
-    'ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¨Ø­Ø«',
-    'Ø§Ù„Ù…Ø±Ø¶/Ø§Ù„Ø­Ø§Ù„Ø©',
-    'Ø§Ù„ØªØ®ØµØµ/Ø§Ù„Ø®Ø·ÙˆØ±Ø©',
-    'Ø§Ù„Ù…Ø³ØªØ´ÙÙ‰',
-    'Ø§Ù„Ø·Ø¨ÙŠØ¨',
-    'Ø§Ù„ØªÙ‚Ø±ÙŠØ±',
-    'Ø§Ù„ØªÙƒÙ„ÙØ© Ø§Ù„ØªÙ‚Ø¯ÙŠØ±ÙŠØ©',
-    'Ø§Ù„Ø§Ø­ØªÙŠØ§Ø¬ Ø§Ù„Ù…ØªØ¨Ù‚ÙŠ (Ø¹Ø§Ù…)'
+    'رقم الحالة',
+    'اسم الحالة',
+    'الرقم القومي',
+    'المحافظة',
+    'المنطقة',
+    'الفئة',
+    'تاريخ البحث',
+    'المرض/الحالة',
+    'التخصص/الخطورة',
+    'المستشفى',
+    'الطبيب',
+    'التقرير',
+    'التكلفة التقديرية',
+    'الاحتياج المتبقي (عام)'
   ];
   const rows = [headers];
 
@@ -6692,9 +6692,9 @@ function exportMedicalReportToExcel() {
     wb.Workbook = wb.Workbook || {};
     wb.Workbook.Views = [{ RTL: true }];
     window.XLSX.writeFile(wb, fname);
-    try { logAction('ØªØµØ¯ÙŠØ± ØªÙ‚Ø±ÙŠØ± Ø·Ø¨ÙŠ Excel', '', `range: ${range.label} | rows: ${rows.length - 1}`); } catch { }
+    try { logAction('تصدير تقرير طبي Excel', '', `range: ${range.label} | rows: ${rows.length - 1}`); } catch { }
   } catch {
-    alert('ØªØ¹Ø°Ø± ØªØµØ¯ÙŠØ± ØªÙ‚Ø±ÙŠØ± Ø·Ø¨ÙŠ (XLSX ØºÙŠØ± Ù…ØªØ§Ø­)');
+    alert('تعذر تصدير تقرير طبي (XLSX غير متاح)');
   }
 }
 
@@ -6704,22 +6704,22 @@ function copyReportsTemplate(kind) {
     const pre = document.getElementById('reportsAchievementsText');
     const raw = (pre?.textContent || '').toString().trim();
     const t = (AppState._reportsTypeFilter || 'all').toString();
-    const title = range?.active ? `ØªÙ‚Ø±ÙŠØ± Ø§Ù„Ø¥Ù†Ø¬Ø§Ø²Ø§Øª (${range.label})` : 'ØªÙ‚Ø±ÙŠØ± Ø§Ù„Ø¥Ù†Ø¬Ø§Ø²Ø§Øª';
-    const typeLine = t && t !== 'all' ? `\nÙ†ÙˆØ¹ Ø§Ù„ØªÙ‚Ø±ÙŠØ±: ${getReportsTypeLabel_(t)}\n` : '\n';
+    const title = range?.active ? `تقرير الإنجازات (${range.label})` : 'تقرير الإنجازات';
+    const typeLine = t && t !== 'all' ? `\nنوع التقرير: ${getReportsTypeLabel_(t)}\n` : '\n';
 
     let out = '';
     if ((kind || '').toString() === 'whatsapp') {
       out = `${title}${typeLine}${raw}`;
     } else if ((kind || '').toString() === 'facebook') {
-      out = `${title}\n${range?.active ? `Ø§Ù„ÙØªØ±Ø©: ${range.label}\n` : ''}${t !== 'all' ? `Ù†ÙˆØ¹ Ø§Ù„ØªÙ‚Ø±ÙŠØ±: ${getReportsTypeLabel_(t)}\n` : ''}\n${raw}\n\n#Ø®ÙˆØ§Ø·Ø±_Ø£Ø­Ù„Ù‰_Ø´Ø¨Ø§Ø¨`;
+      out = `${title}\n${range?.active ? `الفترة: ${range.label}\n` : ''}${t !== 'all' ? `نوع التقرير: ${getReportsTypeLabel_(t)}\n` : ''}\n${raw}\n\n#خواطر_أحلى_شباب`;
     } else {
-      out = `Ø®Ø·Ø§Ø¨ Ø±Ø³Ù…ÙŠ\n${title}\n${range?.active ? `Ø§Ù„ÙØªØ±Ø©: ${range.label}\n` : ''}${t !== 'all' ? `Ù†ÙˆØ¹ Ø§Ù„ØªÙ‚Ø±ÙŠØ±: ${getReportsTypeLabel_(t)}\n` : ''}\n${raw}\n`;
+      out = `خطاب رسمي\n${title}\n${range?.active ? `الفترة: ${range.label}\n` : ''}${t !== 'all' ? `نوع التقرير: ${getReportsTypeLabel_(t)}\n` : ''}\n${raw}\n`;
     }
     void (async () => {
       try {
         if (navigator.clipboard?.writeText) {
           await navigator.clipboard.writeText(out);
-          alert('ØªÙ… Ù†Ø³Ø® Ø§Ù„Ù‚Ø§Ù„Ø¨');
+          alert('تم نسخ القالب');
           return;
         }
       } catch { }
@@ -6730,13 +6730,13 @@ function copyReportsTemplate(kind) {
         ta.select();
         document.execCommand('copy');
         ta.remove();
-        alert('ØªÙ… Ù†Ø³Ø® Ø§Ù„Ù‚Ø§Ù„Ø¨');
+        alert('تم نسخ القالب');
       } catch {
-        alert('ØªØ¹Ø°Ø± Ø§Ù„Ù†Ø³Ø®');
+        alert('تعذر النسخ');
       }
     })();
   } catch {
-    alert('ØªØ¹Ø°Ø± ØªØ¬Ù‡ÙŠØ² Ø§Ù„Ù‚Ø§Ù„Ø¨');
+    alert('تعذر تجهيز القالب');
   }
 }
 
@@ -6744,10 +6744,10 @@ async function copyReportsAchievementsText() {
   try {
     const pre = document.getElementById('reportsAchievementsText');
     const txt = (pre?.textContent || '').toString();
-    if (!txt.trim()) { alert('Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ù†Øµ Ù„Ù†Ø³Ø®Ù‡'); return; }
+    if (!txt.trim()) { alert('لا يوجد نص لنسخه'); return; }
     if (navigator.clipboard?.writeText) {
       await navigator.clipboard.writeText(txt);
-      alert('ØªÙ… Ù†Ø³Ø® Ù†Øµ Ø§Ù„Ø¥Ù†Ø¬Ø§Ø²Ø§Øª');
+      alert('تم نسخ نص الإنجازات');
       return;
     }
   } catch { }
@@ -6761,9 +6761,9 @@ async function copyReportsAchievementsText() {
     ta.select();
     document.execCommand('copy');
     ta.remove();
-    alert('ØªÙ… Ù†Ø³Ø® Ù†Øµ Ø§Ù„Ø¥Ù†Ø¬Ø§Ø²Ø§Øª');
+    alert('تم نسخ نص الإنجازات');
   } catch {
-    alert('ØªØ¹Ø°Ø± Ø§Ù„Ù†Ø³Ø®');
+    alert('تعذر النسخ');
   }
 }
 
@@ -6855,7 +6855,7 @@ function renderReportsCasesTable_(list, needOf) {
     const grade = (c?.caseGrade || '').toString();
     const d = (c?.date || '').toString();
     const need = needOf ? needOf(c) : '';
-    const btn = `<button class=\"btn mini\" type=\"button\" onclick=\"openCaseDetails('${escapeHtml(nid)}')\">Ø¹Ø±Ø¶</button>`;
+    const btn = `<button class=\"btn mini\" type=\"button\" onclick=\"openCaseDetails('${escapeHtml(nid)}')\">عرض</button>`;
     return `
       <tr>
         <td>${escapeHtml(c?.caseNo ?? '')}</td>
@@ -6878,17 +6878,17 @@ function renderReportsCasesTable_(list, needOf) {
       <table class="table" style="min-width:1100px">
         <thead>
           <tr>
-            <th>Ø±Ù‚Ù…</th>
-            <th>Ø§Ø³Ù… Ø§Ù„Ø­Ø§Ù„Ø©</th>
-            <th>Ø§Ù„Ø±Ù‚Ù… Ø§Ù„Ù‚ÙˆÙ…ÙŠ</th>
-            <th>Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©</th>
-            <th>Ø§Ù„Ù…Ù†Ø·Ù‚Ø©</th>
-            <th>Ø§Ù„ÙØ¦Ø©</th>
-            <th>Ø§Ù„Ø­Ø§Ù„Ø©</th>
-            <th>Ø§Ù„Ø§Ø³ØªØ¹Ø¬Ø§Ù„</th>
-            <th>Ø§Ù„ØªÙ‚ÙŠÙŠÙ…</th>
-            <th>ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¨Ø­Ø«</th>
-            <th>Ø§Ù„Ø§Ø­ØªÙŠØ§Ø¬</th>
+            <th>رقم</th>
+            <th>اسم الحالة</th>
+            <th>الرقم القومي</th>
+            <th>المحافظة</th>
+            <th>المنطقة</th>
+            <th>الفئة</th>
+            <th>الحالة</th>
+            <th>الاستعجال</th>
+            <th>التقييم</th>
+            <th>تاريخ البحث</th>
+            <th>الاحتياج</th>
             <th></th>
           </tr>
         </thead>
@@ -6897,7 +6897,7 @@ function renderReportsCasesTable_(list, needOf) {
         </tbody>
       </table>
     </div>
-    <div style="color:#64748b;font-size:.9rem;margin-top:8px">ÙŠØ¹Ø±Ø¶ ${escapeHtml(top.length)} Ù…Ù† ${escapeHtml(rows.length)} Ø­Ø§Ù„Ø© (Ø§Ù„Ø£Ø­Ø¯Ø« Ø£ÙˆÙ„Ø§Ù‹)</div>`;
+    <div style="color:#64748b;font-size:.9rem;margin-top:8px">يعرض ${escapeHtml(top.length)} من ${escapeHtml(rows.length)} حالة (الأحدث أولاً)</div>`;
 }
 
 function updateReportsRangeHint_(range, total) {
@@ -6905,9 +6905,9 @@ function updateReportsRangeHint_(range, total) {
   if (!el) return;
   el.style.display = 'block';
   if (range?.active) {
-    el.textContent = `ÙŠØ¹Ø±Ø¶ Ø§Ù„Ù†ØªØ§Ø¦Ø¬ Ø­Ø³Ø¨ Ø§Ù„ÙØªØ±Ø©: ${range.label} | Ø¹Ø¯Ø¯ Ø§Ù„Ø­Ø§Ù„Ø§Øª: ${total}`;
+    el.textContent = `يعرض النتائج حسب الفترة: ${range.label} | عدد الحالات: ${total}`;
   } else {
-    el.textContent = `ÙŠØ¹Ø±Ø¶ ÙƒÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª | Ø¹Ø¯Ø¯ Ø§Ù„Ø­Ø§Ù„Ø§Øª: ${total}`;
+    el.textContent = `يعرض كل البيانات | عدد الحالات: ${total}`;
   }
 }
 
@@ -6921,16 +6921,16 @@ function exportReportsRangeToExcel() {
     if (range.to && dv > range.to) return false;
     return true;
   }) : cases.slice();
-  if (!list.length) { alert('Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¨ÙŠØ§Ù†Ø§Øª Ù„Ù„ØªØµØ¯ÙŠØ± Ø­Ø³Ø¨ Ø§Ù„ÙØªØ±Ø©'); return; }
+  if (!list.length) { alert('لا توجد بيانات للتصدير حسب الفترة'); return; }
 
   const sumNum = (v) => Number(v ?? 0) || 0;
   const needOf = (c) => Math.max(0, sumNum(c.estimatedAmount) - sumNum(c.deliveredAmount));
 
   const casesHeaders = [
-    'Ø±Ù‚Ù… Ø§Ù„Ø­Ø§Ù„Ø©', 'Ø§Ø³Ù… Ø§Ù„Ø­Ø§Ù„Ø©', 'Ø§Ù„Ø±Ù‚Ù… Ø§Ù„Ù‚ÙˆÙ…ÙŠ', 'Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©', 'Ø§Ù„Ù…Ù†Ø·Ù‚Ø©', 'Ø§Ù„ÙØ¦Ø©', 'Ø§Ù„Ø­Ø§Ù„Ø©', 'Ø§Ù„Ø§Ø³ØªØ¹Ø¬Ø§Ù„', 'Ø§Ù„ØªÙ‚ÙŠÙŠÙ…', 'ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¨Ø­Ø«',
-    'Ù…Ø¨Ù„Øº ØªÙ‚Ø¯ÙŠØ±ÙŠ', 'Ù…Ø¨Ù„Øº Ù…Ù†ÙØ°', 'Ø§Ù„Ø§Ø­ØªÙŠØ§Ø¬',
-    'Ø¹Ø¯Ø¯ Ø§Ù„ÙƒÙØ§Ù„Ø§Øª Ø§Ù„Ù…Ø³Ø¬Ù„Ø©', 'Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„ÙƒÙØ§Ù„Ø§Øª Ø§Ù„Ù…Ø³Ø¬Ù„Ø©', 'ØªØ§Ø±ÙŠØ® Ø¢Ø®Ø± ÙƒÙØ§Ù„Ø©',
-    'Ø¹Ø¯Ø¯ Ø§Ù„Ù…Ø³Ø§Ø¹Ø¯Ø§Øª (ØºÙŠØ± Ø§Ù„ÙƒÙØ§Ù„Ø©)', 'Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…Ø³Ø§Ø¹Ø¯Ø§Øª (ØºÙŠØ± Ø§Ù„ÙƒÙØ§Ù„Ø©)'
+    'رقم الحالة', 'اسم الحالة', 'الرقم القومي', 'المحافظة', 'المنطقة', 'الفئة', 'الحالة', 'الاستعجال', 'التقييم', 'تاريخ البحث',
+    'مبلغ تقديري', 'مبلغ منفذ', 'الاحتياج',
+    'عدد الكفالات المسجلة', 'إجمالي الكفالات المسجلة', 'تاريخ آخر كفالة',
+    'عدد المساعدات (غير الكفالة)', 'إجمالي المساعدات (غير الكفالة)'
   ];
   const casesRows = [casesHeaders];
   list.forEach(c => {
@@ -6965,7 +6965,7 @@ function exportReportsRangeToExcel() {
   });
 
   const assists = flattenAssistanceInRange_(list, range);
-  const assistsHeaders = ['Ø±Ù‚Ù… Ø§Ù„Ø­Ø§Ù„Ø©', 'Ø§Ù„Ø±Ù‚Ù… Ø§Ù„Ù‚ÙˆÙ…ÙŠ', 'Ø§Ø³Ù… Ø§Ù„Ø­Ø§Ù„Ø©', 'Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©', 'Ø§Ù„Ù…Ù†Ø·Ù‚Ø©', 'Ø§Ù„Ù†ÙˆØ¹', 'Ø§Ù„ØªØ§Ø±ÙŠØ®', 'Ø§Ù„Ù…Ø¨Ù„Øº', 'Ø¨ÙˆØ§Ø³Ø·Ø©', 'Ù…Ù„Ø§Ø­Ø¸Ø§Øª'];
+  const assistsHeaders = ['رقم الحالة', 'الرقم القومي', 'اسم الحالة', 'المحافظة', 'المنطقة', 'النوع', 'التاريخ', 'المبلغ', 'بواسطة', 'ملاحظات'];
   const assistsRows = [assistsHeaders];
   assists.forEach(x => {
     assistsRows.push([
@@ -6995,18 +6995,18 @@ function exportReportsRangeToExcel() {
     wb.Workbook = wb.Workbook || {};
     wb.Workbook.Views = [{ RTL: true }];
     window.XLSX.writeFile(wb, fname);
-    try { logAction('ØªØµØ¯ÙŠØ± ØªÙ‚Ø±ÙŠØ± Excel', '', `range: ${range.label} | cases: ${list.length} | assists: ${assists.length}`); } catch { }
+    try { logAction('تصدير تقرير Excel', '', `range: ${range.label} | cases: ${list.length} | assists: ${assists.length}`); } catch { }
     return;
   } catch {
-    alert('ØªØ¹Ø°Ø± ØªØµØ¯ÙŠØ± Excel (XLSX ØºÙŠØ± Ù…ØªØ§Ø­)');
+    alert('تعذر تصدير Excel (XLSX غير متاح)');
   }
 }
 
 function captureReportsScreenshot() {
   try {
     const wrap = document.getElementById('reportPreview');
-    if (!wrap) { alert('ØªØ¹Ø°Ø± Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ù…Ø­ØªÙˆÙ‰ Ø§Ù„ØªÙ‚Ø±ÙŠØ±'); return; }
-    if (!window.html2canvas) { alert('ØªØ¹Ø°Ø± Ø¥Ù†Ø´Ø§Ø¡ Ù„Ù‚Ø·Ø© Ø´Ø§Ø´Ø© (html2canvas ØºÙŠØ± Ù…Ø­Ù…Ù‘Ù„).'); return; }
+    if (!wrap) { alert('تعذر العثور على محتوى التقرير'); return; }
+    if (!window.html2canvas) { alert('تعذر إنشاء لقطة شاشة (html2canvas غير محمّل).'); return; }
 
     const temp = document.createElement('div');
     temp.style.position = 'fixed';
@@ -7025,22 +7025,22 @@ function captureReportsScreenshot() {
       a.download = `report-${new Date().toISOString().slice(0, 10)}.png`;
       a.click();
       try { temp.remove(); } catch { }
-      try { logAction('Ù„Ù‚Ø·Ø© Ø´Ø§Ø´Ø© Ù„Ù„ØªÙ‚Ø±ÙŠØ±', '', ''); } catch { }
+      try { logAction('لقطة شاشة للتقرير', '', ''); } catch { }
     }).catch(() => {
       try { temp.remove(); } catch { }
-      alert('ØªØ¹Ø°Ø± Ø¥Ù†Ø´Ø§Ø¡ Ù„Ù‚Ø·Ø© Ø´Ø§Ø´Ø©');
+      alert('تعذر إنشاء لقطة شاشة');
     });
   } catch {
-    alert('ØªØ¹Ø°Ø± Ø¥Ù†Ø´Ø§Ø¡ Ù„Ù‚Ø·Ø© Ø´Ø§Ø´Ø©');
+    alert('تعذر إنشاء لقطة شاشة');
   }
 }
 
 function exportReportsToWord() {
   try {
     const host = document.getElementById('reportPreview');
-    if (!host) { alert('ØªØ¹Ø°Ø± Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ù…Ø­ØªÙˆÙ‰ Ø§Ù„ØªÙ‚Ø±ÙŠØ±'); return; }
+    if (!host) { alert('تعذر العثور على محتوى التقرير'); return; }
     const range = getReportsRange_();
-    const title = range?.active ? `ØªÙ‚Ø±ÙŠØ± Ø§Ù„ÙØªØ±Ø©: ${range.label}` : 'ØªÙ‚Ø±ÙŠØ± Ø´Ø§Ù…Ù„';
+    const title = range?.active ? `تقرير الفترة: ${range.label}` : 'تقرير شامل';
     const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${escapeHtml(title)}</title></head><body><h2>${escapeHtml(title)}</h2>${host.innerHTML}</body></html>`;
     const blob = new Blob([html], { type: 'application/msword;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -7049,13 +7049,13 @@ function exportReportsToWord() {
     a.download = `report-${new Date().toISOString().slice(0, 10)}.doc`;
     a.click();
     URL.revokeObjectURL(url);
-    try { logAction('ØªØµØ¯ÙŠØ± ØªÙ‚Ø±ÙŠØ± Word', '', `range: ${range.label}`); } catch { }
+    try { logAction('تصدير تقرير Word', '', `range: ${range.label}`); } catch { }
   } catch {
-    alert('ØªØ¹Ø°Ø± ØªØµØ¯ÙŠØ± Word');
+    alert('تعذر تصدير Word');
   }
 }
 function exportToCSV() {
-  const headers = ['Ø±Ù‚Ù… Ø§Ù„Ø­Ø§Ù„Ø©', 'Ø§Ù„Ø±Ù‚Ù… Ø§Ù„Ù‚ÙˆÙ…ÙŠ', 'Ø§Ø³Ù… Ø±Ø¨ Ø§Ù„Ø£Ø³Ø±Ø©', 'Ø§Ù„Ù‡Ø§ØªÙ', 'Ø§Ù„Ø¹Ù†ÙˆØ§Ù†', 'Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©', 'Ø§Ù„Ù…Ù†Ø·Ù‚Ø©', 'Ø¹Ø¯Ø¯ Ø§Ù„Ø£ÙØ±Ø§Ø¯', 'Ø§Ù„ÙØ¦Ø©', 'Ø§Ù„Ø§Ø³ØªØ¹Ø¬Ø§Ù„', 'Ø§Ù„ÙˆØµÙ', 'Ø§Ù„Ù…Ø³ØªÙƒØ´Ù', 'Ø§Ù„ØªØ§Ø±ÙŠØ®', 'Ø­Ø§Ù„Ø© Ø§Ù„Ø·Ù„Ø¨', 'Ø¹Ù…Ù„ Ø§Ù„Ø£Ø¨', 'Ø¹Ù…Ù„ Ø§Ù„Ø£Ù…', 'Ø§Ù„Ù…Ø±Ø¶ÙŠ', 'Ø§Ø­ØªÙŠØ§Ø¬Ø§ØªÙ‡Ù… (Ù…Ø®ØªØµØ±)', 'Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø¯Ø®Ù„', 'Ø§Ù„Ù…Ø³ØªØ´ÙÙ‰', 'Ø§Ù„Ø·Ø¨ÙŠØ¨', 'Ø§Ù„ØªÙ‚Ø±ÙŠØ± Ø§Ù„Ø·Ø¨ÙŠ', 'Ø§Ù„ØªÙƒÙ„ÙØ© Ø§Ù„Ø·Ø¨ÙŠØ© Ø§Ù„ØªÙ‚Ø¯ÙŠØ±ÙŠØ©', 'Ù…Ø¨Ù„Øº ØªÙ‚Ø¯ÙŠØ±ÙŠ', 'Ù…Ø¨Ù„Øº Ù…Ù†ÙØ°', 'Ù…ØµØ¯Ø± Ø§Ù„ØªÙ…ÙˆÙŠÙ„', 'ÙˆØ³ÙˆÙ…', 'Ø§Ù„Ø­Ø§Ù„Ø§Øª Ø§Ù„Ø·Ø¨ÙŠØ©'];
+  const headers = ['رقم الحالة', 'الرقم القومي', 'اسم رب الأسرة', 'الهاتف', 'العنوان', 'المحافظة', 'المنطقة', 'عدد الأفراد', 'الفئة', 'الاستعجال', 'الوصف', 'المستكشف', 'التاريخ', 'حالة الطلب', 'عمل الأب', 'عمل الأم', 'المرضي', 'احتياجاتهم (مختصر)', 'إجمالي الدخل', 'المستشفى', 'الطبيب', 'التقرير الطبي', 'التكلفة الطبية التقديرية', 'مبلغ تقديري', 'مبلغ منفذ', 'مصدر التمويل', 'وسوم', 'الحالات الطبية'];
   let csv = headers.join(',') + '\n';
   AppState.cases.forEach(c => {
     const jobs = (c.jobs && typeof c.jobs === 'object') ? c.jobs : {};
@@ -7075,13 +7075,13 @@ function exportToCSV() {
   logAction('ØªØµØ¯ÙŠØ± CSV', '', `Ø¹Ø¯Ø¯ Ø§Ù„Ø­Ø§Ù„Ø§Øª: ${AppState.cases.length}`);
 }
 
-// Ù†Ø§ÙØ°Ø© ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ø­Ø§Ù„Ø© (Ø¹Ø±Ø¶/ØªØ¹Ø¯ÙŠÙ„)
+// نافذة تفاصيل الحالة (عرض/تعديل)
 function openCaseDetails(id, mode) {
   const it = AppState.cases.find(c => c.id === id); if (!it) return;
   AppState.currentCaseId = id;
   const body = document.getElementById('caseDetailsBody');
   if (!body) {
-    alert('ØªØ¹Ø°Ø± ÙØªØ­ Ø§Ù„ØªÙØ§ØµÙŠÙ„: Ø¹Ù†ØµØ± caseDetailsBody ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯ ÙÙŠ Ø§Ù„ØµÙØ­Ø©');
+    alert('تعذر فتح التفاصيل: عنصر caseDetailsBody غير موجود في الصفحة');
     return;
   }
   const canEdit = hasPerm('cases_edit');
@@ -7114,7 +7114,7 @@ function openCaseDetails(id, mode) {
 
   const viewBox = (title, val, opt) => {
     const v = (val ?? '').toString().trim();
-    const safe = escapeHtml(v || 'â€”');
+    const safe = escapeHtml(v || '—');
     const missing = !!(opt && opt.missing);
     const border = missing ? '#fecaca' : '#eef2f7';
     const bg = missing ? '#fff7f7' : '#fff';
@@ -7137,41 +7137,41 @@ function openCaseDetails(id, mode) {
       urgency: it.urgency || ''
     };
 
-    const isDefaultMissing = (v) => (v ?? '').toString().trim() === 'ØºÙŠØ± Ù…Ø­Ø¯Ø¯';
+    const isDefaultMissing = (v) => (v ?? '').toString().trim() === 'غير محدد';
     const coreIdentity = `<div style="grid-column:1/-1">${viewSection('Ø¨ÙŠØ§Ù†Ø§Øª Ø£Ø³Ø§Ø³ÙŠØ©', [
       viewBox('Ø±Ù‚Ù… Ø§Ù„Ø­Ø§Ù„Ø©', it.caseNo ?? ''),
       viewBox('Ø§Ø³Ù… Ø§Ù„Ø­Ø§Ù„Ø©', it.familyHead || ''),
       viewBox('Ø§Ù„Ø±Ù‚Ù… Ø§Ù„Ù‚ÙˆÙ…ÙŠ', it.id || ''),
       viewBox('Ø§Ù„Ø­Ø§Ù„Ø© Ø§Ù„Ø§Ø¬ØªÙ…Ø§Ø¹ÙŠØ©', it.maritalStatus || ''),
-      viewBox('Ø¹Ø¯Ø¯ Ø£ÙØ±Ø§Ø¯ Ø§Ù„Ø£Ø³Ø±Ø©', it.familyCount || ''),
-      viewBox('Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©', it.governorate || '', { missing: isDefaultMissing(it.governorate) }),
+      viewBox('عدد أفراد الأسرة', it.familyCount || ''),
+      viewBox('المحافظة', it.governorate || '', { missing: isDefaultMissing(it.governorate) }),
       viewBox('Ø§Ù„Ù‚Ø±ÙŠØ©', it.area || '', { missing: isDefaultMissing(it.area) }),
       viewBox('Ø§Ø³Ù… Ø§Ù„Ø¨Ø§Ø­Ø«', it.explorerName || '', { missing: isDefaultMissing(it.explorerName) }),
       viewBox('ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¨Ø­Ø«', it.date || '', { missing: isDefaultMissing(it.date) }),
       viewBox('ØªÙ‚ÙŠÙŠÙ… Ø§Ù„Ø­Ø§Ù„Ø©', normalizeCaseGrade_(it.caseGrade || ''))
     ].join(''))}</div>`;
 
-    const adminClassify = `<div style="grid-column:1/-1">${viewSection('Ø§Ù„ØªØµÙ†ÙŠÙ Ø§Ù„Ø¥Ø¯Ø§Ø±ÙŠ', [
+    const adminClassify = `<div style="grid-column:1/-1">${viewSection('التصنيف الإداري', [
       viewBox('Ù†ÙˆØ¹ Ø§Ù„Ø­Ø§Ù„Ø©', it.category || ''),
       //viewBox('Ø£ÙˆÙ„ÙˆÙŠØ© Ø§Ù„Ø­Ø§Ù„Ø©', it.urgency || ''),
       //viewBox('Ø­Ø§Ù„Ø© Ø§Ù„Ø·Ù„Ø¨', it.status || '')
     ].join(''))}</div>`;
 
-    const incomeExpensesHtml = `<div style="grid-column:1/-1">${viewSection('Ø§Ù„Ø¯Ø®Ù„ ÙˆØ§Ù„Ù…ØµØ±ÙˆÙØ§Øª', [
+    const incomeExpensesHtml = `<div style="grid-column:1/-1">${viewSection('الدخل والمصروفات', [
       viewBox('Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø¯Ø®Ù„', income.total ?? ''),
       viewBox('Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ø§Ù„Ø¯Ø®Ù„', income.notes || ''),
-      viewBox('Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…ØµØ±ÙˆÙØ§Øª', expenses.total ?? ''),
-      viewBox('Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ø§Ù„Ù…ØµØ±ÙˆÙØ§Øª', expenses.notes || ''),
-      viewBox('ØµØ§ÙÙŠ Ø´Ù‡Ø±ÙŠ', it.netMonthly ?? '')
+      viewBox('إجمالي المصروفات', expenses.total ?? ''),
+      viewBox('ملاحظات المصروفات', expenses.notes || ''),
+      viewBox('صافي شهري', it.netMonthly ?? '')
     ].join(''))}</div>`;
 
     const housingHtml = `<div style="grid-column:1/-1">${viewSection('Ø§Ù„Ø³ÙƒÙ†', [
-      viewBox('Ø¹Ø¯Ø¯ Ø§Ù„ØºØ±Ù', housing.roomsCount ?? ''),
-      viewBox('Ù†ÙˆØ¹ Ø§Ù„Ø³Ù‚Ù', housing.roofExists || ''),
+      viewBox('عدد الغرف', housing.roomsCount ?? ''),
+      viewBox('نوع السقف', housing.roofExists || ''),
       viewBox('Ù…ÙŠØ§Ù‡', housing.waterExists || ''),
       viewBox('Ø­Ù…Ø§Ù…', housing.bathroomType || ''),
       viewBox('Ù†ÙˆØ¹ Ø§Ù„Ù…Ù†Ø·Ù‚Ø©', housing.areaType || ''),
-      viewBox('ÙˆØµÙ Ø§Ù„Ø³ÙƒÙ†', housing.housingDesc || '')
+      viewBox('وصف السكن', housing.housingDesc || '')
     ].join(''))}</div>`;
 
     const hasDebts = !!debts.enabled || !!(debts.amount ?? '') || !!(debts.owner || '').toString().trim() || !!(debts.reason || '').toString().trim() || !!(debts.hasCourtOrder || '').toString().trim();
@@ -7189,15 +7189,15 @@ function openCaseDetails(id, mode) {
         `Ø§Ù„Ø§Ø³Ù…: ${m?.name || ''}`,
         `Ù†ÙˆØ¹ Ø§Ù„Ù…Ø±Ø¶: ${m?.diseaseType || ''}`,
         `Ø¯Ø±Ø¬Ø© Ø§Ù„Ø®Ø·ÙˆØ±Ø©: ${m?.specialty || ''}`,
-        `Ø§Ù„ØªÙƒÙ„ÙØ© Ø§Ù„ØªÙ‚Ø¯ÙŠØ±ÙŠØ©: ${m?.estimatedCost || ''}`,
+        `التكلفة التقديرية: ${m?.estimatedCost || ''}`,
         `Ø§Ù„Ù…Ø·Ù„ÙˆØ¨: ${m?.required || ''}`,
-        `Ø§Ù„Ù…Ø³ØªØ´ÙÙ‰: ${m?.hospital || ''}`
+        `المستشفى: ${m?.hospital || ''}`
       ].filter(Boolean).join('\n'))).join('')
       : viewBox('Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¨ÙŠØ§Ù†Ø§Øª Ø·Ø¨ÙŠØ©', 'â€”'))}</div>`;
 
     const needsHtml = `<div style="grid-column:1/-1">${viewSection('Ø§Ù„Ø§Ø­ØªÙŠØ§Ø¬Ø§Øª', [
-      viewBox('Ø§Ø­ØªÙŠØ§Ø¬Ø§Øª Ù…ØµÙ†ÙØ©', it.category || ''),
-      viewBox('ÙˆØµÙ Ø§Ø­ØªÙŠØ§Ø¬Ø§Øª Ø¥Ø¶Ø§ÙÙŠ', [it.needsShort || '', it.familyNeeds || ''].filter(Boolean).join('\n'))
+      viewBox('احتياجات مصنفة', it.category || ''),
+      viewBox('وصف احتياجات إضافي', [it.needsShort || '', it.familyNeeds || ''].filter(Boolean).join('\n'))
     ].join(''))}</div>`;
 
     const reportHtml = `<div style="grid-column:1/-1">${viewSection('ØªÙ‚Ø±ÙŠØ± Ø§Ù„Ø¨Ø§Ø­Ø«', [
@@ -7209,7 +7209,7 @@ function openCaseDetails(id, mode) {
 
     const imp = importInfo;
     const importSection = (imp && (imp.sourceFileName || '').toString().trim()) ? `<div style="grid-column:1/-1">${viewSection('Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø§Ø³ØªÙŠØ±Ø§Ø¯', [
-      viewBox('Ø§Ø³Ù… Ø§Ù„Ù…Ù„Ù', imp.sourceFileName || '')
+      viewBox('اسم الملف', imp.sourceFileName || '')
     ].join(''))}</div>` : '';
 
     const detailsHtml = `
@@ -7281,7 +7281,7 @@ function openCaseDetails(id, mode) {
     <div class="form-group" style="grid-column:1/-1">
       <label class="label">Ø§Ù„Ø¯ÙŠÙˆÙ†</label>
       <div class="grid cols-3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
-        <div class="form-group"><label class="label">Ù‡Ù„ ØªÙˆØ¬Ø¯ Ø¯ÙŠÙˆÙ†ØŸ</label><input id="d_debtsEnabled" class="control compact" value="${debts.enabled ? 'Ù†Ø¹Ù…' : 'Ù„Ø§'}" ${disAttr} style="max-width:140px"></div>
+        <div class="form-group"><label class="label">Ù‡Ù„ ØªÙˆØ¬Ø¯ Ø¯ÙŠÙˆÙ†ØŸ</label><input id="d_debtsEnabled" class="control compact" value="${debts.enabled ? 'نعم' : 'لا'}" ${disAttr} style="max-width:140px"></div>
         <div class="form-group"><label class="label">Ù‚ÙŠÙ…Ø© Ø§Ù„Ø¯ÙŠÙ†</label><input id="d_debtAmount" type="number" class="control compact" value="${debts.amount ?? ''}" ${disAttr} style="max-width:140px"></div>
         <div class="form-group"><label class="label">ØµØ§Ø­Ø¨ Ø§Ù„Ø¯ÙŠÙ†</label><input id="d_debtOwner" class="control" value="${debts.owner || ''}" ${disAttr}></div>
         <div class="form-group"><label class="label">Ø­ÙƒÙ… Ù‚Ø¶Ø§Ø¦ÙŠØŸ</label>
@@ -7315,7 +7315,7 @@ function openCaseDetails(id, mode) {
       <label class="label">Ø§Ù„Ø²ÙˆØ§Ø¬ / Ø§Ù„Ù…Ø´Ø§Ø±ÙŠØ¹</label>
       <div class="grid cols-2" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
         <div style="border:1px solid #e5e7eb;border-radius:10px;padding:10px">
-          <div class="form-group"><label class="label">ÙŠÙˆØ¬Ø¯ Ø­Ø§Ù„Ø© Ø²ÙˆØ§Ø¬ØŸ</label><input id="d_marriageEnabled" class="control" value="${marriage.enabled ? 'Ù†Ø¹Ù…' : 'Ù„Ø§'}" ${disAttr}></div>
+          <div class="form-group"><label class="label">ÙŠÙˆØ¬Ø¯ Ø­Ø§Ù„Ø© Ø²ÙˆØ§Ø¬ØŸ</label><input id="d_marriageEnabled" class="control" value="${marriage.enabled ? 'نعم' : 'لا'}" ${disAttr}></div>
           <div class="form-group"><label class="label">Ø§Ø³Ù… Ø§Ù„Ø¹Ø±ÙˆØ³Ø©</label><input id="d_brideName" class="control" value="${marriage.brideName || ''}" ${disAttr}></div>
           <div class="form-group"><label class="label">Ø§Ø³Ù… Ø§Ù„Ø¹Ø±ÙŠØ³</label><input id="d_groomName" class="control" value="${marriage.groomName || ''}" ${disAttr}></div>
           <div class="form-group"><label class="label">Ù…Ù‡Ù†Ø© Ø§Ù„Ø¹Ø±ÙŠØ³</label><input id="d_groomJob" class="control" value="${marriage.groomJob || ''}" ${disAttr}></div>
@@ -7325,7 +7325,7 @@ function openCaseDetails(id, mode) {
           <div class="form-group"><label class="label">Ø§Ù„Ù…Ø·Ù„ÙˆØ¨</label><input id="d_marriageNeeded" class="control" value="${marriage.needed || ''}" ${disAttr}></div>
         </div>
         <div style="border:1px solid #e5e7eb;border-radius:10px;padding:10px">
-          <div class="form-group"><label class="label">ÙŠÙˆØ¬Ø¯ Ù…Ø´Ø±ÙˆØ¹ØŸ</label><input id="d_projectsEnabled" class="control" value="${project.enabled ? 'Ù†Ø¹Ù…' : 'Ù„Ø§'}" ${disAttr}></div>
+          <div class="form-group"><label class="label">ÙŠÙˆØ¬Ø¯ Ù…Ø´Ø±ÙˆØ¹ØŸ</label><input id="d_projectsEnabled" class="control" value="${project.enabled ? 'نعم' : 'لا'}" ${disAttr}></div>
           <div class="form-group"><label class="label">Ù†ÙˆØ¹ Ø§Ù„Ù…Ø´Ø±ÙˆØ¹</label><input id="d_projectType" class="control" value="${project.type || ''}" ${disAttr}></div>
           <div class="form-group"><label class="label">Ø§Ù„Ø®Ø¨Ø±Ø© ÙˆØ§Ù„Ø§Ø³ØªØ¹Ø¯Ø§Ø¯</label><input id="d_projectExperience" class="control" value="${project.experience || ''}" ${disAttr}></div>
           <div class="form-group"><label class="label">Ø§Ø­ØªÙŠØ§Ø¬Ø§Øª Ø§Ù„Ù…Ø´Ø±ÙˆØ¹</label><input id="d_projectNeeds" class="control" value="${project.needs || ''}" ${disAttr}></div>
@@ -7340,7 +7340,7 @@ function openCaseDetails(id, mode) {
 
     <div class="form-group" style="grid-column:1/-1">
       <label class="label">Ø§Ù„Ø¬Ø§Ù†Ø¨ Ø§Ù„Ø·Ø¨ÙŠ</label>
-      ${isAdmin ? '<div style="display:flex; gap:8px; justify-content:flex-start; margin-bottom:8px"><button type="button" class="btn" id="d_addMedicalRow">âž• Ø¥Ø¶Ø§ÙØ© Ø­Ø§Ù„Ø© Ø·Ø¨ÙŠØ©</button></div>' : ''}
+      ${isAdmin ? '<div style="display:flex; gap:8px; justify-content:flex-start; margin-bottom:8px"><button type="button" class="btn" id="d_addMedicalRow">➕ إضافة حالة طبية</button></div>' : ''}
       <div style="overflow:auto; border:1px solid #e5e7eb; border-radius:12px">
         <table class="table" style="min-width:1000px">
           <thead>
@@ -7399,7 +7399,7 @@ function openCaseDetails(id, mode) {
   if (pb) pb.style.display = 'inline-block';
   const m = document.getElementById('caseDetailsModal');
   if (!m) {
-    alert('ØªØ¹Ø°Ø± ÙØªØ­ Ø§Ù„ØªÙØ§ØµÙŠÙ„: Ø¹Ù†ØµØ± caseDetailsModal ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯ ÙÙŠ Ø§Ù„ØµÙØ­Ø©');
+    alert('تعذر فتح التفاصيل: عنصر caseDetailsModal غير موجود في الصفحة');
     return;
   }
   try { document.body.classList.add('modal-open'); } catch { }
@@ -7431,7 +7431,7 @@ function closeCaseDetails() {
   const inEdit = (AppState.caseDetailsMode || 'view').toString() === 'edit';
   const dirty = !!AppState.caseDetailsDirty;
   if (inEdit && dirty) {
-    const doSave = confirm('ÙŠÙˆØ¬Ø¯ ØªØºÙŠÙŠØ±Ø§Øª ØºÙŠØ± Ù…Ø­ÙÙˆØ¸Ø©. Ù‡Ù„ ØªØ±ÙŠØ¯ Ø­ÙØ¸ Ø§Ù„ØªØºÙŠÙŠØ±Ø§Øª Ù‚Ø¨Ù„ Ø§Ù„Ø®Ø±ÙˆØ¬ØŸ');
+    const doSave = confirm('يوجد تغييرات غير محفوظة. هل تريد حفظ التغييرات قبل الخروج؟');
     if (doSave) {
       try { saveCaseEdits(); } catch { }
       return;
@@ -7486,7 +7486,7 @@ try {
 } catch { }
 
 function deleteCurrentCase() {
-  if (!hasPerm('cases_delete')) { alert('Ù„Ø§ ØªÙ…Ù„Ùƒ ØµÙ„Ø§Ø­ÙŠØ© Ø­Ø°Ù Ø§Ù„Ø­Ø§Ù„Ø©'); return; }
+  if (!hasPerm('cases_delete')) { alert('لا تملك صلاحية حذف الحالة'); return; }
   const id = AppState.currentCaseId || document.getElementById('d_id')?.value;
   if (!id) return;
   const it = AppState.cases.find(c => c.id === id);
@@ -7494,8 +7494,8 @@ function deleteCurrentCase() {
   if (!confirm(`Ù‡Ù„ ØªØ±ÙŠØ¯ Ø­Ø°Ù Ø§Ù„Ø­Ø§Ù„Ø© Ù†Ù‡Ø§Ø¦ÙŠØ§Ù‹ØŸ\n${title}`)) return;
 
   let reason = '';
-  try { reason = (prompt('Ø³Ø¨Ø¨ Ø­Ø°Ù Ø§Ù„Ø­Ø§Ù„Ø© (Ø¥Ø¬Ø¨Ø§Ø±ÙŠ):') || '').toString().trim(); } catch { reason = ''; }
-  if (!reason) { alert('Ø³Ø¨Ø¨ Ø§Ù„Ø­Ø°Ù Ù…Ø·Ù„ÙˆØ¨'); return; }
+  try { reason = (prompt('سبب حذف الحالة (إجباري):') || '').toString().trim(); } catch { reason = ''; }
+  if (!reason) { alert('سبب الحذف مطلوب'); return; }
 
   (async () => {
     const beforeList = Array.isArray(AppState.cases) ? AppState.cases.slice() : [];
@@ -7507,7 +7507,7 @@ function deleteCurrentCase() {
 
     try {
       const payload = JSON.stringify({ reason, case: snapshot, deletedAt: new Date().toISOString() });
-      await logAction('Ø­Ø°Ù Ø­Ø§Ù„Ø©', id, `Ø³Ø¨Ø¨: ${reason} | data:${payload}`);
+      await logAction('حذف حالة', id, `Ø³Ø¨Ø¨: ${reason} | data:${payload}`);
     } catch { }
 
     try {
@@ -7517,21 +7517,21 @@ function deleteCurrentCase() {
       try { renderCasesTable(); } catch { }
       try { updateDashboardStats(); } catch { }
       try { updateNavBadges(); } catch { }
-      alert(`ØªØ¹Ø°Ø± Ø­Ø°Ù Ø§Ù„Ø­Ø§Ù„Ø© Ù…Ù† Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª.\n\nØ§Ù„Ø®Ø·Ø£: ${e?.message || 'Ø®Ø·Ø£ ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ'}`);
+      alert(`ØªØ¹Ø°Ø± Ø­Ø°Ù Ø§Ù„Ø­Ø§Ù„Ø© Ù…Ù† Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª.\n\nØ§Ù„Ø®Ø·Ø£: ${e?.message || 'خطأ غير معروف'}`);
       return;
     }
 
     try { closeCaseDetails(); } catch { }
-    alert('ØªÙ… Ø­Ø°Ù Ø§Ù„Ø­Ø§Ù„Ø©');
+    alert('تم حذف الحالة');
   })();
 }
 
 function deleteAllCases() {
-  if (!hasPerm('cases_delete_all')) { alert('Ù„Ø§ ØªÙ…Ù„Ùƒ ØµÙ„Ø§Ø­ÙŠØ© Ø­Ø°Ù Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ø§Ù„Ø§Øª'); return; }
+  if (!hasPerm('cases_delete_all')) { alert('لا تملك صلاحية حذف جميع الحالات'); return; }
   const count = Array.isArray(AppState.cases) ? AppState.cases.length : 0;
-  if (!count) { alert('Ù„Ø§ ØªÙˆØ¬Ø¯ Ø­Ø§Ù„Ø§Øª Ù„Ù„Ø­Ø°Ù'); return; }
+  if (!count) { alert('لا توجد حالات للحذف'); return; }
   if (!confirm(`Ù‡Ù„ ØªØ±ÙŠØ¯ Ø­Ø°Ù Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ø§Ù„Ø§Øª Ù†Ù‡Ø§Ø¦ÙŠØ§Ù‹ØŸ\nØ¹Ø¯Ø¯ Ø§Ù„Ø­Ø§Ù„Ø§Øª: ${count}`)) return;
-  if (!confirm('ØªØ£ÙƒÙŠØ¯ Ø£Ø®ÙŠØ±: Ø³ÙŠØªÙ… Ø­Ø°Ù ÙƒÙ„ Ø§Ù„Ø­Ø§Ù„Ø§Øª ÙˆÙ„Ù† ÙŠÙ…ÙƒÙ† Ø§Ø³ØªØ±Ø¬Ø§Ø¹Ù‡Ø§.')) return;
+  if (!confirm('تأكيد أخير: سيتم حذف كل الحالات ولن يمكن استرجاعها.')) return;
 
   (async () => {
     const beforeList = Array.isArray(AppState.cases) ? AppState.cases.slice() : [];
@@ -7543,7 +7543,7 @@ function deleteAllCases() {
 
     try {
       const payload = JSON.stringify({ count, cases: snapshot, deletedAt: new Date().toISOString() });
-      await logAction('Ø­Ø°Ù Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ø§Ù„Ø§Øª', '', `count:${count} | data:${payload}`);
+      await logAction('حذف جميع الحالات', '', `count:${count} | data:${payload}`);
     } catch { }
 
     try {
@@ -7553,12 +7553,12 @@ function deleteAllCases() {
       try { renderCasesTable(); } catch { }
       try { updateDashboardStats(); } catch { }
       try { updateNavBadges(); } catch { }
-      alert(`ØªØ¹Ø°Ø± Ø­Ø°Ù Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ø§Ù„Ø§Øª Ù…Ù† Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª.\n\nØ§Ù„Ø®Ø·Ø£: ${e?.message || 'Ø®Ø·Ø£ ØºÙŠØ± Ù…Ø¹Ø±ÙˆÙ'}`);
+      alert(`ØªØ¹Ø°Ø± Ø­Ø°Ù Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ø§Ù„Ø§Øª Ù…Ù† Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª.\n\nØ§Ù„Ø®Ø·Ø£: ${e?.message || 'خطأ غير معروف'}`);
       return;
     }
 
     try { closeCaseDetails(); } catch { }
-    alert('ØªÙ… Ø­Ø°Ù Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ø§Ù„Ø§Øª');
+    alert('تم حذف جميع الحالات');
   })();
 }
 
@@ -7624,7 +7624,7 @@ function parseFamilyMembersPlain(text) {
 }
 
 function saveCaseEdits() {
-  if (!hasPerm('cases_edit')) { alert('Ù„Ø§ ØªÙ…Ù„Ùƒ ØµÙ„Ø§Ø­ÙŠØ© ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ø­Ø§Ù„Ø§Øª'); return; }
+  if (!hasPerm('cases_edit')) { alert('لا تملك صلاحية تعديل الحالات'); return; }
   const host = document.getElementById('caseDetailsBody');
   const q = (id) => (host ? host.querySelector(`#${id}`) : null);
 
@@ -7632,20 +7632,20 @@ function saveCaseEdits() {
     const raw = (s || '').toString();
     const digits = raw.replace(/[^0-9\u0660-\u0669\u06F0-\u06F9]/g, '');
     const latin = digits
-      .replace(/[\u0660-\u0669]/g, d => String('Ù Ù¡Ù¢Ù£Ù¤Ù¥Ù¦Ù§Ù¨Ù©'.indexOf(d)))
-      .replace(/[\u06F0-\u06F9]/g, d => String('Û°Û±Û²Û³Û´ÛµÛ¶Û·Û¸Û¹'.indexOf(d)));
+      .replace(/[\u0660-\u0669]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))
+      .replace(/[\u06F0-\u06F9]/g, d => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)));
     return latin;
   };
 
   const idCandidate = (AppState.currentCaseId || q('d_id')?.value || '').toString();
   const idNorm = normalizeDigits_(idCandidate);
   const idx = (AppState.cases || []).findIndex(c => normalizeDigits_(c?.id) === idNorm);
-  if (idx < 0) { alert('ØªØ¹Ø°Ø± Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ø§Ù„Ø­Ø§Ù„Ø©'); return; }
+  if (idx < 0) { alert('تعذر العثور على الحالة'); return; }
   const old = AppState.cases[idx] || {};
   const it = old;
   const yn = (v) => {
     const s = (v || '').toString().trim();
-    return (s === 'Ù†Ø¹Ù…' || s.toLowerCase() === 'yes' || s === 'true' || s === '1');
+    return (s === 'نعم' || s.toLowerCase() === 'yes' || s === 'true' || s === '1');
   };
 
   const medBody = q('d_medicalBody');
@@ -7735,7 +7735,7 @@ function saveCaseEdits() {
   };
 
   // build diff BEFORE mutating `it`
-  let diffMsg = 'ØªÙ… ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª';
+  let diffMsg = 'تم تعديل البيانات';
   try {
     const before = (AppState.caseDetailsOriginal && typeof AppState.caseDetailsOriginal === 'object') ? AppState.caseDetailsOriginal : old;
     const parts = buildCaseDiffText_(before, updated);
@@ -7749,17 +7749,17 @@ function saveCaseEdits() {
   try { void upsertCaseToDb(it); } catch { }
   renderCasesTable(); updateDashboardStats(); generateReportPreview();
   try { updateNavBadges(); } catch { }
-  try { logAction('ØªØ¹Ø¯ÙŠÙ„ Ø­Ø§Ù„Ø©', it.id, diffMsg); } catch { logAction('ØªØ¹Ø¯ÙŠÙ„ Ø­Ø§Ù„Ø©', it.id, 'ØªÙ… ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª'); }
+  try { logAction('تعديل حالة', it.id, diffMsg); } catch { logAction('تعديل حالة', it.id, 'تم تعديل البيانات'); }
   closeCaseDetails();
-  alert('ØªÙ… Ø­ÙØ¸ Ø§Ù„ØªØ¹Ø¯ÙŠÙ„Ø§Øª');
+  alert('تم حفظ التعديلات');
 }
 
 function printCurrentCase() {
   const id = AppState.currentCaseId;
   const it = AppState.cases.find(c => c.id === id);
-  if (!it) { alert('Ù„Ø§ ØªÙˆØ¬Ø¯ Ø­Ø§Ù„Ø© Ù„Ù„Ø·Ø¨Ø§Ø¹Ø©'); return; }
+  if (!it) { alert('لا توجد حالة للطباعة'); return; }
   const w = window.open('', '_blank');
-  if (!w) { alert('ÙŠØ±Ø¬Ù‰ Ø§Ù„Ø³Ù…Ø§Ø­ Ø¨Ø§Ù„Ù†ÙˆØ§ÙØ° Ø§Ù„Ù…Ù†Ø¨Ø«Ù‚Ø©'); return; }
+  if (!w) { alert('يرجى السماح بالنوافذ المنبثقة'); return; }
   const medRows = (Array.isArray(it.medicalCases) ? it.medicalCases : []).map(m => `
     <tr>
       <td>${m.name || ''}</td>
@@ -7798,7 +7798,7 @@ function printCurrentCase() {
     <div class="head">
       <div class="title">${escapeHtml(it.familyHead || '')}</div>
       <div class="muted">Ø±Ù‚Ù… Ø§Ù„Ø­Ø§Ù„Ø©: <strong>${escapeHtml(it.id || '')}</strong>${it.date ? ` â€” ØªØ§Ø±ÙŠØ®: <strong>${escapeHtml(it.date)}</strong>` : ''}</div>
-      <div class="muted">${it.governorate ? `Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©: <strong>${escapeHtml(it.governorate)}</strong>` : ''}${it.governorate && it.area ? ' â€” ' : ''}${it.area ? `Ø§Ù„Ù‚Ø±ÙŠØ©: <strong>${escapeHtml(it.area)}</strong>` : ''}</div>
+      <div class="muted">${it.governorate ? `المحافظة: <strong>${escapeHtml(it.governorate)}</strong>` : ''}${it.governorate && it.area ? ' â€” ' : ''}${it.area ? `Ø§Ù„Ù‚Ø±ÙŠØ©: <strong>${escapeHtml(it.area)}</strong>` : ''}</div>
     </div>
     <div class="grid" style="margin-top:10px">
       <div class="box"><div><strong>Ø§Ù„Ø§Ø³Ù…:</strong> ${it.familyHead || ''}</div><div><strong>Ø§Ù„Ù‡Ø§ØªÙ:</strong> ${it.phone || ''}</div><div><strong>Ø§Ù„Ø¹Ù†ÙˆØ§Ù†:</strong> ${it.address || ''}</div></div>
@@ -7863,7 +7863,7 @@ function printCurrentCase() {
   </body></html>`);
   w.document.close();
   w.focus();
-  logAction('Ø·Ø¨Ø§Ø¹Ø© Ø­Ø§Ù„Ø©', it.id, 'ØªÙ… ÙØªØ­ ØµÙØ­Ø© Ø§Ù„Ø·Ø¨Ø§Ø¹Ø©');
+  logAction('طباعة حالة', it.id, 'تم فتح صفحة الطباعة');
 }
 
 async function listProfiles_() {
@@ -7949,8 +7949,8 @@ function applyPermPreset_(kind) {
 }
 
 async function saveMySettings() {
-  if (!SupabaseClient) { alert('ØªØ¹Ø°Ø± Ø§Ù„Ø§ØªØµØ§Ù„ Ø¨Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª'); return; }
-  if (!AppState.currentUser?.id) { alert('Ù„Ù… ÙŠØªÙ… ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„'); return; }
+  if (!SupabaseClient) { alert('تعذر الاتصال بقاعدة البيانات'); return; }
+  if (!AppState.currentUser?.id) { alert('لم يتم تسجيل الدخول'); return; }
   const hint = document.getElementById('mySettingsHint');
   const btn = document.querySelector('#settingsSection button[onclick="saveMySettings()"]');
   let ok = false;
@@ -7958,32 +7958,32 @@ async function saveMySettings() {
   try {
     try {
       if (btn) btn.setAttribute('disabled', 'disabled');
-      if (hint) { hint.style.display = 'block'; hint.textContent = 'Ø¬Ø§Ø±Ù Ø§Ù„Ø­ÙØ¸...'; }
+      if (hint) { hint.style.display = 'block'; hint.textContent = 'جارٍ الحفظ...'; }
     } catch { }
 
     const oldPass = (document.getElementById('myOldPassword')?.value || '').toString();
     const newPass = (document.getElementById('myNewPassword')?.value || '').toString();
 
     if (!oldPass.trim()) {
-      if (hint) { hint.style.display = 'block'; hint.textContent = 'Ø£Ø¯Ø®Ù„ ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø§Ù„Ù‚Ø¯ÙŠÙ…Ø©'; }
-      else alert('Ø£Ø¯Ø®Ù„ ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø§Ù„Ù‚Ø¯ÙŠÙ…Ø©');
+      if (hint) { hint.style.display = 'block'; hint.textContent = 'أدخل كلمة المرور القديمة'; }
+      else alert('أدخل كلمة المرور القديمة');
       return;
     }
     if (!newPass.trim()) {
-      if (hint) { hint.style.display = 'block'; hint.textContent = 'Ø£Ø¯Ø®Ù„ ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø§Ù„Ø¬Ø¯ÙŠØ¯Ø©'; }
-      else alert('Ø£Ø¯Ø®Ù„ ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø§Ù„Ø¬Ø¯ÙŠØ¯Ø©');
+      if (hint) { hint.style.display = 'block'; hint.textContent = 'أدخل كلمة المرور الجديدة'; }
+      else alert('أدخل كلمة المرور الجديدة');
       return;
     }
 
     if (newPass.trim().length < 6) {
-      if (hint) { hint.style.display = 'block'; hint.textContent = 'ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø§Ù„Ø¬Ø¯ÙŠØ¯Ø© ÙŠØ¬Ø¨ Ø£Ù† ØªÙƒÙˆÙ† 6 Ø£Ø­Ø±Ù Ø¹Ù„Ù‰ Ø§Ù„Ø£Ù‚Ù„'; }
-      else alert('ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø§Ù„Ø¬Ø¯ÙŠØ¯Ø© ÙŠØ¬Ø¨ Ø£Ù† ØªÙƒÙˆÙ† 6 Ø£Ø­Ø±Ù Ø¹Ù„Ù‰ Ø§Ù„Ø£Ù‚Ù„');
+      if (hint) { hint.style.display = 'block'; hint.textContent = 'كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل'; }
+      else alert('كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل');
       return;
     }
 
     if (oldPass.trim() === newPass.trim()) {
-      if (hint) { hint.style.display = 'block'; hint.textContent = 'ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø§Ù„Ø¬Ø¯ÙŠØ¯Ø© ÙŠØ¬Ø¨ Ø£Ù† ØªÙƒÙˆÙ† Ù…Ø®ØªÙ„ÙØ© Ø¹Ù† Ø§Ù„Ù‚Ø¯ÙŠÙ…Ø©'; }
-      else alert('ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø§Ù„Ø¬Ø¯ÙŠØ¯Ø© ÙŠØ¬Ø¨ Ø£Ù† ØªÙƒÙˆÙ† Ù…Ø®ØªÙ„ÙØ© Ø¹Ù† Ø§Ù„Ù‚Ø¯ÙŠÙ…Ø©');
+      if (hint) { hint.style.display = 'block'; hint.textContent = 'كلمة المرور الجديدة يجب أن تكون مختلفة عن القديمة'; }
+      else alert('كلمة المرور الجديدة يجب أن تكون مختلفة عن القديمة');
       return;
     }
 
@@ -7995,8 +7995,8 @@ async function saveMySettings() {
       } catch { }
     }
     if (!email) {
-      if (hint) { hint.style.display = 'block'; hint.textContent = 'ØªØ¹Ø°Ø± ØªØ­Ø¯ÙŠØ¯ Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ Ù„Ù„Ù…Ø³ØªØ®Ø¯Ù…'; }
-      else alert('ØªØ¹Ø°Ø± ØªØ­Ø¯ÙŠØ¯ Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ Ù„Ù„Ù…Ø³ØªØ®Ø¯Ù…');
+      if (hint) { hint.style.display = 'block'; hint.textContent = 'تعذر تحديد البريد الإلكتروني للمستخدم'; }
+      else alert('تعذر تحديد البريد الإلكتروني للمستخدم');
       return;
     }
 
@@ -8006,8 +8006,8 @@ async function saveMySettings() {
     } catch (e) {
       try { console.error('reauth error:', e); } catch { }
       const msg = (e?.message || e?.error_description || '').toString().trim();
-      if (hint) { hint.style.display = 'block'; hint.textContent = msg ? `ØªØ¹Ø°Ø± Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø§Ù„Ù‚Ø¯ÙŠÙ…Ø©: ${msg}` : 'ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø§Ù„Ù‚Ø¯ÙŠÙ…Ø© ØºÙŠØ± ØµØ­ÙŠØ­Ø©'; }
-      else alert(msg ? `ØªØ¹Ø°Ø± Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø§Ù„Ù‚Ø¯ÙŠÙ…Ø©: ${msg}` : 'ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø§Ù„Ù‚Ø¯ÙŠÙ…Ø© ØºÙŠØ± ØµØ­ÙŠØ­Ø©');
+      if (hint) { hint.style.display = 'block'; hint.textContent = msg ? `ØªØ¹Ø°Ø± Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø§Ù„Ù‚Ø¯ÙŠÙ…Ø©: ${msg}` : 'كلمة المرور القديمة غير صحيحة'; }
+      else alert(msg ? `ØªØ¹Ø°Ø± Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø§Ù„Ù‚Ø¯ÙŠÙ…Ø©: ${msg}` : 'كلمة المرور القديمة غير صحيحة');
       return;
     }
 
@@ -8020,13 +8020,13 @@ async function saveMySettings() {
     } catch (e) {
       try { console.error('updateUser error:', e); } catch { }
       const msg = (e?.message || e?.error_description || '').toString().trim();
-      if (hint) { hint.style.display = 'block'; hint.textContent = msg ? `ØªØ¹Ø°Ø± ØªØºÙŠÙŠØ± ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±: ${msg}` : 'ØªØ¹Ø°Ø± ØªØºÙŠÙŠØ± ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±'; }
-      else alert(msg ? `ØªØ¹Ø°Ø± ØªØºÙŠÙŠØ± ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±: ${msg}` : 'ØªØ¹Ø°Ø± ØªØºÙŠÙŠØ± ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±');
+      if (hint) { hint.style.display = 'block'; hint.textContent = msg ? `ØªØ¹Ø°Ø± ØªØºÙŠÙŠØ± ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±: ${msg}` : 'تعذر تغيير كلمة المرور'; }
+      else alert(msg ? `ØªØ¹Ø°Ø± ØªØºÙŠÙŠØ± ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±: ${msg}` : 'تعذر تغيير كلمة المرور');
       return;
     }
 
-    if (hint) { hint.style.display = 'block'; hint.textContent = 'ØªÙ… ØªØºÙŠÙŠØ± ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±. Ø¬Ø§Ø±Ù Ø¥Ø¹Ø§Ø¯Ø© ØªØ­Ù…ÙŠÙ„ Ø§Ù„ØµÙØ­Ø©...'; }
-    else alert('ØªÙ… ØªØºÙŠÙŠØ± ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±');
+    if (hint) { hint.style.display = 'block'; hint.textContent = 'تم تغيير كلمة المرور. جارٍ إعادة تحميل الصفحة...'; }
+    else alert('تم تغيير كلمة المرور');
 
     // Ensure the UI paints the final message even if other async handlers run.
     try {
@@ -8037,14 +8037,14 @@ async function saveMySettings() {
   } catch (e) {
     try { console.error('saveMySettings unexpected error:', e); } catch { }
     const msg = (e?.message || e?.error_description || '').toString().trim();
-    if (hint) { hint.style.display = 'block'; hint.textContent = msg ? `Ø­Ø¯Ø« Ø®Ø·Ø£ ØºÙŠØ± Ù…ØªÙˆÙ‚Ø¹: ${msg}` : 'Ø­Ø¯Ø« Ø®Ø·Ø£ ØºÙŠØ± Ù…ØªÙˆÙ‚Ø¹'; }
-    else alert(msg ? `Ø­Ø¯Ø« Ø®Ø·Ø£ ØºÙŠØ± Ù…ØªÙˆÙ‚Ø¹: ${msg}` : 'Ø­Ø¯Ø« Ø®Ø·Ø£ ØºÙŠØ± Ù…ØªÙˆÙ‚Ø¹');
+    if (hint) { hint.style.display = 'block'; hint.textContent = msg ? `Ø­Ø¯Ø« Ø®Ø·Ø£ ØºÙŠØ± Ù…ØªÙˆÙ‚Ø¹: ${msg}` : 'حدث خطأ غير متوقع'; }
+    else alert(msg ? `Ø­Ø¯Ø« Ø®Ø·Ø£ ØºÙŠØ± Ù…ØªÙˆÙ‚Ø¹: ${msg}` : 'حدث خطأ غير متوقع');
   } finally {
     try { if (btn) btn.removeAttribute('disabled'); } catch { }
     try {
-      if (ok && hint && (hint.textContent || '').toString().trim() === 'Ø¬Ø§Ø±Ù Ø§Ù„Ø­ÙØ¸...') {
+      if (ok && hint && (hint.textContent || '').toString().trim() === 'جارٍ الحفظ...') {
         hint.style.display = 'block';
-        hint.textContent = 'ØªÙ… ØªØºÙŠÙŠØ± ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±';
+        hint.textContent = 'تم تغيير كلمة المرور';
       }
     } catch { }
   }
@@ -8062,7 +8062,7 @@ function syncSettingsPermissionsUi_() {
   if (!canManage) {
     if (userHint) {
       userHint.style.display = 'block';
-      userHint.textContent = 'ÙŠÙ…ÙƒÙ†Ùƒ Ù…Ø´Ø§Ù‡Ø¯Ø© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ† ÙÙ‚Ø·. Ù„ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ† ØªØ­ØªØ§Ø¬ ØµÙ„Ø§Ø­ÙŠØ© Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†.';
+      userHint.textContent = 'يمكنك مشاهدة المستخدمين فقط. لتعديل المستخدمين تحتاج صلاحية إدارة المستخدمين.';
     }
     if (bulk) bulk.style.display = 'none';
     if (preset) preset.style.display = 'none';
@@ -8112,11 +8112,11 @@ try {
 async function renderUsersList() {
   const host = document.getElementById('usersList');
   if (!host) return;
-  if (!SupabaseClient) { host.textContent = 'ØªØ¹Ø°Ø± Ø§Ù„Ø§ØªØµØ§Ù„ Ø¨Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª'; return; }
-  if (!(hasPerm('users_manage') || hasPerm('settings'))) { host.textContent = 'Ù„Ø§ ØªÙ…Ù„Ùƒ ØµÙ„Ø§Ø­ÙŠØ© Ø¹Ø±Ø¶ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†'; return; }
+  if (!SupabaseClient) { host.textContent = 'تعذر الاتصال بقاعدة البيانات'; return; }
+  if (!(hasPerm('users_manage') || hasPerm('settings'))) { host.textContent = 'لا تملك صلاحية عرض المستخدمين'; return; }
   try {
     const list = await listProfiles_();
-    if (!list.length) { host.textContent = 'Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ù…Ø³ØªØ®Ø¯Ù…ÙˆÙ†'; return; }
+    if (!list.length) { host.textContent = 'لا يوجد مستخدمون'; return; }
     host.innerHTML = list.map(p => {
       const uname = (p.username || '').toString();
       const safe = uname.replace(/"/g, '');
@@ -8124,7 +8124,7 @@ async function renderUsersList() {
       const name = (p.full_name || '').toString();
       const lastSeenRaw = (p.last_seen_at || '').toString();
       const lastSeen = lastSeenRaw ? lastSeenRaw.replace('T', ' ').replace('Z', '') : '';
-      const badge = active ? '<span class="pill ok">Ù…ÙØ¹Ù„</span>' : '<span class="pill off">Ù…Ø¹Ø·Ù„</span>';
+      const badge = active ? '<span class="pill ok">مفعل</span>' : '<span class="pill off">معطل</span>';
       return `<div class="user-item" role="button" tabindex="0" onclick="openUserActionsModal('${escapeHtml(safe)}')">
         <div>
           <div class="title">${escapeHtml(uname || p.id)}</div>
@@ -8134,10 +8134,10 @@ async function renderUsersList() {
           ${badge}
         </div>
       </div>`;
-    }).join('') || '<div style="color:#64748b;text-align:center;padding:10px">Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ù…Ø³ØªØ®Ø¯Ù…ÙˆÙ†</div>';
+    }).join('') || '<div style="color:#64748b;text-align:center;padding:10px">لا يوجد مستخدمون</div>';
     try { syncSettingsPermissionsUi_(); } catch { }
   } catch {
-    host.textContent = 'ØªØ¹Ø°Ø± ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†';
+    host.textContent = 'تعذر تحميل المستخدمين';
   }
 }
 
@@ -8158,7 +8158,7 @@ function openUserActionsModal(usernameKey) {
     if (uEl) uEl.value = uname;
     if (nEl) nEl.value = '';
     const st = document.getElementById('userActionsStatus');
-    if (st) st.textContent = 'Ø¬Ø§Ø±Ù Ø§Ù„ØªØ­Ù…ÙŠÙ„...';
+    if (st) st.textContent = 'جارٍ التحميل...';
 
     try { if (eEl) eEl.value = ''; } catch { }
 
@@ -8190,15 +8190,15 @@ function openUserActionsModal(usernameKey) {
           if (eEl) eEl.value = finalEmail;
         } catch { }
         const active = (data?.is_active !== false);
-        if (st) st.textContent = active ? 'Ù…ÙØ¹Ù„' : 'Ù…Ø¹Ø·Ù„';
+        if (st) st.textContent = active ? 'مفعل' : 'معطل';
         const tbtn = document.getElementById('userActionsToggleBtn');
         if (tbtn) {
-          tbtn.textContent = active ? 'ØªØ¹Ø·ÙŠÙ„ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…' : 'ØªÙØ¹ÙŠÙ„ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…';
+          tbtn.textContent = active ? 'تعطيل المستخدم' : 'تفعيل المستخدم';
           tbtn.style.background = active ? '#ef4444' : '#22c55e';
         }
       } catch (e) {
         try { console.error('openUserActionsModal load error:', e); } catch { }
-        if (st) st.textContent = 'ØªØ¹Ø°Ø± Ø§Ù„ØªØ­Ù…ÙŠÙ„';
+        if (st) st.textContent = 'تعذر التحميل';
       }
     })();
 
@@ -8226,7 +8226,7 @@ function closeUserActionsModal() {
 }
 
 async function userActionsToggleActive_() {
-  if (!hasPerm('users_manage')) { alert('Ù„Ø§ ØªÙ…Ù„Ùƒ ØµÙ„Ø§Ø­ÙŠØ© Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†'); return; }
+  if (!hasPerm('users_manage')) { alert('لا تملك صلاحية إدارة المستخدمين'); return; }
   const m = document.getElementById('userActionsModal');
   if (!m) return;
   const uname = (m.getAttribute('data-username') || '').toString().trim();
@@ -8241,7 +8241,7 @@ async function userActionsToggleActive_() {
   } catch (e) {
     try { console.error('userActionsToggleActive_ error:', e); } catch { }
     const hint = document.getElementById('userActionsHint');
-    if (hint) { hint.style.display = 'block'; hint.textContent = 'ØªØ¹Ø°Ø± ØªØºÙŠÙŠØ± Ø­Ø§Ù„Ø© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…'; }
+    if (hint) { hint.style.display = 'block'; hint.textContent = 'تعذر تغيير حالة المستخدم'; }
   }
 }
 
@@ -8315,7 +8315,7 @@ function buildUserPermsModalUi_(selected) {
 
 async function openUserPermissionsModal_(uname) {
   if (!SupabaseClient) return;
-  if (!hasPerm('users_manage')) { alert('Ù„Ø§ ØªÙ…Ù„Ùƒ ØµÙ„Ø§Ø­ÙŠØ© Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†'); return; }
+  if (!hasPerm('users_manage')) { alert('لا تملك صلاحية إدارة المستخدمين'); return; }
   const m = document.getElementById('userPermissionsModal');
   if (!m) return;
   m.setAttribute('data-username', (uname || '').toString().trim());
@@ -8323,7 +8323,7 @@ async function openUserPermissionsModal_(uname) {
   const hint = document.getElementById('userPermHint');
   const btn = document.getElementById('userPermSaveBtn');
   if (hint) { hint.style.display = 'none'; hint.textContent = ''; }
-  if (meta) meta.textContent = 'Ø¬Ø§Ø±Ù Ø§Ù„ØªØ­Ù…ÙŠÙ„...';
+  if (meta) meta.textContent = 'جارٍ التحميل...';
   try { if (btn) btn.setAttribute('disabled', 'disabled'); } catch { }
   try { buildUserPermsModalUi_({}); } catch { }
 
@@ -8341,7 +8341,7 @@ async function openUserPermissionsModal_(uname) {
   } catch (e) {
     try { console.error('openUserPermissionsModal_ error:', e); } catch { }
     if (meta) meta.textContent = `Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…: ${uname}`;
-    if (hint) { hint.style.display = 'block'; hint.textContent = 'ØªØ¹Ø°Ø± ØªØ­Ù…ÙŠÙ„ Ø§Ù„ØµÙ„Ø§Ø­ÙŠØ§Øª'; }
+    if (hint) { hint.style.display = 'block'; hint.textContent = 'تعذر تحميل الصلاحيات'; }
   } finally {
     try { if (btn) btn.removeAttribute('disabled'); } catch { }
   }
@@ -8354,8 +8354,8 @@ async function openUserPermissionsModal_(uname) {
 }
 
 async function saveUserPermissions_() {
-  if (!SupabaseClient) { alert('ØªØ¹Ø°Ø± Ø§Ù„Ø§ØªØµØ§Ù„ Ø¨Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª'); return; }
-  if (!hasPerm('users_manage')) { alert('Ù„Ø§ ØªÙ…Ù„Ùƒ ØµÙ„Ø§Ø­ÙŠØ© Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†'); return; }
+  if (!SupabaseClient) { alert('تعذر الاتصال بقاعدة البيانات'); return; }
+  if (!hasPerm('users_manage')) { alert('لا تملك صلاحية إدارة المستخدمين'); return; }
   const m = document.getElementById('userPermissionsModal');
   if (!m) return;
   const uname = (m.getAttribute('data-username') || '').toString().trim();
@@ -8383,21 +8383,21 @@ async function saveUserPermissions_() {
     if (exErr || !existing?.id) throw (exErr || new Error('not found'));
     const { error } = await SupabaseClient.from('profiles').update({ permissions }).eq('id', existing.id);
     if (error) throw error;
-    try { await logAction('ØªØ­Ø¯ÙŠØ« ØµÙ„Ø§Ø­ÙŠØ§Øª Ù…Ø³ØªØ®Ø¯Ù…', '', `target: ${uname}`); } catch { }
+    try { await logAction('تحديث صلاحيات مستخدم', '', `target: ${uname}`); } catch { }
     try { await renderUsersList(); } catch { }
     closeUserPermissionsModal();
-    try { showToast_('ØªÙ… Ø­ÙØ¸ Ø§Ù„ØµÙ„Ø§Ø­ÙŠØ§Øª', 'success'); } catch { }
+    try { showToast_('تم حفظ الصلاحيات', 'success'); } catch { }
   } catch (e) {
     try { console.error('saveUserPermissions_ error:', e); } catch { }
-    if (hint) { hint.style.display = 'block'; hint.textContent = 'ØªØ¹Ø°Ø± Ø­ÙØ¸ Ø§Ù„ØµÙ„Ø§Ø­ÙŠØ§Øª'; }
+    if (hint) { hint.style.display = 'block'; hint.textContent = 'تعذر حفظ الصلاحيات'; }
   } finally {
     try { if (btn) btn.removeAttribute('disabled'); } catch { }
   }
 }
 
 async function userActionsDelete_() {
-  if (!hasPerm('users_manage')) { alert('Ù„Ø§ ØªÙ…Ù„Ùƒ ØµÙ„Ø§Ø­ÙŠØ© Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†'); return; }
-  if (!SupabaseClient) { alert('ØªØ¹Ø°Ø± Ø§Ù„Ø§ØªØµØ§Ù„ Ø¨Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª'); return; }
+  if (!hasPerm('users_manage')) { alert('لا تملك صلاحية إدارة المستخدمين'); return; }
+  if (!SupabaseClient) { alert('تعذر الاتصال بقاعدة البيانات'); return; }
   const m = document.getElementById('userActionsModal');
   if (!m) return;
   const uname = (m.getAttribute('data-username') || '').toString().trim();
@@ -8411,18 +8411,18 @@ async function userActionsDelete_() {
     if (exErr || !existing?.id) throw (exErr || new Error('not found'));
     const { error } = await SupabaseClient.from('profiles').delete().eq('id', existing.id);
     if (error) throw error;
-    try { await logAction('Ø­Ø°Ù Ù…Ø³ØªØ®Ø¯Ù…', '', `username: ${uname}`); } catch { }
+    try { await logAction('حذف مستخدم', '', `username: ${uname}`); } catch { }
     try { await renderUsersList(); } catch { }
     closeUserActionsModal();
-    try { showToast_('ØªÙ… Ø­Ø°Ù Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…', 'success'); } catch { }
+    try { showToast_('تم حذف المستخدم', 'success'); } catch { }
   } catch (e) {
     try { console.error('userActionsDelete_ error:', e); } catch { }
-    if (hint) { hint.style.display = 'block'; hint.textContent = 'ØªØ¹Ø°Ø± Ø­Ø°Ù Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…'; }
+    if (hint) { hint.style.display = 'block'; hint.textContent = 'تعذر حذف المستخدم'; }
   }
 }
 
 async function userActionsResetPasswordLink_() {
-  if (!hasPerm('users_manage')) { alert('Ù„Ø§ ØªÙ…Ù„Ùƒ ØµÙ„Ø§Ø­ÙŠØ© Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†'); return; }
+  if (!hasPerm('users_manage')) { alert('لا تملك صلاحية إدارة المستخدمين'); return; }
   const m = document.getElementById('userActionsModal');
   if (!m) return;
   const uname = (m.getAttribute('data-username') || '').toString().trim();
@@ -8435,13 +8435,13 @@ async function userActionsResetPasswordLink_() {
 
 async function prefillUser(usernameKey) {
   if (!SupabaseClient) return;
-  if (!(hasPerm('users_manage') || hasPerm('settings'))) { alert('Ù„Ø§ ØªÙ…Ù„Ùƒ ØµÙ„Ø§Ø­ÙŠØ© Ø¹Ø±Ø¶ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†'); return; }
+  if (!(hasPerm('users_manage') || hasPerm('settings'))) { alert('لا تملك صلاحية عرض المستخدمين'); return; }
   const uname = (usernameKey || '').toString().trim();
   if (!uname) return;
   const { data, error } = await SupabaseClient.from('profiles').select('*').eq('username', uname).maybeSingle();
-  if (error) { alert('ØªØ¹Ø°Ø± ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…'); return; }
+  if (error) { alert('تعذر تحميل المستخدم'); return; }
   const p = data;
-  if (!p) { alert('Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯'); return; }
+  if (!p) { alert('المستخدم غير موجود'); return; }
   document.getElementById('userMgmtUsername').value = p.username || '';
   document.getElementById('userMgmtName').value = p.full_name || '';
   const act = document.getElementById('userMgmtIsActive');
@@ -8481,11 +8481,11 @@ function onUserMgmtRoleChange_() {
 }
 
 async function addOrUpdateUser() {
-  if (!hasPerm('users_manage')) { alert('Ù„Ø§ ØªÙ…Ù„Ùƒ ØµÙ„Ø§Ø­ÙŠØ© Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†'); return; }
-  if (!SupabaseClient) { alert('ØªØ¹Ø°Ø± Ø§Ù„Ø§ØªØµØ§Ù„ Ø¨Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª'); return; }
+  if (!hasPerm('users_manage')) { alert('لا تملك صلاحية إدارة المستخدمين'); return; }
+  if (!SupabaseClient) { alert('تعذر الاتصال بقاعدة البيانات'); return; }
   const uname = (document.getElementById('userMgmtUsername').value || '').trim();
   const name = (document.getElementById('userMgmtName').value || '').trim();
-  if (!uname) { alert('Ø§Ø³Ù… Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… Ù…Ø·Ù„ÙˆØ¨'); return; }
+  if (!uname) { alert('اسم المستخدم مطلوب'); return; }
 
   const isActive = !!document.getElementById('userMgmtIsActive')?.checked;
   const role = (document.getElementById('userMgmtRole')?.value || 'custom').toString().trim() || 'custom';
@@ -8494,7 +8494,7 @@ async function addOrUpdateUser() {
     .select('id,full_name,is_active,permissions')
     .eq('username', uname)
     .maybeSingle();
-  if (exErr || !existing?.id) { alert('Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯'); return; }
+  if (exErr || !existing?.id) { alert('المستخدم غير موجود'); return; }
 
   let permissions = (existing.permissions && typeof existing.permissions === 'object') ? existing.permissions : {};
   try {
@@ -8519,7 +8519,7 @@ async function addOrUpdateUser() {
     .from('profiles')
     .update({ full_name: name, permissions, is_active: isActive })
     .eq('id', existing.id);
-  if (error) { alert('ØªØ¹Ø°Ø± Ø­ÙØ¸ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…'); return; }
+  if (error) { alert('تعذر حفظ المستخدم'); return; }
   try {
     const afterPerms = permissions && typeof permissions === 'object' ? permissions : {};
     const beforePerms = before.permissions || {};
@@ -8536,14 +8536,14 @@ async function addOrUpdateUser() {
     });
     const parts = [];
     if (before.full_name !== name) parts.push(`Ø§Ù„Ø§Ø³Ù…: "${before.full_name}" â†’ "${name}"`);
-    if (before.is_active !== isActive) parts.push(`Ø§Ù„Ø­Ø§Ù„Ø©: ${before.is_active ? 'Ù…ÙØ¹Ù„' : 'Ù…Ø¹Ø·Ù„'} â†’ ${isActive ? 'Ù…ÙØ¹Ù„' : 'Ù…Ø¹Ø·Ù„'}`);
+    if (before.is_active !== isActive) parts.push(`Ø§Ù„Ø­Ø§Ù„Ø©: ${before.is_active ? 'مفعل' : 'Ù…Ø¹Ø·Ù„'} â†’ ${isActive ? 'مفعل' : 'Ù…Ø¹Ø·Ù„'}`);
     if (beforeRole !== afterRole) parts.push(`Ø§Ù„Ø¯ÙˆØ±: ${beforeRole} â†’ ${afterRole}`);
     if (added.length) parts.push(`ØµÙ„Ø§Ø­ÙŠØ§Øª Ù…Ø¶Ø§ÙØ©: ${added.join(', ')}`);
     if (removed.length) parts.push(`ØµÙ„Ø§Ø­ÙŠØ§Øª Ù…Ø­Ø°ÙˆÙØ©: ${removed.join(', ')}`);
     await logAction('ØªØ­Ø¯ÙŠØ« ØµÙ„Ø§Ø­ÙŠØ§Øª/Ù…Ø³ØªØ®Ø¯Ù…', '', `target: ${uname} | ${parts.join(' | ')}`);
   } catch { }
   try { await renderUsersList(); } catch { }
-  alert('ØªÙ… Ø­ÙØ¸ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…');
+  alert('تم حفظ المستخدم');
 }
 
 try {
@@ -8555,17 +8555,17 @@ try {
 } catch { }
 
 async function generateResetPasswordLinkForSelectedUser() {
-  if (!SupabaseClient) { alert('ØªØ¹Ø°Ø± Ø§Ù„Ø§ØªØµØ§Ù„ Ø¨Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª'); return; }
-  if (!hasPerm('users_manage')) { alert('Ù„Ø§ ØªÙ…Ù„Ùƒ ØµÙ„Ø§Ø­ÙŠØ© Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†'); return; }
+  if (!SupabaseClient) { alert('تعذر الاتصال بقاعدة البيانات'); return; }
+  if (!hasPerm('users_manage')) { alert('لا تملك صلاحية إدارة المستخدمين'); return; }
   const uname = (document.getElementById('userMgmtUsername')?.value || '').trim();
-  if (!uname) { alert('Ø§Ø®ØªØ± Ù…Ø³ØªØ®Ø¯Ù… Ø£ÙˆÙ„Ø§Ù‹'); return; }
+  if (!uname) { alert('اختر مستخدم أولاً'); return; }
   const email = usernameToEmail(uname);
   try {
     const { data, error } = await SupabaseClient.functions.invoke('reset-password-link', { body: { email } });
     if (error) throw error;
     const link = data?.action_link || data?.link || '';
-    if (!link) { alert('ØªÙ… ØªÙ†ÙÙŠØ° Ø§Ù„Ø·Ù„Ø¨ØŒ Ù„ÙƒÙ† Ù„Ù… ÙŠØªÙ… Ø¥Ø±Ø¬Ø§Ø¹ Ø±Ø§Ø¨Ø·'); return; }
-    try { await logAction('Ø¥Ù†Ø´Ø§Ø¡ Ø±Ø§Ø¨Ø· Ø¥Ø¹Ø§Ø¯Ø© ØªØ¹ÙŠÙŠÙ† ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ±', '', `target: ${uname}`); } catch { }
+    if (!link) { alert('تم تنفيذ الطلب، لكن لم يتم إرجاع رابط'); return; }
+    try { await logAction('إنشاء رابط إعادة تعيين كلمة المرور', '', `target: ${uname}`); } catch { }
     prompt('Ø§Ù†Ø³Ø® Ø±Ø§Ø¨Ø· Ø¥Ø¹Ø§Ø¯Ø© ØªØ¹ÙŠÙŠÙ† ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± ÙˆØ£Ø±Ø³Ù„Ù‡ Ù„Ù„Ù…Ø³ØªØ®Ø¯Ù…:', link);
   } catch (e) {
     try { console.error(e); } catch { }
@@ -8580,12 +8580,12 @@ async function deleteUser() {
   if (!uname) { alert('Ø£Ø¯Ø®Ù„ Ø§Ø³Ù… Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…'); return; }
   if (!confirm(`ØªØ¹Ø·ÙŠÙ„ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…: ${uname} ØŸ`)) return;
   const { data: existing, error: exErr } = await SupabaseClient.from('profiles').select('id').eq('username', uname).maybeSingle();
-  if (exErr || !existing?.id) { alert('Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯'); return; }
+  if (exErr || !existing?.id) { alert('المستخدم غير موجود'); return; }
   const { error } = await SupabaseClient.from('profiles').update({ is_active: false }).eq('id', existing.id);
-  if (error) { alert('ØªØ¹Ø°Ø± ØªØ¹Ø·ÙŠÙ„ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…'); return; }
-  try { await logAction('ØªØ¹Ø·ÙŠÙ„ Ù…Ø³ØªØ®Ø¯Ù…', '', `username: ${uname}`); } catch { }
+  if (error) { alert('تعذر تعطيل المستخدم'); return; }
+  try { await logAction('تعطيل مستخدم', '', `username: ${uname}`); } catch { }
   try { await renderUsersList(); } catch { }
-  alert('ØªÙ… ØªØ¹Ø·ÙŠÙ„ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…');
+  alert('تم تعطيل المستخدم');
 }
 function sendUpdateCaseToSheets(c) {
   const payload = { action: 'updateCase', case: normalizeCaseForSheets(c) };

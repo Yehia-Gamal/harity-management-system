@@ -1,3 +1,17 @@
+/*
+  CSS maintenance map
+  1. Foundations: variables, reset, body, layout
+  2. Header/navigation
+  3. Shared controls: buttons, forms, tables, modals, toasts
+  4. Dashboard/reports
+  5. Case list/details
+  6. Settings/users
+  7. Responsive overrides
+
+  Keep this file loaded as the single stylesheet until visual regression checks
+  are available. Extract sections only after verifying load order in the app.
+*/
+
 :root {
     --primary: #0f172a;
     --secondary: #2563eb;
@@ -8,7 +22,11 @@
     --shadow: 0 10px 28px rgba(15, 23, 42, .10);
     --radius: 12px;
     --accent: #7c3aed;
-    --ring: rgba(37, 99, 235, .18)
+    --ring: rgba(37, 99, 235, .18);
+    --surface: #ffffff;
+    --surface-soft: #f8fafc;
+    --border-soft: #e2e8f0;
+    --text-muted: #64748b
 }
 
 * {
@@ -118,6 +136,10 @@ body.modal-open {
     gap: 8px;
     flex-wrap: wrap;
     justify-content: flex-start
+}
+
+#mobileNavToggle {
+    display: none
 }
 
 .nav {
@@ -279,7 +301,18 @@ body.modal-open {
 }
 
 .nav-wrap {
-    width: 100%
+    width: 100%;
+    position: relative
+}
+
+.nav-wrap::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .28), transparent);
+    pointer-events: none
 }
 
 @media (max-width:768px) {
@@ -318,10 +351,30 @@ body.modal-open {
         display: block
     }
 
+    #mobileNavToggle {
+        display: inline-flex
+    }
+
     .nav-wrap {
         overflow-x: auto;
         overflow-y: hidden;
-        -webkit-overflow-scrolling: touch
+        -webkit-overflow-scrolling: touch;
+        border-radius: 16px;
+        background: rgba(15, 23, 42, .18);
+        border: 1px solid rgba(255, 255, 255, .10);
+        padding: 4px 8px;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px)
+    }
+
+    .nav-wrap:not(.open) {
+        display: none
+    }
+
+    .nav-wrap.open {
+        display: block;
+        margin-top: 8px;
+        box-shadow: 0 18px 38px rgba(15, 23, 42, .22)
     }
 
     .nav {
@@ -452,7 +505,8 @@ body.modal-open {
     gap: 10px;
     align-items: center;
     width: 92%;
-    max-width: 420px
+    max-width: 420px;
+    pointer-events: none
 }
 
 .toast {
@@ -463,13 +517,18 @@ body.modal-open {
     padding: 12px 14px;
     box-shadow: 0 14px 28px rgba(15, 23, 42, .22);
     font-size: 14px;
-    line-height: 1.4;
-    text-align: center;
-    position: relative
+    line-height: 1.55;
+    text-align: right;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, .08);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    pointer-events: auto
 }
 
 .toast-text {
-    padding-inline: 18px
+    padding-inline: 18px;
+    display: block
 }
 
 .toast-close {
@@ -516,7 +575,10 @@ body.modal-open {
 
 .modal-card {
     max-height: calc(100vh - 40px);
-    overflow-y: auto
+    overflow-y: auto;
+    background: rgba(255, 255, 255, .98);
+    border: 1px solid rgba(226, 232, 240, .9);
+    box-shadow: 0 28px 60px rgba(15, 23, 42, .18)
 }
 
 .section {
@@ -552,7 +614,7 @@ body.modal-open {
 
 @media (max-width:768px) {
     .grid.cols-2 {
-        grid-template-columns: 1fr
+        grid-template-columns: 1fr !important;
     }
 }
 
@@ -659,13 +721,17 @@ body.modal-open {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #667eea, #764ba2)
+    background:
+        radial-gradient(900px 320px at 15% 10%, rgba(37, 99, 235, .16), transparent 60%),
+        radial-gradient(720px 280px at 85% 0%, rgba(22, 163, 74, .12), transparent 58%),
+        linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%)
 }
 
 .card {
     background: #fff;
     border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
+    border: 1px solid rgba(226, 232, 240, .95);
+    box-shadow: 0 20px 50px rgba(15, 23, 42, .12);
     padding: 24px;
     max-width: 420px;
     width: 100%
@@ -683,7 +749,8 @@ body.modal-open {
 
 .table {
     width: 100%;
-    border-collapse: collapse
+    border-collapse: collapse;
+    overflow: scroll;
 }
 
 .table th,
@@ -1087,6 +1154,45 @@ body.modal-open {
     margin-bottom: 10px
 }
 
+.decision-dialog {
+    display: grid;
+    gap: 12px;
+    padding-top: 2px
+}
+
+.decision-dialog-message {
+    white-space: pre-line;
+    line-height: 1.8;
+    color: #1f2937;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 12px 14px
+}
+
+.decision-dialog-hint {
+    margin-top: 6px;
+    color: #64748b;
+    font-size: .92rem
+}
+
+.decision-dialog-status {
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    line-height: 1.6
+}
+
+.decision-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 14px;
+    flex-wrap: wrap
+}
+
 .close-btn {
     background: transparent;
     border: none;
@@ -1118,15 +1224,15 @@ body.modal-open {
     flex-direction: column;
     overflow: hidden;
     padding: 16px;
-    height: 70%;
+    height: 100%;
     width: 80%;
 }
 
 @media (max-width:768px) {
     #caseDetailsModal .modal-card {
         padding: 12px;
-        max-height: calc(75dvh - 20px);
-        height: calc(75dvh - 20px);
+        max-height: 90%;
+        height: 90%;
     }
 
     #caseDetailsModal .modal-footer-actions {
@@ -1264,8 +1370,44 @@ body.modal-open {
     padding-bottom: 10px
 }
 
+#caseDetailsModal .modal-head {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    background: rgba(255, 255, 255, .92);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-bottom: 1px solid #eef2f7;
+}
+
+#caseDetailsModal #caseDetailsBody .caseDetailsBodyBtnAdd {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background: rgba(255, 255, 255, .92);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
 .caseDetailsBodyBtnAdd {
     display: block !important;
+}
+
+@media (max-width:420px) {
+    .caseDetailsBodyBtnAdd button {
+        /* width: fit-content; */
+    }
+
+    button#caseTabPayments {
+        width: fit-content !important;
+    }
+
+
+    #casePanelPayments div button.btn {
+        width: fit-content;
+    }
 }
 
 #caseDetailsModal .modal-footer-actions {
@@ -1300,6 +1442,8 @@ body.modal-open {
     color: #fff;
     border-color: #2563eb
 }
+
+
 
 @media (max-width:420px) {
     #caseDetailsModal .modal-footer-actions {
@@ -1507,11 +1651,54 @@ body.modal-open {
     margin-top: 10px;
     color: #64748b;
     font-size: .9rem;
-    line-height: 1.5;
-    background: #f8fafc;
-    border: 1px dashed #e5e7eb;
+    line-height: 1.65;
+    background: linear-gradient(180deg, #fbfdff 0%, #f8fafc 100%);
+    border: 1px solid #e2e8f0;
+    border-inline-start: 4px solid #cbd5e1;
     border-radius: 12px;
-    padding: 10px
+    padding: 11px 12px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .65);
+    transition: border-color .18s ease, background .18s ease, color .18s ease, box-shadow .18s ease
+}
+
+.settings-hint.is-error {
+    color: #991b1b !important;
+    background: linear-gradient(180deg, #fff7f7 0%, #fef2f2 100%) !important;
+    border-color: #fecaca !important;
+    border-inline-start-color: #dc2626 !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7), 0 0 0 1px rgba(220, 38, 38, .03)
+}
+
+.settings-hint.is-success {
+    color: #166534 !important;
+    background: linear-gradient(180deg, #f7fff8 0%, #f0fdf4 100%) !important;
+    border-color: #bbf7d0 !important;
+    border-inline-start-color: #16a34a !important
+}
+
+.settings-hint.is-info {
+    color: #475569 !important;
+    background: linear-gradient(180deg, #fbfdff 0%, #f8fafc 100%) !important;
+    border-color: #e2e8f0 !important;
+    border-inline-start-color: #94a3b8 !important
+}
+
+#loginHint {
+    line-height: 1.65;
+    border-style: solid !important;
+    border-width: 1px !important;
+    border-inline-start-width: 4px !important
+}
+
+#casesCardsToolbar,
+#casesListPager {
+    border-color: var(--border-soft) !important;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, .05);
+    background: linear-gradient(180deg, rgba(255, 255, 255, .98) 0%, rgba(248, 250, 252, .96) 100%) !important
+}
+
+#casesListPager {
+    color: var(--text-muted)
 }
 
 .settings-actions {
@@ -2142,6 +2329,10 @@ section#newCaseSection h2 {
     #caseDetailsModal .modal-footer-actions .btn {
         width: fit-content;
     }
+
+    .phoneShowNeds {
+        grid-template-columns: 1fr !important;
+    }
 }
 
 @media (max-width:420px) {
@@ -2279,5 +2470,498 @@ section#newCaseSection h2 {
 
     .modal-footer-actions-2 {
         width: 100%;
+    }
+}
+
+/* 2026-04-16 Royal Blue Visual Refresh */
+:root {
+    --primary: #0b3fb3;
+    --secondary: #1f63ff;
+    --accent: #5bbcff;
+    --primary-deep: #08286f;
+    --surface: #ffffff;
+    --surface-soft: #f5f8ff;
+    --surface-strong: #eef4ff;
+    --border-soft: #d9e5ff;
+    --border-strong: #b8ceff;
+    --text-muted: #5a6b8c;
+    --shadow: 0 18px 42px rgba(11, 63, 179, .10);
+    --ring: rgba(31, 99, 255, .18)
+}
+
+body {
+    background:
+        radial-gradient(860px 360px at 100% 0%, rgba(31, 99, 255, .10), transparent 58%),
+        radial-gradient(760px 320px at 0% 18%, rgba(91, 188, 255, .10), transparent 56%),
+        linear-gradient(180deg, #f6faff 0%, #edf4ff 100%);
+    color: #17305f
+}
+
+.container {
+    max-width: 1320px
+}
+
+#mainApp main.container {
+    padding-top: 20px;
+    padding-bottom: 28px
+}
+
+.header {
+    background:
+        linear-gradient(135deg, rgba(8, 40, 111, .98) 0%, rgba(11, 63, 179, .98) 48%, rgba(31, 99, 255, .96) 100%);
+    box-shadow: 0 18px 40px rgba(8, 40, 111, .18)
+}
+
+.header:before {
+    background:
+        radial-gradient(740px 180px at 10% 0%, rgba(91, 188, 255, .22), transparent 60%),
+        radial-gradient(620px 160px at 90% 10%, rgba(255, 255, 255, .08), transparent 56%)
+}
+
+.header .wrap {
+    gap: 18px;
+    padding: 14px 0 10px
+}
+
+.logo {
+    font-size: 1.45rem;
+    font-weight: 900;
+    color: #fff
+}
+
+.brand {
+    gap: 10px
+}
+
+.brand-logo {
+    width: 88px;
+    height: 88px;
+    padding: 8px;
+    border-radius: 22px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .16) 0%, rgba(255, 255, 255, .07) 100%);
+    border: 1px solid rgba(255, 255, 255, .18);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, .14)
+}
+
+.brand-user {
+    color: rgba(255, 255, 255, .82);
+    font-size: .84rem
+}
+
+#mobileNavToggle,
+#userMenuBtn {
+    color: #eff5ff !important;
+    border-color: rgba(255, 255, 255, .18) !important;
+    background: rgba(255, 255, 255, .10) !important;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, .10)
+}
+
+#mobileNavToggle:hover,
+#userMenuBtn:hover {
+    background: rgba(255, 255, 255, .18) !important
+}
+
+.nav {
+    gap: 8px;
+    padding: 4px 4px 16px;
+    justify-content: flex-start
+}
+
+.nav-btn {
+    padding: 11px 16px;
+    border-radius: 16px;
+    border-color: rgba(255, 255, 255, .14);
+    background: linear-gradient(180deg, rgba(255, 255, 255, .10) 0%, rgba(255, 255, 255, .06) 100%);
+    font-weight: 700;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06)
+}
+
+.nav-btn:hover {
+    background: rgba(255, 255, 255, .18);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, .10)
+}
+
+.nav-btn.active {
+    color: var(--primary-deep);
+    background: linear-gradient(180deg, #ffffff 0%, #edf4ff 100%);
+    border-color: rgba(255, 255, 255, .88);
+    box-shadow: 0 16px 30px rgba(5, 25, 76, .20)
+}
+
+.nav-btn.cta {
+    background: linear-gradient(135deg, rgba(91, 188, 255, .30) 0%, rgba(255, 255, 255, .16) 100%);
+    border-color: rgba(91, 188, 255, .55)
+}
+
+.nav-btn.active.cta {
+    background: linear-gradient(180deg, #ffffff 0%, #eef5ff 100%)
+}
+
+.mini-badge {
+    background: rgba(255, 255, 255, .22)
+}
+
+.btn {
+    border-radius: 14px;
+    padding: 11px 16px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    box-shadow: 0 14px 24px rgba(11, 63, 179, .16);
+    font-weight: 800;
+    letter-spacing: 0;
+    border: 1px solid rgba(15, 71, 194, .16)
+}
+
+.btn.light {
+    background: linear-gradient(180deg, #ffffff 0%, #f6f9ff 100%);
+    border: 1px solid var(--border-soft);
+    color: var(--primary-deep);
+    box-shadow: 0 10px 20px rgba(11, 63, 179, .06)
+}
+
+.btn.light:hover {
+    border-color: var(--border-strong);
+    background: linear-gradient(180deg, #ffffff 0%, #edf4ff 100%)
+}
+
+.section {
+    position: relative;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .98) 0%, rgba(247, 250, 255, .98) 100%);
+    border: 1px solid var(--border-soft);
+    border-radius: 22px;
+    box-shadow: 0 22px 46px rgba(9, 36, 102, .08);
+    padding: 22px;
+    overflow: hidden
+}
+
+.section::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 52%, var(--accent) 100%)
+}
+
+.section h2 {
+    color: var(--primary-deep);
+    font-size: 1.28rem;
+    font-weight: 900;
+    margin-bottom: 12px
+}
+
+.label {
+    color: #24427d;
+    font-weight: 800;
+    font-size: .95rem
+}
+
+.control,
+.table .control,
+select.control,
+textarea.control {
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    border: 1px solid var(--border-soft);
+    border-radius: 14px;
+    color: #17305f;
+    min-height: 46px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7)
+}
+
+.control:focus,
+select.control:focus,
+textarea.control:focus {
+    outline: none;
+    border-color: rgba(31, 99, 255, .45);
+    box-shadow: 0 0 0 4px rgba(31, 99, 255, .10), inset 0 1px 0 rgba(255, 255, 255, .8)
+}
+
+.pw-toggle {
+    border-color: var(--border-soft);
+    background: linear-gradient(180deg, #ffffff 0%, #f3f7ff 100%);
+    color: var(--primary)
+}
+
+.menu {
+    border: 1px solid var(--border-soft);
+    border-radius: 18px;
+    box-shadow: 0 26px 46px rgba(8, 40, 111, .16)
+}
+
+.menu .menu-info {
+    background: linear-gradient(180deg, #ffffff 0%, #f5f8ff 100%)
+}
+
+#loginScreen .container {
+    display: grid;
+    align-items: center;
+    min-height: 100vh
+}
+
+.loginScreen-h2 {
+    display: none
+}
+
+#loginScreen .card {
+    max-width: 520px;
+    margin-inline: auto;
+    padding: 30px;
+    border-radius: 28px;
+    border: 1px solid rgba(185, 205, 255, .95);
+    box-shadow: 0 32px 70px rgba(8, 40, 111, .18);
+    position: relative;
+    overflow: hidden
+}
+
+#loginScreen .card::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 55%, var(--accent) 100%)
+}
+
+#loginScreen .card>div:first-child {
+    margin-bottom: 18px !important
+}
+
+#loginScreen .card>div:first-child img {
+    max-width: 140px !important;
+    padding: 10px;
+    border-radius: 22px;
+    background: linear-gradient(180deg, #ffffff 0%, #eef4ff 100%);
+    border: 1px solid var(--border-soft);
+    box-shadow: 0 16px 36px rgba(11, 63, 179, .10)
+}
+
+#loginScreen .card h2 {
+    color: var(--primary-deep);
+    font-size: 1.5rem;
+    font-weight: 900
+}
+
+#loginScreen .label {
+    color: #31518d
+}
+
+#forgotPasswordBtn {
+    border-color: var(--border-soft);
+    background: linear-gradient(180deg, #ffffff 0%, #f6f9ff 100%);
+    color: var(--primary-deep)
+}
+
+.table {
+    background: transparent
+}
+
+.table th {
+    background: linear-gradient(180deg, #f7faff 0%, #edf3ff 100%);
+    color: var(--primary-deep);
+    font-weight: 900;
+    position: sticky;
+    top: 0;
+    z-index: 1
+}
+
+.table th,
+.table td {
+    border-bottom: 1px solid #e8efff
+}
+
+.table tbody tr:nth-child(even) {
+    background: rgba(239, 245, 255, .42)
+}
+
+.table tbody tr:hover {
+    background: rgba(216, 230, 255, .42)
+}
+
+.kpi,
+.dash-card,
+.settings-card,
+.case-card {
+    border-color: var(--border-soft);
+    box-shadow: 0 18px 36px rgba(8, 40, 111, .08)
+}
+
+.kpi {
+    border-radius: 18px;
+    background: linear-gradient(180deg, #ffffff 0%, #f6f9ff 100%)
+}
+
+.kpi-title,
+.fin-value,
+.alert-title,
+.dash-card-title,
+.settings-card-header h3 {
+    color: var(--primary-deep)
+}
+
+.dash-card-head,
+.settings-card-header {
+    background: linear-gradient(180deg, #ffffff 0%, #f3f8ff 100%);
+    border-bottom-color: #e6eeff
+}
+
+.dash-table-filters,
+.dash-table-toolbar,
+.dash-table-footer {
+    border-color: #e6eeff
+}
+
+.dash-table-filters {
+    background: linear-gradient(180deg, #fbfdff 0%, #f3f7ff 100%)
+}
+
+.case-card {
+    position: relative;
+    border-radius: 20px;
+    padding: 16px
+}
+
+.case-card::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 55%, var(--accent) 100%);
+    opacity: .95
+}
+
+.case-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--border-strong);
+    box-shadow: 0 24px 46px rgba(8, 40, 111, .14)
+}
+
+.case-card-name {
+    color: var(--primary-deep)
+}
+
+.case-card-meta,
+.case-card-desc,
+.dash-card-sub,
+.settings-card-subtitle,
+.kpi-meta,
+.fin-title,
+.alert-sub {
+    color: var(--text-muted)
+}
+
+.case-card-select {
+    border-color: var(--border-soft);
+    background: linear-gradient(180deg, #ffffff 0%, #f4f8ff 100%)
+}
+
+#casesCardsToolbar,
+#casesListPager,
+#bulkActionsBar,
+#casesListActiveFilter {
+    border: 1px solid var(--border-soft) !important;
+    border-radius: 18px !important;
+    background: linear-gradient(180deg, #ffffff 0%, #f6f9ff 100%) !important;
+    box-shadow: 0 12px 28px rgba(8, 40, 111, .06)
+}
+
+.modal {
+    background: rgba(5, 20, 61, .46);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px)
+}
+
+.modal-card {
+    border-radius: 24px;
+    border: 1px solid rgba(201, 216, 255, .95);
+    background: linear-gradient(180deg, rgba(255, 255, 255, .99) 0%, rgba(247, 250, 255, .99) 100%);
+    box-shadow: 0 34px 72px rgba(8, 40, 111, .20)
+}
+
+.modal-head {
+    margin-bottom: 14px
+}
+
+.modal-head h3 {
+    color: var(--primary-deep);
+    font-weight: 900
+}
+
+.close-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+    border: 1px solid #d9e5ff;
+    color: var(--primary);
+    background: linear-gradient(180deg, #ffffff 0%, #edf4ff 100%)
+}
+
+.close-btn:hover {
+    color: #fff;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    border-color: rgba(31, 99, 255, .22)
+}
+
+#caseDetailsModal .modal-card {
+    width: min(1120px, 92vw);
+    max-width: min(1120px, 92vw);
+    border-radius: 28px
+}
+
+#caseDetailsModal .modal-head,
+#caseDetailsModal .modal-footer-actions,
+#caseDetailsModal #caseDetailsBody .caseDetailsBodyBtnAdd {
+    background: rgba(248, 251, 255, .94);
+    border-color: #e0eaff
+}
+
+#caseDetailsModal .modal-footer-actions .btn {
+    min-width: 132px
+}
+
+.decision-dialog-message,
+.decision-dialog-status,
+.settings-hint {
+    border-radius: 16px
+}
+
+@media (max-width:1024px) {
+    .container {
+        max-width: 100%
+    }
+
+    #caseDetailsModal .modal-card {
+        width: 96vw;
+        max-width: 96vw
+    }
+}
+
+@media (max-width:768px) {
+    .header .wrap {
+        gap: 10px
+    }
+
+    .brand-logo {
+        width: 72px;
+        height: 72px;
+        border-radius: 18px
+    }
+
+    .logo {
+        font-size: 1.12rem
+    }
+
+    .section {
+        border-radius: 18px;
+        padding: 16px
+    }
+
+    #loginScreen .card {
+        padding: 22px;
+        border-radius: 24px
+    }
+
+    .nav-btn {
+        padding: 9px 12px;
+        border-radius: 14px
     }
 }
