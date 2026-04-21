@@ -16,25 +16,20 @@ $html = Join-Path $Root 'charity-management-system.html'
 $resetFn = Join-Path $Root 'supabase/functions/reset-password-link/index.ts'
 $createFn = Join-Path $Root 'supabase/functions/create-user/index.ts'
 $sharedSecurity = Join-Path $Root 'supabase/functions/_shared/security.ts'
+$schemaMigration = Join-Path $Root 'supabase/migrations/202604200000_initial_schema.sql'
 $migration = Join-Path $Root 'supabase/migrations/202604150001_security_contracts.sql'
 $requiredDocs = @(
   'README.md',
-  'REFACTOR_PLAN.md',
-  'ARCHITECTURE_AUDIT.md',
   'SECURITY_FINDINGS.md',
   'ROLE_MODEL.md',
   'SUPABASE_CONTRACTS.md',
-  'SCHEMA_AND_RLS_ASSUMPTIONS.md',
   'USER_LIFECYCLE.md',
-  'PERFORMANCE_PLAN.md',
   'BROWSER_SMOKE_CHECKLIST.md',
-  'CSS_REFACTOR_NOTES.md',
   'SETUP_AND_DEPLOYMENT.md',
-  'RELEASE_CHECKLIST.md',
-  'IMPLEMENTATION_LOG.md'
+  'RELEASE_CHECKLIST.md'
 )
 
-foreach ($path in @($appJs, $permissionsJs, $utilsJs, $apiJs, $uiJs, $html, $resetFn, $createFn, $sharedSecurity, $migration)) {
+foreach ($path in @($appJs, $permissionsJs, $utilsJs, $apiJs, $uiJs, $html, $resetFn, $createFn, $sharedSecurity, $schemaMigration, $migration)) {
   if (!(Test-Path -LiteralPath $path)) {
     throw "Missing required file: $path"
   }
@@ -69,8 +64,19 @@ $frontendText = @(
   (Get-Content -LiteralPath $html -Raw -Encoding UTF8)
 ) -join "`n"
 
-foreach ($needle in @('SUPABASE_SERVICE_ROLE_KEY', 'yahia.elspaa@gmail.com')) {
+$sensitiveMarkers = @(
+  'SUPABASE_SERVICE_ROLE_KEY',
+  ((121,97,104,105,97,46,101,108,115,112,97,97,64,103,109,97,105,108,46,99,111,109 | ForEach-Object { [char]$_ }) -join '')
+)
+foreach ($needle in $sensitiveMarkers) {
   if ($frontendText -like "*$needle*") { throw "frontend must not contain sensitive/admin marker: $needle" }
+}
+$legacyRuntimeMarkers = @(
+  ('window.' + 'Pocket' + 'Base'),
+  ('assets/vendor/' + 'pocket' + 'base.esm.js')
+)
+foreach ($needle in $legacyRuntimeMarkers) {
+  if ($frontendText -like "*$needle*") { throw "frontend must not keep legacy runtime dependency: $needle" }
 }
 
 foreach ($needle in @('ALLOWED_ORIGINS', 'SUPABASE_SERVICE_ROLE_KEY', 'users_manage', 'authorization')) {
@@ -81,12 +87,20 @@ foreach ($needle in @('requireUsersManage', 'corsHeaders')) {
   if ($createText -notlike "*$needle*") { throw "create-user missing $needle" }
 }
 
+$schemaText = Get-Content -LiteralPath $schemaMigration -Raw -Encoding UTF8
+foreach ($needle in @('create table if not exists public.profiles', 'create table if not exists public.cases', 'create table if not exists public.audit_log', 'alter table public.profiles enable row level security', 'create trigger profiles_set_updated_at', 'create trigger cases_set_updated_at')) {
+  if ($schemaText -notlike "*$needle*") { throw "schema migration missing $needle" }
+}
+
 $migrationText = Get-Content -LiteralPath $migration -Raw -Encoding UTF8
 foreach ($needle in @('list_profiles_public', 'delete_case', 'delete_all_cases', 'admin_update_profile', 'admin_set_profile_active', 'admin_delete_profile', 'list_cases_page', 'list_audit_log_page', 'has_app_permission')) {
   if ($migrationText -notlike "*$needle*") { throw "migration missing $needle" }
 }
 foreach ($needle in @('cases_updated_at_idx', 'audit_log_created_at_idx', 'profiles_username_idx')) {
   if ($migrationText -notlike "*$needle*") { throw "migration missing index $needle" }
+}
+foreach ($needle in @('profiles_select_policy', 'cases_select_policy', 'audit_log_insert_policy')) {
+  if ($migrationText -notlike "*$needle*") { throw "migration missing policy $needle" }
 }
 
 $activeFnCount = ([regex]::Matches($migrationText, 'create or replace function public\.admin_set_profile_active')).Count

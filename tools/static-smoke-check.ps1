@@ -8,6 +8,7 @@ $htmlPath = Join-Path $Root 'charity-management-system.html'
 $html = Get-Content -LiteralPath $htmlPath -Raw -Encoding UTF8
 
 $expectedOrder = @(
+  'assets/js/config.js',
   'assets/js/modules/permissions.js',
   'assets/js/modules/utils.js',
   'assets/js/modules/api.js',
@@ -24,14 +25,14 @@ foreach ($needle in $expectedOrder) {
   Write-Host "OK script order: $needle"
 }
 
-foreach ($needle in @('assets/css/style.css', '@supabase/supabase-js', 'xlsx')) {
+foreach ($needle in @('assets/css/style.css', 'assets/css/redesign.css', 'assets/css/runtime-overrides.css', '@supabase/supabase-js@2', 'assets/vendor/xlsx.full.min.js')) {
   if ($html -notlike "*$needle*") { throw "HTML missing dependency: $needle" }
   Write-Host "OK dependency: $needle"
 }
 
-$assetVersionMatches = [regex]::Matches($html, '(assets/(?:css/style\.css|js/modules/permissions\.js|js/modules/utils\.js|js/modules/api\.js|js/modules/ui\.js|js/app\.js))\?v=([0-9_]+)')
-if (@($assetVersionMatches).Count -lt 6) {
-  throw 'HTML must include cache-busting query versions for style.css and core scripts.'
+$assetVersionMatches = [regex]::Matches($html, '(assets/(?:css/style\.css|css/redesign\.css|css/runtime-overrides\.css|js/config\.js|js/modules/permissions\.js|js/modules/utils\.js|js/modules/api\.js|js/modules/ui\.js|js/app\.js))\?v=([0-9_]+)')
+if (@($assetVersionMatches).Count -lt 9) {
+  throw 'HTML must include cache-busting query versions for core CSS and scripts.'
 }
 
 $versions = @($assetVersionMatches | ForEach-Object { $_.Groups[2].Value } | Select-Object -Unique)

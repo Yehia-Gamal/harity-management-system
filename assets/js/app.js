@@ -1,10 +1,156 @@
-// State
-const APP_VERSION = '20260305_1325';
+﻿// State
+const APP_VERSION = '20260416_2205';
 
 let LastToastSig_ = '';
 let LastToastAt_ = 0;
 
 let AuthOpChain_ = Promise.resolve();
+
+const CP1252_REVERSE_MAP_ = new Map([
+  [0x20ac, 0x80],
+  [0x201a, 0x82],
+  [0x0192, 0x83],
+  [0x201e, 0x84],
+  [0x2026, 0x85],
+  [0x2020, 0x86],
+  [0x2021, 0x87],
+  [0x02c6, 0x88],
+  [0x2030, 0x89],
+  [0x0160, 0x8a],
+  [0x2039, 0x8b],
+  [0x0152, 0x8c],
+  [0x017d, 0x8e],
+  [0x2018, 0x91],
+  [0x2019, 0x92],
+  [0x201c, 0x93],
+  [0x201d, 0x94],
+  [0x2022, 0x95],
+  [0x2013, 0x96],
+  [0x2014, 0x97],
+  [0x02dc, 0x98],
+  [0x2122, 0x99],
+  [0x0161, 0x9a],
+  [0x203a, 0x9b],
+  [0x0153, 0x9c],
+  [0x017e, 0x9e],
+  [0x0178, 0x9f],
+]);
+const SUSPICIOUS_ARABIC_MOJIBAKE_PATTERN_ = /[ØÙÃâð]/;
+const ARABIC_MOJIBAKE_SEGMENT_PATTERN_ =
+  /[ØÙÃâð][0-9A-Za-z\u0080-\u017F\u0192\u02C6\u02DC\u201A-\u201E\u2018-\u201D\u2020-\u2022\u2026\u2030\u2039\u203A\u20AC\u2122\s.,:;!?'"`()\-_/\\[\]{}|+=*<>%؟،]*/g;
+
+function encodeCp1252Bytes_(value) {
+  const bytes = [];
+  for (const ch of value) {
+    const code = ch.codePointAt(0);
+    if (code <= 0xff) {
+      bytes.push(code);
+      continue;
+    }
+    if (CP1252_REVERSE_MAP_.has(code)) {
+      bytes.push(CP1252_REVERSE_MAP_.get(code));
+      continue;
+    }
+    return null;
+  }
+  return Uint8Array.from(bytes);
+}
+
+function repairArabicMojibake_(value) {
+  const text = (value == null ? '' : String(value));
+  if (!text || !SUSPICIOUS_ARABIC_MOJIBAKE_PATTERN_.test(text)) return text;
+
+  return text.replace(ARABIC_MOJIBAKE_SEGMENT_PATTERN_, (segment) => {
+    const bytes = encodeCp1252Bytes_(segment);
+    if (!bytes) return segment;
+    try {
+      const decoded = new TextDecoder('utf-8', { fatal: false }).decode(bytes);
+      if (!decoded || decoded.includes('\ufffd')) return segment;
+      const decodedArabicCount = (decoded.match(/[\u0600-\u06FF]/g) || []).length;
+      const sourceArabicCount = (segment.match(/[\u0600-\u06FF]/g) || []).length;
+      if (decodedArabicCount < sourceArabicCount) return segment;
+      return decoded;
+    } catch {
+      return segment;
+    }
+  });
+}
+
+function repairArabicMojibakeInDom_(root) {
+  const scope = root && root.nodeType ? root : document.body;
+  if (!scope) return;
+
+  const fixTextNode = (node) => {
+    const current = node?.nodeValue || '';
+    if (!SUSPICIOUS_ARABIC_MOJIBAKE_PATTERN_.test(current)) return;
+    const next = repairArabicMojibake_(current);
+    if (next && next !== current) node.nodeValue = next;
+  };
+
+  const fixElement = (element) => {
+    if (!element || element.nodeType !== 1) return;
+    ['title', 'aria-label', 'placeholder', 'alt', 'value'].forEach((attr) => {
+      const current = element.getAttribute(attr);
+      if (!current || !SUSPICIOUS_ARABIC_MOJIBAKE_PATTERN_.test(current)) return;
+      const next = repairArabicMojibake_(current);
+      if (next && next !== current) element.setAttribute(attr, next);
+    });
+  };
+
+  if (scope.nodeType === Node.TEXT_NODE) {
+    fixTextNode(scope);
+    return;
+  }
+
+  if (scope.nodeType === Node.ELEMENT_NODE) {
+    fixElement(scope);
+  }
+
+  const walker = document.createTreeWalker(scope, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
+  let current = walker.currentNode;
+  while (current) {
+    if (current.nodeType === Node.TEXT_NODE) fixTextNode(current);
+    if (current.nodeType === Node.ELEMENT_NODE) fixElement(current);
+    current = walker.nextNode();
+  }
+}
+
+function installArabicMojibakeGuard_() {
+  if (window.__arabicMojibakeGuardInstalled__) return;
+  window.__arabicMojibakeGuardInstalled__ = true;
+
+  const run = () => repairArabicMojibakeInDom_(document.body);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run, { once: true });
+  } else {
+    queueMicrotask(run);
+  }
+
+  try {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'characterData') {
+          repairArabicMojibakeInDom_(mutation.target);
+          return;
+        }
+        if (mutation.type === 'attributes') {
+          repairArabicMojibakeInDom_(mutation.target);
+          return;
+        }
+        mutation.addedNodes.forEach((node) => repairArabicMojibakeInDom_(node));
+      });
+    });
+    observer.observe(document.documentElement || document.body, {
+      subtree: true,
+      childList: true,
+      characterData: true,
+      attributes: true,
+      attributeFilter: ['title', 'aria-label', 'placeholder', 'alt', 'value'],
+    });
+  } catch { }
+}
+
+installArabicMojibakeGuard_();
 
 function isAuthLockError_(e) {
   try {
@@ -97,62 +243,160 @@ function buildCaseDiffText_(before, after) {
 
 async function createUserFromUi_() {
   if (!requirePermUi_('users_manage', 'لا تملك صلاحية إدارة المستخدمين')) return;
-  if (!requireSupabaseUi_()) return;
+  if (!requireDatabaseUi_('اتصال Supabase غير جاهز حالياً')) return;
 
-  const hint = document.getElementById('newUserHint');
-  const email = (document.getElementById('newUserEmail')?.value || '').toString().trim();
-  const username = (document.getElementById('newUserUsername')?.value || '').toString().trim() || email;
-  const name = (document.getElementById('newUserName')?.value || '').toString().trim();
-  const tempPassword = (document.getElementById('newUserTempPassword')?.value || '').toString();
+  const hint = document.getElementById('modalNewUserHint') || document.getElementById('newUserHint');
+  const email = (document.getElementById('modalNewUserEmail')?.value || document.getElementById('newUserEmail')?.value || '').toString().trim();
+  const fallbackUsername = email.includes('@') ? email.split('@')[0] : email;
+  const username = (document.getElementById('modalNewUserUsername')?.value || document.getElementById('newUserUsername')?.value || '').toString().trim() || fallbackUsername;
+  const name = (document.getElementById('modalNewUserName')?.value || document.getElementById('newUserName')?.value || '').toString().trim();
+  const tempPassword = (document.getElementById('modalNewUserTempPassword')?.value || document.getElementById('newUserTempPassword')?.value || '').toString();
 
-  if (hint) { hint.style.display = 'none'; hint.textContent = ''; }
+  if (hint) {
+    hint.style.display = 'none';
+    hint.textContent = '';
+  }
   if (!email || !email.includes('@')) {
-    if (hint) { hint.style.display = 'block'; hint.textContent = 'أدخل بريد إلكتروني صحيح'; }
+    if (hint) {
+      hint.style.display = 'block';
+      hint.textContent = 'أدخل بريدًا إلكترونيًا صحيحًا';
+    }
+    return;
+  }
+  if (!DatabaseClient) {
+    if (hint) {
+      hint.style.display = 'block';
+      hint.textContent = 'الاتصال بـ Supabase غير جاهز حالياً';
+    }
     return;
   }
 
   const permissions = getDefaultNewUserPermissions_();
+  const password = tempPassword || randomTempPassword_();
 
-  // Create user via Edge Function ONLY (bypass RLS).
   try {
-    if (!SupabaseClient?.functions?.invoke) {
-      throw new Error('Edge Functions غير مفعلة/غير متاحة');
-    }
-    const { data, error } = await SupabaseClient.functions.invoke('create-user', {
-      body: { email, password: tempPassword || null, username, full_name: name || null, permissions }
+    const res = await invokeAuthedEdgeFunction_('create-user', {
+      body: {
+        email,
+        password,
+        username,
+        full_name: name || username,
+        permissions
+      }
     });
-    if (error) {
-      const msg = (error?.message || '').toString();
-      throw new Error(msg || 'تعذر تنفيذ create-user');
-    }
-    if (!data?.ok) {
-      const err = (data?.error || '').toString();
-      throw new Error(err || 'create-user لم يرجع ok');
-    }
-
-    try { await logAction('إنشاء مستخدم (واجهة)', '', `username: ${username} | email: ${email}`); } catch { }
+    if (res?.error) throw res.error;
+    const createdId = res?.data?.user_id || '';
+    try { await logAction('إنشاء مستخدم', '', `username: ${username} | email: ${email} | userId: ${createdId}`); } catch { }
     try { await renderUsersList(); } catch { }
+    try { await prefillUser(username); } catch { }
     if (hint) {
       hint.style.display = 'block';
-      hint.textContent = 'تم إنشاء المستخدم بنجاح.';
+      hint.textContent = `تم إنشاء المستخدم بنجاح. كلمة المرور المؤقتة: ${password}`;
     }
-    try { document.getElementById('newUserEmail').value = ''; } catch { }
-    try { document.getElementById('newUserUsername').value = ''; } catch { }
-    try { document.getElementById('newUserName').value = ''; } catch { }
-    try { document.getElementById('newUserTempPassword').value = ''; } catch { }
+    clearAddUserForm_();
   } catch (e) {
     try { console.error('createUserFromUi_ error:', e); } catch { }
-    const msg = (e?.message || '').toString().trim();
+    const msg = await describeEdgeFunctionError_(e);
     if (hint) {
       hint.style.display = 'block';
-      if (msg.toLowerCase().includes('cors') || msg.toLowerCase().includes('failed to fetch')) {
-        hint.textContent = 'تعذر إنشاء المستخدم: مشكلة CORS في Edge Function create-user. تأكد أن الكود موجود في ملف entrypoint (index.ts) وتم Deploy، وأن الـFunction ترد على OPTIONS وتضيف Access-Control-Allow-Origin.';
-      } else {
-        hint.textContent = msg ? `تعذر إنشاء المستخدم: ${msg}` : 'تعذر إنشاء المستخدم';
-      }
+      hint.textContent = msg ? `تعذر إنشاء المستخدم: ${msg}` : 'تعذر إنشاء المستخدم';
     }
   }
 }
+
+function getSupabaseClient_() {
+  return DatabaseClient?.raw || null;
+}
+
+async function invokeAuthedEdgeFunction_(name, options = {}) {
+  if (!DatabaseClient?.functions?.invoke) throw new Error('database_client_not_ready');
+
+  const sessionResult = await runAuthOp_(() => DatabaseClient.auth.getSession(), { retryLock: false });
+  const token = (sessionResult?.data?.session?.access_token || '').toString().trim();
+  if (!token) throw new Error('انتهت جلسة الدخول. سجل الخروج ثم ادخل مرة أخرى.');
+
+  const headers = {
+    ...(options?.headers && typeof options.headers === 'object' ? options.headers : {}),
+    Authorization: `Bearer ${token}`,
+  };
+
+  return await DatabaseClient.functions.invoke(name, { ...(options || {}), headers });
+}
+
+async function describeEdgeFunctionError_(error) {
+  const fallback = (error?.message || '').toString().trim();
+  try {
+    const response = error?.context;
+    const status = Number(response?.status || 0) || 0;
+    let code = '';
+    try {
+      const body = await response.clone().json();
+      code = (body?.error || body?.message || '').toString().trim();
+    } catch { }
+
+    if (status === 401 || code === 'unauthorized') return 'جلسة الدخول غير صالحة أو انتهت. سجل الخروج ثم ادخل مرة أخرى.';
+    if (status === 403 || code === 'forbidden') return 'الحساب الحالي لا يملك صلاحية إدارة المستخدمين على الخادم.';
+    if (code === 'server_not_configured') return 'Edge Function غير مهيأة. تحقق من أسرار Supabase المطلوبة.';
+    if (code === 'origin_not_allowed') return 'الدومين الحالي غير مسموح في ALLOWED_ORIGINS الخاصة بالـ Edge Function.';
+    if (code === 'username_exists') return 'اسم المستخدم موجود بالفعل.';
+    if (code === 'email_required') return 'البريد الإلكتروني مطلوب.';
+    if (code === 'username_required') return 'اسم المستخدم مطلوب.';
+    if (code === 'weak_password') return 'كلمة المرور المؤقتة ضعيفة.';
+    if (code === 'auth_user_create_failed') return 'تعذر إنشاء حساب Supabase Auth. راجع البريد أو إعدادات Auth.';
+    if (code === 'profile_create_failed') return 'تم إنشاء حساب Auth لكن تعذر إنشاء ملف المستخدم، وتمت محاولة التراجع.';
+  } catch { }
+  return fallback;
+}
+
+function clearAddUserForm_() {
+  ['modalNewUserEmail', 'modalNewUserUsername', 'modalNewUserName', 'modalNewUserTempPassword', 'newUserEmail', 'newUserUsername', 'newUserName', 'newUserTempPassword'].forEach((id) => {
+    try {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    } catch { }
+  });
+}
+
+function openAddUserModal() {
+  const modal = document.getElementById('addUserModal');
+  if (!modal) return;
+  clearAddUserForm_();
+  try {
+    const hint = document.getElementById('modalNewUserHint');
+    if (hint) {
+      hint.style.display = 'none';
+      hint.textContent = '';
+    }
+  } catch { }
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden', 'false');
+  try { document.body.classList.add('modal-open'); } catch { }
+  try { document.getElementById('modalNewUserEmail')?.focus?.(); } catch { }
+}
+
+function closeAddUserModal() {
+  const modal = document.getElementById('addUserModal');
+  if (!modal) return;
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden', 'true');
+  try { document.body.classList.remove('modal-open'); } catch { }
+  try { document.getElementById('openAddUserBtn')?.focus?.(); } catch { }
+}
+
+try {
+  const setupAddUserModalClose_ = () => {
+    const modal = document.getElementById('addUserModal');
+    if (!modal || modal.getAttribute('data-wired-close') === '1') return;
+    modal.setAttribute('data-wired-close', '1');
+    modal.addEventListener('click', (event) => {
+      const card = modal.querySelector('.modal-card');
+      if (card && card.contains(event.target)) return;
+      closeAddUserModal();
+    });
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setupAddUserModalClose_);
+  else setupAddUserModalClose_();
+} catch { }
 
 function delay_(ms) {
   return new Promise(res => setTimeout(res, ms));
@@ -296,13 +540,165 @@ function requirePermUi_(perm, message) {
   return false;
 }
 
-function requireSupabaseUi_(message = 'تعذر الاتصال بقاعدة البيانات') {
+function requireDatabaseUi_(message = 'تعذر الاتصال بقاعدة البيانات') {
   try {
-    if (SupabaseClient) return true;
+    if (DatabaseClient) return true;
     notify_(message, 'error', { alert: true });
     return false;
   } catch { }
   return false;
+}
+
+
+
+function isMobileNavViewport_() {
+  try { return !!window.matchMedia(`(max-width: ${MOBILE_NAV_BREAKPOINT}px)`).matches; } catch { }
+  try { return (window.innerWidth || 0) <= MOBILE_NAV_BREAKPOINT; } catch { }
+  return false;
+}
+
+function syncMobileNavState_(open) {
+  try {
+    const wrap = document.getElementById('mainNavWrap');
+    const overlay = document.querySelector('.sidebar-overlay');
+    const btn = document.getElementById('mobileNavToggle');
+    if (!wrap) return;
+    const next = !!open && isMobileNavViewport_();
+    wrap.classList.toggle('open', next);
+    wrap.classList.toggle('sidebar-open', next);
+    wrap.setAttribute('data-mobile-open', next ? '1' : '0');
+    if (overlay) {
+      overlay.classList.toggle('active', next);
+      overlay.setAttribute('aria-hidden', next ? 'false' : 'true');
+    }
+    document.body.classList.toggle('nav-open', next);
+    document.body.classList.toggle('sidebar-open', next);
+    if (btn) btn.setAttribute('aria-expanded', next ? 'true' : 'false');
+  } catch { }
+}
+
+function readCasesListFiltersState_() {
+  const selectedCategories = [];
+  try {
+    if (window.filterCategoriesGroup) {
+      Array.from(filterCategoriesGroup.querySelectorAll('input[type="checkbox"]')).forEach((box) => {
+        if (box.checked && !box.hasAttribute('data-all')) selectedCategories.push((box.value || '').toString());
+      });
+    }
+  } catch { }
+  return {
+    q: (window.caseSearch ? (caseSearch.value || '').toString() : ''),
+    explorer: (window.filterExplorer ? (filterExplorer.value || '').toString() : ''),
+    governorate: (window.filterGovernorate ? (filterGovernorate.value || '').toString() : ''),
+    area: (window.filterArea ? (filterArea.value || '').toString() : ''),
+    grade: (window.filterCaseGrade ? (filterCaseGrade.value || '').toString() : ''),
+    needs: (window.filterNeeds ? (filterNeeds.value || '').toString() : ''),
+    selectedCategories,
+    dashboardFilter: AppState.dashboardFilter ? JSON.parse(JSON.stringify(AppState.dashboardFilter)) : null
+  };
+}
+
+function applyCasesListFiltersState_(state = {}) {
+  try { if (window.caseSearch) caseSearch.value = (state.q || '').toString(); } catch { }
+  try { if (window.filterExplorer) filterExplorer.value = (state.explorer || '').toString(); } catch { }
+  try { if (window.filterGovernorate) filterGovernorate.value = (state.governorate || '').toString(); } catch { }
+  try { if (window.filterArea) filterArea.value = (state.area || '').toString(); } catch { }
+  try { if (window.filterCaseGrade) filterCaseGrade.value = (state.grade || '').toString(); } catch { }
+  try { if (window.filterNeeds) filterNeeds.value = (state.needs || '').toString(); } catch { }
+  try {
+    if (window.filterCategoriesGroup) {
+      const selected = new Set(Array.isArray(state.selectedCategories) ? state.selectedCategories.map((value) => (value || '').toString()) : []);
+      Array.from(filterCategoriesGroup.querySelectorAll('input[type="checkbox"]')).forEach((box) => {
+        if (box.hasAttribute('data-all')) {
+          box.checked = false;
+          return;
+        }
+        box.checked = selected.has((box.value || '').toString());
+      });
+    }
+  } catch { }
+  try {
+    AppState.dashboardFilter = state.dashboardFilter ? JSON.parse(JSON.stringify(state.dashboardFilter)) : null;
+    const bar = document.getElementById('casesListActiveFilter');
+    const lab = document.getElementById('casesListActiveFilterLabel');
+    const hasDash = !!AppState.dashboardFilter?.key;
+    if (lab) lab.textContent = hasDash ? ((AppState.dashboardFilter?.label || AppState.dashboardFilter?.key || '').toString()) : '';
+    if (bar) bar.classList.toggle('hidden', !hasDash);
+  } catch { }
+}
+
+function captureCasesUiState_() {
+  const modal = document.getElementById('caseDetailsModal');
+  const listSection = document.getElementById('casesListSection');
+  return {
+    filters: readCasesListFiltersState_(),
+    selectedIds: getSelectedCaseIds(),
+    limit: Math.max(CASES_LIST_INITIAL_LIMIT, Number(AppState._casesListLimit || 0) || CASES_LIST_INITIAL_LIMIT),
+    scrollY: Math.max(0, Number(window.scrollY || window.pageYOffset || document.documentElement?.scrollTop || 0) || 0),
+    currentCaseId: (AppState.currentCaseId || '').toString(),
+    caseDetailsTab: (AppState.caseDetailsTab || 'details').toString(),
+    detailsOpen: !!(modal && modal.classList.contains('show')),
+    listSectionVisible: !!(listSection && !listSection.classList.contains('hidden'))
+  };
+}
+
+function restoreSelectedCases_(selectedIds = []) {
+  const selected = new Set((Array.isArray(selectedIds) ? selectedIds : []).map((id) => (id || '').toString()).filter(Boolean));
+  try {
+    const host = document.getElementById('casesCardsGrid') || document.getElementById('casesTableBody');
+    if (!host) return;
+    Array.from(host.querySelectorAll('input.case-select')).forEach((box) => {
+      const id = (box.getAttribute('data-case-id') || '').toString();
+      box.checked = selected.has(id);
+    });
+  } catch { }
+  try { onCaseSelectionChange(); } catch { }
+}
+
+function restoreCasesUiState_(state = {}, options = {}) {
+  try { applyCasesListFiltersState_(state.filters || {}); } catch { }
+  const focusCaseId = (options.focusCaseId || state.currentCaseId || '').toString().trim();
+  try {
+    const filtered = getFilteredCasesCached_();
+    let limit = Math.max(CASES_LIST_INITIAL_LIMIT, Number(state.limit || 0) || CASES_LIST_INITIAL_LIMIT);
+    if (focusCaseId) {
+      const idx = filtered.findIndex((item) => String(item?.id || '').trim() === focusCaseId);
+      if (idx >= 0) limit = Math.max(limit, idx + 1);
+    }
+    AppState._casesListLimit = limit;
+  } catch {
+    try { AppState._casesListLimit = Math.max(CASES_LIST_INITIAL_LIMIT, Number(state.limit || 0) || CASES_LIST_INITIAL_LIMIT); } catch { }
+  }
+  try { renderCasesTable(); } catch { }
+  try { restoreSelectedCases_(state.selectedIds || []); } catch { }
+  try { updateCasesListUiState_(); } catch { }
+
+  const reopenDetails = options.reopenDetails !== false && !!(options.forceOpenDetails || state.detailsOpen);
+  if (focusCaseId && reopenDetails) {
+    try { openCaseDetails(focusCaseId, 'view'); } catch { }
+    try { setCaseDetailsTab((options.caseDetailsTab || state.caseDetailsTab || 'details').toString()); } catch { }
+  }
+
+  const shouldRestoreScroll = options.restoreScroll !== false && !!state.listSectionVisible;
+  if (shouldRestoreScroll) {
+    const top = Math.max(0, Number(state.scrollY || 0) || 0);
+    try {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          try { window.scrollTo({ top, behavior: 'auto' }); } catch { try { window.scrollTo(0, top); } catch { } }
+        });
+      });
+    } catch { }
+  }
+}
+
+function getAdjacentVisibleCaseId_(caseId, list) {
+  const targetId = (caseId || '').toString().trim();
+  if (!targetId) return '';
+  const source = Array.isArray(list) ? list : getFilteredCasesCached_();
+  const idx = source.findIndex((item) => String(item?.id || '').trim() === targetId);
+  if (idx < 0) return '';
+  return String(source[idx + 1]?.id || source[idx - 1]?.id || '').trim();
 }
 
 function toggleMobileNav(forceOpen) {
@@ -310,15 +706,49 @@ function toggleMobileNav(forceOpen) {
     const wrap = document.getElementById('mainNavWrap');
     const btn = document.getElementById('mobileNavToggle');
     if (!wrap || !btn) return;
-    const isOpen = wrap.classList.contains('open');
+    const isOpen = wrap.classList.contains('sidebar-open') || wrap.classList.contains('open');
     const open = typeof forceOpen === 'boolean' ? forceOpen : !isOpen;
-    if (open) wrap.classList.add('open'); else wrap.classList.remove('open');
-    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    syncMobileNavState_(open);
   } catch { }
 }
 
 function closeMobileNav() {
-  try { toggleMobileNav(false); } catch { }
+  try { syncMobileNavState_(false); } catch { }
+}
+
+function wireMobileNav_() {
+  try {
+    const btn = document.getElementById('mobileNavToggle');
+    if (btn && btn.getAttribute('data-wired') !== '1') {
+      btn.setAttribute('data-wired', '1');
+      btn.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleMobileNav();
+      });
+    }
+    const overlay = document.querySelector('.sidebar-overlay');
+    if (overlay && overlay.getAttribute('data-wired') !== '1') {
+      overlay.setAttribute('data-wired', '1');
+      overlay.addEventListener('click', () => closeMobileNav());
+    }
+    if (document.body.getAttribute('data-mobile-nav-escape') !== '1') {
+      document.body.setAttribute('data-mobile-nav-escape', '1');
+      document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape') return;
+        const wrap = document.getElementById('mainNavWrap');
+        if (!wrap || (!wrap.classList.contains('open') && !wrap.classList.contains('sidebar-open'))) return;
+        closeMobileNav();
+      });
+    }
+    if (window.__mobileNavResizeWired !== true) {
+      window.__mobileNavResizeWired = true;
+      window.addEventListener('resize', () => {
+        if (!isMobileNavViewport_()) closeMobileNav();
+      });
+    }
+    syncMobileNavState_(false);
+  } catch { }
 }
 
 try {
@@ -326,12 +756,948 @@ try {
     const wrap = document.getElementById('mainNavWrap');
     const btn = document.getElementById('mobileNavToggle');
     if (!wrap || !btn) return;
-    if (!wrap.classList.contains('open')) return;
+    if (!wrap.classList.contains('open') && !wrap.classList.contains('sidebar-open')) return;
     const t = e?.target;
     if (wrap.contains(t) || btn.contains(t)) return;
     closeMobileNav();
   });
 } catch { }
+
+function refreshCaseViews_(caseId, options = {}) {
+  const id = (caseId || AppState.currentCaseId || '').toString().trim();
+  const preserveTab = options.preserveTab !== false;
+  const reopenDetails = !!options.reopenDetails;
+  try { renderCasesTable(); } catch { }
+  try { updateDashboardStats(); } catch { }
+  try { generateReportPreview(); } catch { }
+  try { updateNavBadges(); } catch { }
+  try { markCasesDerivedDirty_(); } catch { }
+  try { if (document.getElementById('medicalCommitteeSection') && !document.getElementById('medicalCommitteeSection').classList.contains('hidden')) renderMedicalTable(); } catch { }
+  if (id && reopenDetails) {
+    const tab = preserveTab ? (AppState.caseDetailsTab || 'details') : 'details';
+    try { openCaseDetails(id, 'view'); } catch { }
+    try { setCaseDetailsTab(tab); } catch { }
+  }
+}
+
+function getSelectedCaseIds() {
+  try {
+    const host = document.getElementById('casesCardsGrid') || document.getElementById('casesTableBody');
+    if (!host) return [];
+    return Array.from(host.querySelectorAll('input.case-select:checked'))
+      .map((box) => (box.getAttribute('data-case-id') || '').toString().trim())
+      .filter(Boolean);
+  } catch { }
+  return [];
+}
+
+function clearBulkSelection() {
+  try {
+    const host = document.getElementById('casesCardsGrid') || document.getElementById('casesTableBody');
+    if (host) Array.from(host.querySelectorAll('input.case-select')).forEach((box) => { box.checked = false; });
+  } catch { }
+  try {
+    const allBox = document.getElementById('casesSelectAll');
+    if (allBox) {
+      allBox.checked = false;
+      allBox.indeterminate = false;
+    }
+  } catch { }
+  try { onCaseSelectionChange(); } catch { }
+}
+
+function getSelectedCases_() {
+  const ids = new Set(getSelectedCaseIds());
+  return (AppState.cases || []).filter((item) => ids.has(String(item?.id || '').trim()));
+}
+
+function getBulkStatusOptions_() {
+  const base = ['جديدة', 'محولة', 'منفذة', 'قيد البحث', 'مرفوضة'];
+  const dynamic = Array.from(new Set((AppState.cases || []).map((item) => String(item?.status || '').trim()).filter(Boolean)));
+  return Array.from(new Set(base.concat(dynamic))).filter(Boolean);
+}
+
+function renderMiniCaseList_(list = [], max = 4) {
+  const items = (Array.isArray(list) ? list : [])
+    .slice(0, Math.max(0, max))
+    .map((item) => `• ${(item?.familyHead || item?.id || '').toString()}`);
+  const extra = Array.isArray(list) && list.length > max ? `\n... +${list.length - max} حالات أخرى` : '';
+  return items.join('\n') + extra;
+}
+
+
+async function openBulkStatusPrompt() {
+  const ids = getSelectedCaseIds();
+  if (!ids.length) { alert('حدد حالة واحدة على الأقل'); return; }
+  if (!hasPerm('case_status_change') && !hasPerm('cases_edit')) { alert('لا تملك صلاحية تعديل حالة الحالات'); return; }
+  const options = getBulkStatusOptions_();
+  const answer = (prompt(`اكتب الحالة الجديدة للحالات المحددة:
+${options.join(' | ')}`) || '').toString().trim();
+  if (!answer) return;
+  await applyStatusToSelectedCases(answer);
+}
+
+async function applyStatusToSelectedCases(statusValue) {
+  const ids = getSelectedCaseIds();
+  if (!ids.length) { alert('حدد حالة واحدة على الأقل'); return; }
+  const normalizedStatus = (statusValue || '').toString().trim();
+  if (!normalizedStatus) return;
+  if (!hasPerm('case_status_change') && !hasPerm('cases_edit')) { alert('لا تملك صلاحية تعديل حالة الحالات'); return; }
+
+  const selectedCases = getSelectedCases_();
+  const uiState = captureCasesUiState_();
+  const beforeMap = new Map(selectedCases.map((item) => [String(item.id), JSON.parse(JSON.stringify(item))]));
+  const actorName = (AppState.currentUser?.name || AppState.currentUser?.username || '').toString().trim();
+
+  try {
+    for (const item of selectedCases) {
+      item.status = normalizedStatus;
+      if (normalizedStatus === 'مرفوضة' || normalizedStatus === 'رفض') {
+        item.caseGrade = 'حالة مرفوضة';
+      }
+      item.updated_at = new Date().toISOString();
+    }
+    refreshCaseViews_('', { reopenDetails: false, preserveTab: true });
+
+    for (const item of selectedCases) {
+      await upsertCaseToDb(item);
+      try {
+        await logAction('تعديل حالة مجموعة حالات', item.id, `status:${normalizedStatus} | by:${actorName}`);
+      } catch { }
+    }
+
+    await syncCasesAfterMutation_('', { uiState, reopenDetails: false, preserveTab: true });
+    try { restoreSelectedCases_(ids); } catch { }
+    try { showToast_(`تم تحديث ${selectedCases.length} حالة إلى: ${normalizedStatus}`, 'success'); } catch { }
+  } catch (e) {
+    try {
+      (AppState.cases || []).forEach((item, idx) => {
+        const snap = beforeMap.get(String(item?.id || ''));
+        if (snap) AppState.cases[idx] = snap;
+      });
+      refreshCaseViews_('', { reopenDetails: false, preserveTab: true });
+    } catch { }
+    alert(`تعذر تنفيذ التحديث الجماعي.
+
+الخطأ: ${e?.message || 'خطأ غير معروف'}`);
+  }
+}
+
+async function rejectSelectedCases() {
+  const ids = getSelectedCaseIds();
+  if (!ids.length) { alert('حدد حالة واحدة على الأقل'); return; }
+  if (!hasPerm('cases_edit')) { alert('لا تملك صلاحية تعديل الحالات'); return; }
+  const selectedCases = getSelectedCases_().filter((item) => !isRejectedCase_(item));
+  if (!selectedCases.length) { alert('كل الحالات المحددة مرفوضة بالفعل.'); return; }
+  const reason = (prompt(`سبب رفض الحالات المحددة (${selectedCases.length}) - إجباري:`) || '').toString().trim();
+  if (!reason) { alert('سبب الرفض مطلوب'); return; }
+  if (!confirm(`تأكيد رفض ${selectedCases.length} حالة؟
+
+${renderMiniCaseList_(selectedCases)}`)) return;
+
+  const uiState = captureCasesUiState_();
+  const beforeMap = new Map(selectedCases.map((item) => [String(item.id), JSON.parse(JSON.stringify(item))]));
+  const rejectedAt = new Date().toISOString();
+  const rejectedByName = (AppState.currentUser?.name || AppState.currentUser?.username || '').toString().trim();
+  const rejectedByUser = (AppState.currentUser?.username || '').toString().trim();
+
+  try {
+    for (const item of selectedCases) {
+      item.caseGrade = 'حالة مرفوضة';
+      item.status = 'مرفوضة';
+      item.rejectionReason = reason;
+      item.rejectedAt = rejectedAt;
+      item.rejectedByName = rejectedByName;
+      item.rejectedByUser = rejectedByUser;
+      item.updated_at = new Date().toISOString();
+    }
+    refreshCaseViews_('', { reopenDetails: false, preserveTab: true });
+
+    for (const item of selectedCases) {
+      await upsertCaseToDb(item);
+      try { await logAction('رفض حالة', item.id, `سبب: ${reason}`); } catch { }
+    }
+
+    await syncCasesAfterMutation_('', { uiState, reopenDetails: false, preserveTab: true });
+    try { restoreSelectedCases_(ids); } catch { }
+    try { showToast_(`تم رفض ${selectedCases.length} حالة`, 'success'); } catch { }
+  } catch (e) {
+    try {
+      (AppState.cases || []).forEach((item, idx) => {
+        const snap = beforeMap.get(String(item?.id || ''));
+        if (snap) AppState.cases[idx] = snap;
+      });
+      refreshCaseViews_('', { reopenDetails: false, preserveTab: true });
+    } catch { }
+    alert(`تعذر تنفيذ الرفض الجماعي.
+
+الخطأ: ${e?.message || 'خطأ غير معروف'}`);
+  }
+}
+
+async function deleteSelectedCases() {
+  const ids = getSelectedCaseIds();
+  if (!ids.length) { alert('حدد حالة واحدة على الأقل'); return; }
+  if (!hasPerm('cases_delete')) { alert('لا تملك صلاحية حذف الحالات'); return; }
+  const selectedCases = getSelectedCases_();
+  const nonRejected = selectedCases.filter((item) => !isRejectedCase_(item));
+  if (nonRejected.length) {
+    alert(`الحذف النهائي متاح فقط للحالات المرفوضة.\n\nعدد الحالات غير المؤهلة للحذف: ${nonRejected.length}`);
+    return;
+  }
+  const reason = (prompt(`سبب حذف الحالات المحددة (${selectedCases.length}) - إجباري:`) || '').toString().trim();
+  if (!reason) { alert('سبب الحذف مطلوب'); return; }
+  if (!confirm(`سيتم حذف ${selectedCases.length} حالة نهائياً.
+
+${renderMiniCaseList_(selectedCases)}`)) return;
+
+  const uiState = captureCasesUiState_();
+  const beforeList = Array.isArray(AppState.cases) ? AppState.cases.slice() : [];
+  const selectedSet = new Set(ids.map((id) => String(id || '').trim()));
+  const visibleBeforeDelete = getFilteredCasesCached_().slice();
+  const fallbackCaseId = visibleBeforeDelete.find((item) => !selectedSet.has(String(item?.id || '').trim()))?.id || '';
+
+  try {
+    AppState.cases = (AppState.cases || []).filter((item) => !selectedSet.has(String(item?.id || '').trim()));
+    refreshCaseViews_('', { reopenDetails: false, preserveTab: true });
+
+    for (const item of selectedCases) {
+      await deleteCaseFromDb(item.id);
+      try { await logAction('حذف حالة', item.id, `سبب: ${reason}`); } catch { }
+    }
+
+    await syncCasesAfterMutation_('', { uiState, fallbackCaseId, reopenDetails: false, preserveTab: true });
+    try { clearBulkSelection(); } catch { }
+    try { showToast_(`تم حذف ${selectedCases.length} حالة`, 'success'); } catch { }
+  } catch (e) {
+    AppState.cases = beforeList;
+    refreshCaseViews_('', { reopenDetails: false, preserveTab: true });
+    alert(`تعذر حذف الحالات المحددة.
+
+الخطأ: ${e?.message || 'خطأ غير معروف'}`);
+  }
+}
+
+function getNextCaseNo_() {
+  try {
+    return (AppState.cases || []).reduce((max, item) => {
+      const next = Number(item?.caseNo || 0) || 0;
+      return next > max ? next : max;
+    }, 0) + 1;
+  } catch { }
+  return 1;
+}
+
+function buildSelectOptions_(items, placeholder = 'Select') {
+  const list = Array.isArray(items) ? items : [];
+  return [`<option value="">${escapeHtml(placeholder)}</option>`]
+    .concat(list.map((item) => `<option value="${escapeHtml(String(item || ''))}">${escapeHtml(String(item || ''))}</option>`))
+    .join('');
+}
+
+function buildCurrentUserName_() {
+  try {
+    const user = AppState.currentUser || {};
+    return (user.name || user.full_name || user.username || '').toString().trim();
+  } catch { }
+  return '';
+}
+
+function parseStructuredLines_(raw, mapper) {
+  const lines = (raw || '').toString().split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const out = [];
+  for (const line of lines) {
+    const parts = line.split('|').map((part) => part.trim());
+    try {
+      const item = mapper(parts, line);
+      if (item) out.push(item);
+    } catch { }
+  }
+  return out;
+}
+
+
+function recalculateNewCaseFinancials_() {
+  const readNum = (id) => {
+    const el = document.getElementById(id);
+    const n = Number(el?.value || 0);
+    return Number.isFinite(n) ? n : 0;
+  };
+  try {
+    const totalIncome = readNum('salaryIncome') + readNum('pensionIncome') + readNum('projectIncome') + readNum('ngoIncome');
+    const totalExpenses = readNum('rentExpense') + readNum('utilitiesExpense');
+    const net = totalIncome - totalExpenses;
+    const setText = (id, value) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = String(value.toLocaleString('en-US'));
+    };
+    setText('incomeTotalPreview', totalIncome);
+    setText('expensesTotalPreview', totalExpenses);
+    setText('netMonthlyPreview', net);
+  } catch { }
+}
+
+function wireNewCaseForm_() {
+  try {
+    const form = document.getElementById('caseForm');
+    if (form && form.getAttribute('data-wired') !== '1') {
+      form.setAttribute('data-wired', '1');
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        void submitNewCase_();
+      });
+    }
+  } catch { }
+
+  try {
+    const caseIdEl = document.getElementById('caseId');
+    if (caseIdEl && caseIdEl.getAttribute('data-wired-sync') !== '1') {
+      caseIdEl.setAttribute('data-wired-sync', '1');
+      caseIdEl.addEventListener('input', () => {
+        const hidden = document.getElementById('nationalId');
+        if (hidden && !hidden.value) hidden.value = (caseIdEl.value || '').toString().trim();
+      });
+    }
+  } catch { }
+
+  try {
+    const ids = ['salaryIncome', 'pensionIncome', 'projectIncome', 'ngoIncome', 'rentExpense', 'utilitiesExpense'];
+    ids.forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el || el.getAttribute('data-calc-wired') === '1') return;
+      el.setAttribute('data-calc-wired', '1');
+      el.addEventListener('input', () => recalculateNewCaseFinancials_());
+    });
+    const statusEl = document.getElementById('status');
+    if (statusEl && !statusEl.value) statusEl.value = 'جديدة';
+    const gradeEl = document.getElementById('caseGrade');
+    if (gradeEl && !gradeEl.value) gradeEl.value = 'حالة قيد الانتظار';
+    recalculateNewCaseFinancials_();
+  } catch { }
+}
+
+function renderNewCaseForm_() {
+  const form = document.getElementById('caseForm');
+  if (!form) return;
+
+  const today = new Date().toISOString().slice(0, 10);
+  const explorer = buildCurrentUserName_();
+  const nextCaseNo = getNextCaseNo_();
+  const yesNo = ['نعم', 'لا'];
+  const caseGradeOptions = ['حالة مستديمة', 'حالة موسمية', 'حالة قيد الانتظار'];
+  const statusOptions = ['جديدة', 'محولة', 'قيد البحث', 'منفذة'];
+  const bathroomTypes = ['مشترك', 'مستقل', 'لا يوجد'];
+  const areaTypes = ['حضر', 'ريف', 'عشوائي', 'بدو'];
+  const fundingSources = ['تبرعات أفراد', 'جمعية', 'متبرع', 'صندوق زكاة', 'تمويل ذاتي'];
+
+  form.innerHTML = `
+    <div class="ds-page-header" style="margin-bottom:20px">
+      <div class="ds-page-header-content">
+        <h2 style="margin:0">إضافة حالة جديدة</h2>
+        <p style="margin:8px 0 0">نموذج موسّع لتسجيل كل بيانات الحالة الأساسية والسكنية والمالية والطبية دفعة واحدة.</p>
+      </div>
+      <div class="ds-page-header-actions">
+        <button class="btn light" type="button" onclick="resetNewCaseForm_(true)" aria-label="إعادة ضبط نموذج الحالة" style="display:inline-flex;align-items:center;gap:6px">↺ إعادة ضبط</button>
+        <button class="btn light" type="button" onclick="showSection('casesList','navCasesBtn')" aria-label="فتح قائمة الحالات" style="display:inline-flex;align-items:center;gap:6px">📋 قائمة الحالات</button>
+      </div>
+    </div>
+
+    <div class="ds-section-panel" style="margin:0 0 18px">
+      <div class="ds-section-panel-title">البيانات التعريفية والرئيسية</div>
+      <div class="case-form-grid">
+        <div>
+          <label class="label" for="caseId" style="margin:0">كود الحالة</label>
+          <input id="caseId" class="control" autocomplete="off" placeholder="يُنشأ تلقائياً إذا تركته فارغاً" />
+          <div class="case-form-section-note">الرقم التسلسلي التالي داخل النظام: <strong>${escapeHtml(String(nextCaseNo))}</strong></div>
+        </div>
+        <div>
+          <label class="label" for="nationalIdInput" style="margin:0">الرقم القومي</label>
+          <input id="nationalIdInput" class="control" inputmode="numeric" placeholder="14 رقم مثلاً" />
+        </div>
+        <div>
+          <label class="label" for="familyHead" style="margin:0">اسم رب الأسرة / اسم الحالة *</label>
+          <input id="familyHead" class="control" autocomplete="name" placeholder="الاسم الكامل" required />
+        </div>
+        <div>
+          <label class="label" for="phone" style="margin:0">الهاتف</label>
+          <input id="phone" class="control" inputmode="tel" autocomplete="tel" placeholder="01xxxxxxxxx" />
+        </div>
+        <div>
+          <label class="label" for="whatsapp" style="margin:0">واتساب</label>
+          <input id="whatsapp" class="control" inputmode="tel" placeholder="اختياري" />
+        </div>
+        <div>
+          <label class="label" for="altPhone" style="margin:0">هاتف بديل</label>
+          <input id="altPhone" class="control" inputmode="tel" placeholder="اختياري" />
+        </div>
+        <div>
+          <label class="label" for="date" style="margin:0">تاريخ البحث</label>
+          <input id="date" type="date" class="control" value="${escapeHtml(today)}" />
+        </div>
+        <div>
+          <label class="label" for="explorerName" style="margin:0">الباحث / المستكشف</label>
+          <input id="explorerName" class="control" value="${escapeHtml(explorer)}" placeholder="اسم الباحث" />
+        </div>
+        <div>
+          <label class="label" for="governorate" style="margin:0">المحافظة</label>
+          <select id="governorate" class="control">${buildSelectOptions_(GOVS, 'اختر المحافظة')}</select>
+        </div>
+        <div>
+          <label class="label" for="area" style="margin:0">المنطقة / القرية</label>
+          <input id="area" class="control" placeholder="القرية / الحي / المركز" />
+        </div>
+        <div class="case-form-span-full">
+          <label class="label" for="address" style="margin:0">العنوان التفصيلي</label>
+          <input id="address" class="control" placeholder="العنوان بالكامل" />
+        </div>
+        <div>
+          <label class="label" for="familyCount" style="margin:0">عدد أفراد الأسرة</label>
+          <input id="familyCount" type="number" min="0" class="control" placeholder="0" />
+        </div>
+        <div>
+          <label class="label" for="maritalStatus" style="margin:0">الحالة الاجتماعية</label>
+          <select id="maritalStatus" class="control">${buildSelectOptions_(MARITAL_STATUS_OPTIONS, 'اختر الحالة')}</select>
+        </div>
+        <div>
+          <label class="label" for="category" style="margin:0">الفئة</label>
+          <select id="category" class="control">${buildSelectOptions_(CATEGORIES, 'اختر الفئة')}</select>
+        </div>
+        <div>
+          <label class="label" for="urgency" style="margin:0">درجة الاستعجال</label>
+          <select id="urgency" class="control">${buildSelectOptions_(['عادي', 'عاجل', 'عاجل جدًا'], 'اختر درجة الاستعجال')}</select>
+        </div>
+        <div>
+          <label class="label" for="caseGrade" style="margin:0">تقييم الحالة</label>
+          <select id="caseGrade" class="control">${buildSelectOptions_(caseGradeOptions, 'اختر التقييم')}</select>
+        </div>
+        <div>
+          <label class="label" for="status" style="margin:0">الحالة الإدارية</label>
+          <select id="status" class="control">${buildSelectOptions_(statusOptions, 'اختر الحالة')}</select>
+        </div>
+      </div>
+    </div>
+
+    <div class="ds-section-panel" style="margin:0 0 18px">
+      <div class="ds-section-panel-title">السكن والاحتياج</div>
+      <div class="case-form-grid">
+        <div class="case-form-span-full">
+          <label class="label" for="housingDesc" style="margin:0">وصف السكن</label>
+          <input id="housingDesc" class="control" placeholder="مثال: شقة إيجار قديم / بيت ريفي / غرفة واحدة" />
+        </div>
+        <div>
+          <label class="label" for="roomsCount" style="margin:0">عدد الغرف</label>
+          <input id="roomsCount" type="number" min="0" class="control" placeholder="0" />
+        </div>
+        <div>
+          <label class="label" for="bathroomType" style="margin:0">الحمام</label>
+          <select id="bathroomType" class="control">${buildSelectOptions_(bathroomTypes, 'اختر الحالة')}</select>
+        </div>
+        <div>
+          <label class="label" for="waterExists" style="margin:0">المياه</label>
+          <select id="waterExists" class="control">${buildSelectOptions_(yesNo, 'اختر')}</select>
+        </div>
+        <div>
+          <label class="label" for="roofExists" style="margin:0">السقف</label>
+          <select id="roofExists" class="control">${buildSelectOptions_(yesNo, 'اختر')}</select>
+        </div>
+        <div>
+          <label class="label" for="areaType" style="margin:0">نوع المنطقة</label>
+          <select id="areaType" class="control">${buildSelectOptions_(areaTypes, 'اختر')}</select>
+        </div>
+        <div>
+          <label class="label" for="estimatedAmount" style="margin:0">المبلغ المقترح</label>
+          <input id="estimatedAmount" type="number" min="0" class="control" placeholder="0" />
+        </div>
+        <div>
+          <label class="label" for="deliveredAmount" style="margin:0">المبلغ المنفذ/المسلم</label>
+          <input id="deliveredAmount" type="number" min="0" class="control" value="0" />
+        </div>
+        <div>
+          <label class="label" for="fundingSource" style="margin:0">مصدر التمويل</label>
+          <select id="fundingSource" class="control">${buildSelectOptions_(fundingSources, 'اختر المصدر')}</select>
+        </div>
+        <div class="case-form-span-full">
+          <label class="label" for="needsShort" style="margin:0">ملخص الاحتياج</label>
+          <textarea id="needsShort" class="control" rows="2" placeholder="ملخص سريع لأهم الاحتياجات"></textarea>
+        </div>
+        <div class="case-form-span-full">
+          <label class="label" for="familyNeeds" style="margin:0">احتياجات الأسرة التفصيلية</label>
+          <textarea id="familyNeeds" class="control" rows="3" placeholder="احتياجات السقف / المياه / التعليم / العلاج / الأجهزة..."></textarea>
+        </div>
+        <div class="case-form-span-full">
+          <label class="label" for="description" style="margin:0">وصف الحالة</label>
+          <textarea id="description" class="control" rows="3" placeholder="ملخص ميداني كامل للحالة"></textarea>
+        </div>
+        <div class="case-form-span-full">
+          <label class="label" for="researcherReport" style="margin:0">تقرير الباحث</label>
+          <textarea id="researcherReport" class="control" rows="4" placeholder="ملاحظات الباحث ونتيجة الزيارة"></textarea>
+        </div>
+        <div class="case-form-span-full">
+          <label class="label" for="tagsInput" style="margin:0">وسوم</label>
+          <input id="tagsInput" class="control" placeholder="مثال: يتيم، سقف، علاج، عاجل" />
+        </div>
+      </div>
+    </div>
+
+    <div class="ds-section-panel" style="margin:0 0 18px">
+      <div class="ds-section-panel-title">الدخل والمصروفات والعمل</div>
+      <div class="inline-metrics" style="margin-bottom:16px">
+        <div class="metric"><span>إجمالي الدخل</span><strong id="incomeTotalPreview">0</strong></div>
+        <div class="metric"><span>إجمالي المصروفات</span><strong id="expensesTotalPreview">0</strong></div>
+        <div class="metric"><span>صافي الشهري</span><strong id="netMonthlyPreview">0</strong></div>
+      </div>
+      <div class="case-form-grid">
+        <div>
+          <label class="label" for="fatherJob" style="margin:0">عمل الأب</label>
+          <input id="fatherJob" class="control" placeholder="اختياري" />
+        </div>
+        <div>
+          <label class="label" for="motherJob" style="margin:0">عمل الأم</label>
+          <input id="motherJob" class="control" placeholder="اختياري" />
+        </div>
+        <div>
+          <label class="label" for="salaryIncome" style="margin:0">مرتب</label>
+          <input id="salaryIncome" type="number" min="0" class="control" placeholder="0" />
+        </div>
+        <div>
+          <label class="label" for="pensionIncome" style="margin:0">معاش</label>
+          <input id="pensionIncome" type="number" min="0" class="control" placeholder="0" />
+        </div>
+        <div>
+          <label class="label" for="projectIncome" style="margin:0">دخل مشروع</label>
+          <input id="projectIncome" type="number" min="0" class="control" placeholder="0" />
+        </div>
+        <div>
+          <label class="label" for="ngoIncome" style="margin:0">إعانات/جمعيات</label>
+          <input id="ngoIncome" type="number" min="0" class="control" placeholder="0" />
+        </div>
+        <div>
+          <label class="label" for="rentExpense" style="margin:0">الإيجار</label>
+          <input id="rentExpense" type="number" min="0" class="control" placeholder="0" />
+        </div>
+        <div>
+          <label class="label" for="utilitiesExpense" style="margin:0">المرافق وفواتير أساسية</label>
+          <input id="utilitiesExpense" type="number" min="0" class="control" placeholder="0" />
+        </div>
+        <div class="case-form-span-full">
+          <label class="label" for="incomeNotes" style="margin:0">ملاحظات الدخل</label>
+          <textarea id="incomeNotes" class="control" rows="2" placeholder="أي ملاحظات إضافية عن مصادر الدخل"></textarea>
+        </div>
+        <div class="case-form-span-full">
+          <label class="label" for="expensesNotes" style="margin:0">ملاحظات المصروفات</label>
+          <textarea id="expensesNotes" class="control" rows="2" placeholder="أي ملاحظات إضافية عن المصروفات الشهرية"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="ds-section-panel" style="margin:0 0 18px">
+      <div class="ds-section-panel-title">الديون والزواج والمشروع</div>
+      <div class="case-form-grid">
+        <div>
+          <label class="label" for="debtsEnabled" style="margin:0">هل توجد ديون؟</label>
+          <select id="debtsEnabled" class="control">${buildSelectOptions_(yesNo, 'اختر')}</select>
+        </div>
+        <div>
+          <label class="label" for="debtAmount" style="margin:0">قيمة الدين</label>
+          <input id="debtAmount" type="number" min="0" class="control" placeholder="0" />
+        </div>
+        <div>
+          <label class="label" for="debtOwner" style="margin:0">لصالح من</label>
+          <input id="debtOwner" class="control" placeholder="فرد / جهة / صاحب عقار..." />
+        </div>
+        <div>
+          <label class="label" for="hasCourtOrder" style="margin:0">هل يوجد حكم/إيصال؟</label>
+          <select id="hasCourtOrder" class="control">${buildSelectOptions_(yesNo, 'اختر')}</select>
+        </div>
+        <div class="case-form-span-full">
+          <label class="label" for="debtReason" style="margin:0">سبب الدين</label>
+          <textarea id="debtReason" class="control" rows="2" placeholder="علاج / إيجار / تعليم / تجهيز... "></textarea>
+        </div>
+        <div>
+          <label class="label" for="marriageEnabled" style="margin:0">هل الحالة تجهيز زواج؟</label>
+          <select id="marriageEnabled" class="control">${buildSelectOptions_(yesNo, 'اختر')}</select>
+        </div>
+        <div>
+          <label class="label" for="brideName" style="margin:0">اسم العروسة</label>
+          <input id="brideName" class="control" placeholder="اختياري" />
+        </div>
+        <div>
+          <label class="label" for="groomName" style="margin:0">اسم العريس</label>
+          <input id="groomName" class="control" placeholder="اختياري" />
+        </div>
+        <div>
+          <label class="label" for="groomJob" style="margin:0">عمل العريس</label>
+          <input id="groomJob" class="control" placeholder="اختياري" />
+        </div>
+        <div>
+          <label class="label" for="contractDate" style="margin:0">تاريخ العقد</label>
+          <input id="contractDate" type="date" class="control" />
+        </div>
+        <div>
+          <label class="label" for="weddingDate" style="margin:0">تاريخ الزفاف</label>
+          <input id="weddingDate" type="date" class="control" />
+        </div>
+        <div>
+          <label class="label" for="marriageAvailable" style="margin:0">المتوفر حالياً</label>
+          <input id="marriageAvailable" class="control" placeholder="الأثاث / الأجهزة المتوفرة" />
+        </div>
+        <div>
+          <label class="label" for="marriageNeeded" style="margin:0">المطلوب</label>
+          <input id="marriageNeeded" class="control" placeholder="أهم المتطلبات الناقصة" />
+        </div>
+        <div>
+          <label class="label" for="projectEnabled" style="margin:0">هل يوجد مشروع/مقترح مشروع؟</label>
+          <select id="projectEnabled" class="control">${buildSelectOptions_(yesNo, 'اختر')}</select>
+        </div>
+        <div>
+          <label class="label" for="projectType" style="margin:0">نوع المشروع</label>
+          <input id="projectType" class="control" placeholder="مثال: بقالة / ماكينة خياطة" />
+        </div>
+        <div>
+          <label class="label" for="projectExperience" style="margin:0">الخبرة</label>
+          <input id="projectExperience" class="control" placeholder="الخبرة السابقة أو الحالية" />
+        </div>
+        <div class="case-form-span-full">
+          <label class="label" for="projectNeeds" style="margin:0">احتياجات المشروع</label>
+          <textarea id="projectNeeds" class="control" rows="2" placeholder="ما الذي ينقص لبدء المشروع أو استمراره؟"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="ds-section-panel" style="margin:0 0 18px">
+      <div class="ds-section-panel-title">البيانات الطبية وأفراد الأسرة</div>
+      <div class="case-form-grid">
+        <div>
+          <label class="label" for="medicalType" style="margin:0">نوع المرض/التدخل</label>
+          <input id="medicalType" class="control" placeholder="مثال: عملية عين / فشل كلوي" />
+        </div>
+        <div>
+          <label class="label" for="medicalSpecialty" style="margin:0">التخصص</label>
+          <input id="medicalSpecialty" class="control" placeholder="باطنة / جراحة / قلب..." />
+        </div>
+        <div>
+          <label class="label" for="medicalHospital" style="margin:0">المستشفى</label>
+          <input id="medicalHospital" class="control" placeholder="اسم المستشفى" />
+        </div>
+        <div>
+          <label class="label" for="medicalDoctor" style="margin:0">الطبيب</label>
+          <input id="medicalDoctor" class="control" placeholder="اسم الطبيب" />
+        </div>
+        <div>
+          <label class="label" for="medicalCost" style="margin:0">تكلفة تقديرية طبية</label>
+          <input id="medicalCost" type="number" min="0" class="control" placeholder="0" />
+        </div>
+        <div>
+          <label class="label" for="medicalRequired" style="margin:0">المطلوب طبياً</label>
+          <input id="medicalRequired" class="control" placeholder="عملية / علاج شهري / جهاز..." />
+        </div>
+        <div class="case-form-span-full">
+          <label class="label" for="medicalReport" style="margin:0">ملخص التقرير الطبي</label>
+          <textarea id="medicalReport" class="control" rows="3" placeholder="أهم ما ورد في التقرير الطبي"></textarea>
+        </div>
+        <div class="case-form-span-full">
+          <label class="label" for="familyMembersInput" style="margin:0">أفراد الأسرة</label>
+          <textarea id="familyMembersInput" class="control" rows="4" placeholder="كل فرد في سطر منفصل بهذا الشكل: الاسم | الصلة | العمر | التعليم | الحالة الاجتماعية | العمل | ملاحظات"></textarea>
+          <div class="case-form-section-note">مثال: أحمد | الأب | 45 | يقرأ ويكتب | متزوج | عامل يومية | مريض سكر</div>
+        </div>
+      </div>
+    </div>
+
+    <input id="nationalId" type="hidden" value="" />
+    <div class="ds-toolbar" style="margin:0;padding:0">
+      <div id="newCaseHint" class="ds-empty-state hidden" aria-live="polite" style="margin:0;min-height:auto;padding:12px;text-align:right"></div>
+      <div class="ds-toolbar-group">
+        <button id="saveNewCaseBtn" class="btn" type="submit" aria-label="حفظ الحالة الجديدة" style="display:inline-flex;align-items:center;gap:6px">💾 حفظ الحالة</button>
+      </div>
+    </div>
+  `;
+
+  form.setAttribute('data-rendered', '1');
+  wireNewCaseForm_();
+}
+
+function resetNewCaseForm_(hardReset = false) {
+  try {
+    const form = document.getElementById('caseForm');
+    if (!form) return;
+    if (hardReset || form.getAttribute('data-rendered') !== '1') {
+      form.innerHTML = '';
+      form.removeAttribute('data-rendered');
+      form.removeAttribute('data-wired');
+      renderNewCaseForm_();
+      return;
+    }
+    form.reset();
+    const today = new Date().toISOString().slice(0, 10);
+    try {
+      const dateEl = document.getElementById('date');
+      if (dateEl) dateEl.value = today;
+    } catch { }
+    try {
+      const explorerEl = document.getElementById('explorerName');
+      if (explorerEl && !explorerEl.value) explorerEl.value = buildCurrentUserName_();
+    } catch { }
+    try {
+      const deliveredEl = document.getElementById('deliveredAmount');
+      if (deliveredEl) deliveredEl.value = '0';
+    } catch { }
+    try {
+      const hiddenId = document.getElementById('nationalId');
+      if (hiddenId) hiddenId.value = '';
+    } catch { }
+    try {
+      const statusEl = document.getElementById('status');
+      if (statusEl) statusEl.value = 'جديدة';
+    } catch { }
+    try { recalculateNewCaseFinancials_(); } catch { }
+    try { setInlineHint_('newCaseHint', '', 'info'); } catch { }
+    try { document.getElementById('caseId')?.focus?.(); } catch { }
+  } catch { }
+}
+
+async function submitNewCase_() {
+  if (!requirePermUi_('cases_create', 'لا تملك صلاحية إضافة الحالات')) return;
+  if (!requireDatabaseUi_('اتصال Supabase غير جاهز حالياً')) return;
+
+  const saveBtn = document.getElementById('saveNewCaseBtn');
+  const read = (id) => (document.getElementById(id)?.value || '').toString().trim();
+  const readNum = (id) => {
+    const raw = read(id);
+    if (!raw) return 0;
+    const parsed = Number(raw);
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+  const readYes = (id) => read(id) === 'نعم';
+
+  const inputId = read('caseId');
+  const familyHead = read('familyHead');
+  if (!familyHead) {
+    setInlineHint_('newCaseHint', 'اسم رب الأسرة أو اسم الحالة مطلوب.', 'error');
+    focusField_('familyHead');
+    return;
+  }
+
+  const caseId = inputId || makeNewCaseId_();
+  const duplicate = (AppState.cases || []).some((item) => String(item?.id || '').trim() === caseId);
+  if (duplicate) {
+    setInlineHint_('newCaseHint', 'كود الحالة موجود بالفعل.', 'error');
+    focusField_('caseId');
+    return;
+  }
+
+  const incomeTotal = readNum('salaryIncome') + readNum('pensionIncome') + readNum('projectIncome') + readNum('ngoIncome');
+  const expensesTotal = readNum('rentExpense') + readNum('utilitiesExpense');
+  const nowIso = new Date().toISOString();
+
+  const medicalCases = [];
+  if ([read('medicalType'), read('medicalHospital'), read('medicalDoctor'), read('medicalReport'), read('medicalRequired'), read('medicalCost')].some(Boolean)) {
+    medicalCases.push({
+      name: read('medicalRequired') || read('medicalType') || 'حالة طبية',
+      diseaseType: read('medicalType'),
+      specialty: read('medicalSpecialty'),
+      hospital: read('medicalHospital'),
+      doctor: read('medicalDoctor'),
+      report: read('medicalReport'),
+      required: read('medicalRequired'),
+      estimatedCost: String(readNum('medicalCost') || ''),
+      treatmentSources: ''
+    });
+  }
+
+  const familyMembers = parseStructuredLines_(read('familyMembersInput'), (parts, line) => ({
+    name: parts[0] || line,
+    relation: parts[1] || '',
+    age: Number(parts[2] || 0) || 0,
+    education: parts[3] || '',
+    maritalStatus: parts[4] || '',
+    working: parts[5] || '',
+    notes: parts[6] || ''
+  }));
+
+  const caseObj = {
+    id: caseId,
+    nationalId: read('nationalIdInput') || caseId,
+    altPhone: read('altPhone'),
+    caseNo: getNextCaseNo_(),
+    familyHead,
+    phone: read('phone'),
+    whatsapp: read('whatsapp'),
+    address: read('address'),
+    governorate: read('governorate'),
+    area: read('area'),
+    familyCount: readNum('familyCount'),
+    category: read('category'),
+    urgency: read('urgency') || 'عادي',
+    description: read('description'),
+    explorerName: read('explorerName') || buildCurrentUserName_(),
+    date: read('date') || nowIso.slice(0, 10),
+    status: read('status') || 'جديدة',
+    caseGrade: normalizeCaseGrade_(read('caseGrade')) || 'حالة قيد الانتظار',
+    maritalStatus: read('maritalStatus'),
+    jobs: {
+      father: read('fatherJob'),
+      mother: read('motherJob')
+    },
+    estimatedAmount: readNum('estimatedAmount'),
+    deliveredAmount: readNum('deliveredAmount'),
+    fundingSource: read('fundingSource'),
+    income: {
+      salary: readNum('salaryIncome'),
+      pension: readNum('pensionIncome'),
+      projectsIncome: readNum('projectIncome'),
+      ngoIncome: readNum('ngoIncome'),
+      extras: [],
+      notes: read('incomeNotes'),
+      total: incomeTotal
+    },
+    expenses: {
+      rent: readNum('rentExpense'),
+      utilities: readNum('utilitiesExpense'),
+      extras: [],
+      notes: read('expensesNotes'),
+      total: expensesTotal
+    },
+    netMonthly: incomeTotal - expensesTotal,
+    needsShort: read('needsShort'),
+    familyNeeds: read('familyNeeds'),
+    researcherReport: read('researcherReport'),
+    tags: read('tagsInput').split(/[،,]/).map((item) => item.trim()).filter(Boolean),
+    housing: {
+      housingDesc: read('housingDesc'),
+      roomsCount: readNum('roomsCount'),
+      bathroomType: read('bathroomType'),
+      waterExists: read('waterExists'),
+      roofExists: read('roofExists'),
+      areaType: read('areaType')
+    },
+    debts: {
+      enabled: readYes('debtsEnabled'),
+      amount: readNum('debtAmount'),
+      owner: read('debtOwner'),
+      hasCourtOrder: read('hasCourtOrder'),
+      reason: read('debtReason')
+    },
+    marriage: {
+      enabled: readYes('marriageEnabled'),
+      brideName: read('brideName'),
+      groomName: read('groomName'),
+      groomJob: read('groomJob'),
+      contractDate: read('contractDate'),
+      weddingDate: read('weddingDate'),
+      available: read('marriageAvailable'),
+      needed: read('marriageNeeded')
+    },
+    project: {
+      enabled: readYes('projectEnabled'),
+      type: read('projectType'),
+      experience: read('projectExperience'),
+      needs: read('projectNeeds')
+    },
+    familyMembers,
+    medicalCases,
+    sponsorships: [],
+    assistanceHistory: [],
+    created_at: nowIso,
+    updated_at: nowIso
+  };
+
+  try { normalizeMissingCoreFields_(caseObj); } catch { }
+  try { ensureAssistanceArrays(); } catch { }
+  try { setInlineHint_('newCaseHint', 'جارٍ حفظ الحالة في Supabase...', 'info'); } catch { }
+  try { if (saveBtn) saveBtn.setAttribute('disabled', 'disabled'); } catch { }
+
+  try {
+    await upsertCaseToDb(caseObj);
+    try { sendCaseToSheets(caseObj); } catch { }
+    try { await logAction('إضافة حالة', caseObj.id, `family: ${caseObj.familyHead} | caseNo: ${caseObj.caseNo}`); } catch { }
+    await syncCasesAfterMutation_(caseObj.id);
+    try { showToast_('تم حفظ الحالة بنجاح.', 'success'); } catch { }
+    try { resetNewCaseForm_(true); } catch { }
+    try { showSection('casesList', 'navCasesBtn'); } catch { }
+  } catch (e) {
+    try { console.error('submitNewCase_ error:', e); } catch { }
+    try {
+      await onDatabaseWriteError_('تعذر حفظ الحالة في Supabase حالياً.', e);
+    } catch {
+      setInlineHint_('newCaseHint', `تعذر حفظ الحالة: ${e?.message || 'خطأ غير معروف'}`, 'error');
+    }
+  } finally {
+    try { if (saveBtn) saveBtn.removeAttribute('disabled'); } catch { }
+  }
+}
+
+function onCaseSelectionChange() {
+  const ids = getSelectedCaseIds();
+  try {
+    const countEl = document.getElementById('bulkSelectedCount');
+    if (countEl) countEl.textContent = String(ids.length);
+  } catch { }
+  try {
+    const selectedCases = getSelectedCases_();
+    const rejectedOnly = !!selectedCases.length && selectedCases.every(isRejectedCase_);
+    const meta = document.getElementById('bulkSelectedMeta');
+    if (meta) {
+      meta.textContent = ids.length
+        ? (rejectedOnly
+          ? `تم تحديد ${ids.length} حالة. الحذف متاح لأن كل الحالات المحددة مرفوضة.`
+          : `تم تحديد ${ids.length} حالة. الحذف متاح للحالات المرفوضة فقط.`)
+        : 'يمكن تنفيذ إجراءات جماعية مباشرة.';
+    }
+  } catch { }
+  try {
+    const bar = document.getElementById('bulkActionsBar');
+    if (bar) bar.classList.toggle('hidden', ids.length === 0);
+  } catch { }
+  try {
+    const byId = (id) => document.getElementById(id);
+    const canEdit = hasPerm('cases_edit');
+    const canDelete = hasPerm('cases_delete');
+    const canChange = hasPerm('case_status_change') || canEdit;
+    const selectedCases = getSelectedCases_();
+    const rejectedOnly = !!selectedCases.length && selectedCases.every(isRejectedCase_);
+    if (byId('bulkSponsorshipSelectionBtn')) byId('bulkSponsorshipSelectionBtn').style.display = canEdit ? '' : 'none';
+    if (byId('bulkStatusBtn')) byId('bulkStatusBtn').style.display = canChange ? '' : 'none';
+    if (byId('bulkRejectBtn')) byId('bulkRejectBtn').style.display = canEdit ? '' : 'none';
+    if (byId('bulkDeleteBtn')) byId('bulkDeleteBtn').style.display = (canDelete && rejectedOnly) ? '' : 'none';
+    if (byId('bulkExportBtn')) byId('bulkExportBtn').style.display = ids.length ? '' : 'none';
+  } catch { }
+  try { updateCasesListUiState_(); } catch { }
+  try {
+    const host = document.getElementById('casesCardsGrid') || document.getElementById('casesTableBody');
+    const allBox = document.getElementById('casesSelectAll');
+    if (!host || !allBox) return;
+    const boxes = Array.from(host.querySelectorAll('input.case-select'));
+    const checked = boxes.filter((box) => box.checked).length;
+    allBox.indeterminate = checked > 0 && checked < boxes.length;
+    allBox.checked = boxes.length > 0 && checked === boxes.length;
+  } catch { }
+}
+
+function toggleCasesListCategoriesMobile() {
+  try {
+    const grid = document.querySelector('.cases-filter-cats-body') || document.querySelector('.cases-list-filters-grid');
+    if (!grid) return;
+    grid.classList.toggle('cats-open');
+    const btn = document.getElementById('toggleCasesCatsBtn');
+    if (btn) btn.textContent = grid.classList.contains('cats-open') ? 'إخفاء الفئات' : 'إظهار الفئات';
+  } catch { }
+}
+
+function openSponsorshipFromToolbar() {
+  try {
+    const selectedIds = getSelectedCaseIds();
+    if (selectedIds.length) {
+      openBulkSponsorshipModal();
+      return;
+    }
+    openSponsorshipModalAdvanced();
+  } catch (e) {
+    alert(`تعذر فتح نافذة تسليم الكفالة.
+
+الخطأ: ${e?.message || 'غير معروف'}`);
+  }
+}
+
 
 try {
   window.addEventListener('resize', () => {
@@ -346,7 +1712,7 @@ async function renderCaseChangeLog_() {
   if (!panel) return;
   const id = (AppState.currentCaseId || '').toString();
   if (!id) { panel.innerHTML = '—'; return; }
-  if (!SupabaseClient) {
+  if (!DatabaseClient) {
     panel.innerHTML = '<div style="color:#64748b">تعذر الاتصال بقاعدة البيانات</div>';
     return;
   }
@@ -354,7 +1720,7 @@ async function renderCaseChangeLog_() {
   try { panel.innerHTML = '<div style="color:#64748b">جارٍ تحميل السجل...</div>'; } catch { }
 
   try {
-    const { data, error } = await SupabaseClient
+    const { data, error } = await DatabaseClient
       .from('audit_log')
       .select('created_at,action,details,created_by')
       .eq('case_id', id)
@@ -367,7 +1733,7 @@ async function renderCaseChangeLog_() {
     const map = {};
     if (ids.length) {
       try {
-        const q = await SupabaseClient.from('profiles').select('id,username,full_name').in('id', ids).limit(2000);
+        const q = await DatabaseClient.from('users').select('id,username,full_name').in('id', ids).limit(2000);
         (q.data || []).forEach(p => { map[(p.id || '').toString()] = (p.username || p.full_name || '').toString(); });
       } catch { }
     }
@@ -429,780 +1795,448 @@ function initPasswordToggles_() {
   } catch { }
 }
 
-const AppState = { currentUser: null, cases: [], isAuthenticated: false, googleSheetsUrl: 'https://script.google.com/macros/s/AKfycbwxEt1qnMH8HIQrpFm838LRq-g0p5_43m8tK563N8ZSjZ3NNysoeScWr2jV50osepU6/exec', caseIdCounter: 1000, settings: { url: null, token: null, regions: [], activeRegion: null } };
+const FRONTEND_CONFIG = Object.freeze({
+  googleSheetsUrl: window.APP_CONFIG?.googleSheetsUrl || '',
+  supabaseUrl: window.APP_CONFIG?.supabaseUrl || '',
+  supabaseAnonKey: window.APP_CONFIG?.supabaseAnonKey || '',
+  settingsStorageKey: 'cms-settings-v1',
+  pendingQueueStorageKey: 'cms-pending-queue-v1',
+  authStorageKey: 'cms-supabase-auth',
+  casePageSize: Number(window.APP_CONFIG?.casePageSize || 100) || 100,
+  auditPageSize: Number(window.APP_CONFIG?.auditPageSize || 100) || 100,
+  minPasswordLength: Number(window.APP_CONFIG?.minPasswordLength || 10) || 10,
+  sessionMode: window.APP_CONFIG?.sessionMode || 'session'
+});
 
-function markCasesDerivedDirty_() {
-  try { AppState._derivedDirty = true; } catch { }
+function createDefaultSettings_() {
+  return { url: FRONTEND_CONFIG.googleSheetsUrl || null, token: null, regions: [], activeRegion: null };
 }
 
-function refreshDerivedViewsIfNeeded_(sectionId) {
-  const dirty = !!AppState._derivedDirty;
-  if (!dirty) return;
-  try {
-    if (sectionId === 'dashboardSection') {
-      try { updateDashboardStats(); } catch { }
-      try { AppState._derivedDirty = false; } catch { }
-      return;
-    }
-    if (sectionId === 'reportsSection') {
-      let ok = false;
-      try {
-        generateReportPreview();
-        ok = true;
-      } catch { }
-      if (ok) {
-        try { AppState._derivedDirty = false; } catch { }
+const AppState = { currentUser: null, cases: [], isAuthenticated: false, googleSheetsUrl: FRONTEND_CONFIG.googleSheetsUrl, caseIdCounter: 1000, settings: createDefaultSettings_() };
+
+const CASES_LIST_INITIAL_LIMIT = 1000000;
+const CASES_LIST_LOAD_STEP = 1000000;
+const MOBILE_NAV_BREAKPOINT = 1100;
+
+function mapCompatTableName_(tableName) {
+  const t = (tableName || '').toString().trim();
+  return t === 'users' ? 'profiles' : t;
+}
+
+function createSupabaseAuthStorage_() {
+  const fallback = new Map();
+  const read = (store, key) => {
+    try { return store.getItem(key); } catch { return null; }
+  };
+  const write = (store, key, value) => {
+    try { store.setItem(key, value); return true; } catch { return false; }
+  };
+  const remove = (store, key) => {
+    try { store.removeItem(key); } catch { }
+  };
+  return {
+    getItem(key) {
+      if (getRememberMe_()) {
+        return read(localStorage, key) ?? read(sessionStorage, key) ?? fallback.get(key) ?? null;
       }
-      return;
-    }
-    if (sectionId === 'medicalCommitteeSection') {
-      try { updateMedicalCommitteeStats(); } catch { }
-      try { renderMedicalTable(); } catch { }
-      try { AppState._derivedDirty = false; } catch { }
-      return;
-    }
-  } catch { }
-}
-
-function getNextCaseNo_() {
-  const nums = (AppState.cases || []).map(c => Number(c?.caseNo)).filter(n => Number.isFinite(n) && n > 0);
-  const max = nums.length ? Math.max(...nums) : 0;
-  return max + 1;
-}
-
-function toggleCasesListCategoriesMobile() {
-  try {
-    const grid = document.querySelector('.cases-list-filters-grid');
-    if (!grid) return;
-    grid.classList.toggle('cats-open');
-    const btn = document.getElementById('toggleCasesCatsBtn');
-    if (btn) btn.textContent = grid.classList.contains('cats-open') ? 'إخفاء' : 'إظهار';
-  } catch { }
-}
-
-function renderNewCaseForm_() {
-  const host = document.getElementById('caseForm');
-  if (!host) return;
-  if (host.getAttribute('data-rendered') === '1' && host.innerHTML.trim()) return;
-
-  host.innerHTML = `
-    <div class="grid cols-2">
-      <div class="form-group ScaseNo"><label class="label">رقم الحالة</label><input id="d_caseNo" class="control" disabled style="width:58px;height:58px;border-radius:999px;text-align:center;font-weight:900;padding:0"></div>
-      <div class="form-group">
-        <div class="grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
-          <div class="form-group"><label class="label">إضافة اسم المستكشف</label><input id="d_explorerName" class="control" style="max-width:200px"></div>
-          <div class="form-group"><label class="label">التاريخ</label><input id="d_date" type="date" class="control" style="max-width:200px"></div>
-        </div>
-      </div>
-
-      <div class="form-group" style="grid-column:1/-1">
-        <div class="grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
-          <div class="form-group"><label class="label">اسم رب الأسرة *</label><input id="d_familyHead" class="control" required></div>
-          <div class="form-group"><label class="label">رقم قومي (ID) *</label><input id="d_id" class="control" required maxlength="14" inputmode="numeric" pattern="\\d{14}"></div>
-          <div class="form-group"><label class="label">الهاتف *</label><input id="d_phone" class="control" required maxlength="11" inputmode="numeric" pattern="\\d{11}"></div>
-          <div class="form-group"><label class="label">رقم واتساب</label><input id="d_whatsapp" class="control" maxlength="11" inputmode="numeric" pattern="\\d{11}"></div>
-        </div>
-      </div>
-
-      <div class="form-group" style="grid-column:1/-1">
-        <div class="grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
-          <div class="form-group"><label class="label">الحالة الاجتماعية *</label><select id="d_maritalStatus" class="control" required></select></div>
-          <div class="form-group"><label class="label">عدد الأفراد</label><input id="d_familyCount" type="number" class="control" placeholder="0"></div>
-          <div class="form-group"><label class="label">مبلغ منفذ</label><input id="d_deliveredAmount" type="number" class="control" placeholder="200" value="200"></div>
-          <div class="form-group"><label class="label">تقييم الحالة *</label>
-            <select id="d_caseGrade" class="control" required>
-              <option value="">اختر</option>
-              <option value="حالة مستديمة">حالة مستديمة</option>
-              <option value="حالة موسمية">حالة موسمية</option>
-              <option value="حالة مرفوضة">حالة مرفوضة</option>
-              <option value="حالة قيد الانتظار">حالة قيد الانتظار</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="form-group" style="grid-column:1/-1">
-        <div class="grid" style="display:grid;grid-template-columns:1fr 1fr 2fr;gap:10px">
-          <div class="form-group"><label class="label">المحافظة *</label><select id="d_governorate" class="control" required></select></div>
-          <div class="form-group"><label class="label">القرية *</label><input id="d_area" class="control" list="d_areaList" required><datalist id="d_areaList"></datalist></div>
-          <div class="form-group"><label class="label">العنوان</label><textarea id="d_address" class="control" rows="2"></textarea></div>
-        </div>
-      </div>
-      <div class="form-group" style="grid-column:1/-1">
-        <label class="label">الفئة * (يمكن اختيار أكثر من فئة)</label>
-        <div id="d_categoriesBox" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;padding:10px;border:1px solid #e5e7eb;border-radius:14px;background:#f8fafc"></div>
-      </div>
-
-      <div class="form-group" style="grid-column:1/-1">
-        <div class="grid" style="display:grid;grid-template-columns:1fr 1fr 2fr;gap:10px">
-          <div class="form-group"><label class="label">عمل الأب</label><input id="d_fatherJob" class="control" style="max-width:200px"></div>
-          <div class="form-group"><label class="label">عمل الأم</label><input id="d_motherJob" class="control" style="max-width:200px"></div>
-          <div class="form-group"><label class="label">وصف السكن</label><textarea id="d_housingDesc" class="control" rows="2"></textarea></div>
-        </div>
-      </div>
-
-      <div class="form-group" style="grid-column:1/-1">
-        <label class="label">السكن</label>
-        <div class="grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">
-          <div class="form-group"><label class="label">نوع المنطقة</label>
-            <select id="d_areaType" class="control">
-              <option value="">اختر</option>
-              <option value="منطقة ريفية">منطقة ريفية</option>
-              <option value="منطقة حضرية">منطقة حضرية</option>
-              <option value="منطقة بدوية">منطقة بدوية</option>
-              <option value="منطقة شعبية">منطقة شعبية</option>
-            </select>
-          </div>
-          <div class="form-group"><label class="label">عدد الغرف</label>
-            <select id="d_roomsCount" class="control">
-              <option value="">اختر</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-            </select>
-          </div>
-          <div class="form-group"><label class="label">الحمام</label>
-            <select id="d_bathroomType" class="control">
-              <option value="">اختر</option>
-              <option value="حمام مستقل">حمام مستقل</option>
-              <option value="حمام مشترك">حمام مشترك</option>
-              <option value="لا يوجد حمام">لا يوجد حمام</option>
-            </select>
-          </div>
-          <div class="form-group"><label class="label">المياه</label>
-            <select id="d_waterExists" class="control">
-              <option value="">اختر</option>
-              <option value="يوجد مياه بالسكن">يوجد مياه بالسكن</option>
-              <option value="لا يوجد مياه بالسكن">لا يوجد مياه بالسكن</option>
-            </select>
-          </div>
-          <div class="form-group"><label class="label">السقف</label>
-            <select id="d_roofExists" class="control">
-              <option value="">اختر</option>
-              <option value="يوجد سقف للسكن">يوجد سقف للسكن</option>
-              <option value="لا يوجد سقف للسكن">لا يوجد سقف بالسكن</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="form-group" style="grid-column:1/-1">
-        <label class="label">الديون</label>
-        <div class="grid" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 2fr;gap:8px">
-          <div class="form-group"><label class="label">هل توجد ديون؟</label>
-            <select id="d_debtsEnabled" class="control compact" style="max-width:140px">
-              <option value="لا">لا</option>
-              <option value="نعم">نعم</option>
-            </select>
-          </div>
-          <div class="form-group"><label class="label">قيمة الدين</label><input id="d_debtAmount" type="number" class="control compact" placeholder="0" style="max-width:140px"></div>
-          <div class="form-group"><label class="label">صاحب الدين</label><input id="d_debtOwner" class="control"></div>
-          <div class="form-group"><label class="label">حكم قضائي؟</label>
-            <select id="d_hasCourtOrder" class="control compact" style="max-width:160px">
-              <option value="">اختر</option>
-              <option value="لا يوجد">لا يوجد</option>
-              <option value="شيك">شيك</option>
-              <option value="وصل امانه">وصل امانه</option>
-            </select>
-          </div>
-          <div class="form-group"><label class="label">سبب الدين</label><input id="d_debtReason" class="control compact"></div>
-        </div>
-      </div>
-
-      <div class="form-group" style="grid-column:1/-1">
-        <label class="label">أفراد الأسرة</label>
-        <div style="display:flex; gap:8px; justify-content:flex-start; margin-bottom:8px"><button type="button" class="btn" id="d_addFamilyMemberRow">➕ إضافة فرد</button></div>
-        <div style="overflow:auto; border:1px solid #e5e7eb; border-radius:12px">
-          <table class="table" style="min-width:900px">
-            <thead>
-              <tr>
-                <th>الاسم</th>
-                <th>صلة القرابة</th>
-                <th>السن</th>
-                <th>يعمل؟</th>
-                <th>متوسط الدخل</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="d_familyMembersBody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="form-group" style="grid-column:1/-1">
-        <label class="label">الجانب الطبي</label>
-        <div style="display:flex; gap:8px; justify-content:flex-start; margin-bottom:8px"><button type="button" class="btn" id="d_addMedicalRow">➕ إضافة حالة طبية</button></div>
-        <div style="overflow:auto; border:1px solid #e5e7eb; border-radius:12px">
-          <table class="table" style="min-width:1000px">
-            <thead>
-              <tr>
-                <th>الاسم</th>
-                <th>نوع المرض</th>
-                <th>مصادر العلاج</th>
-                <th>التخصص</th>
-                <th>المستشفى</th>
-                <th>المطلوب</th>
-                <th>التكلفة التقديرية</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="d_medicalBody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="form-group" style="grid-column:1/-1">
-        <label class="label">الدخل والمصروفات</label>
-        <div class="grid cols-2" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
-          <div style="border:1px solid #e5e7eb;border-radius:10px;padding:10px">
-            <div class="form-group"><label class="label">إجمالي الدخل</label><input id="d_incomeTotal" type="number" class="control" placeholder="0"></div>
-            <div class="form-group"><label class="label">ملاحظات</label><textarea id="d_incomeNotes" class="control" rows="2"></textarea></div>
-          </div>
-          <div style="border:1px solid #e5e7eb;border-radius:10px;padding:10px">
-            <div class="form-group"><label class="label">إجمالي المصروفات</label><input id="d_expensesTotal" type="number" class="control" placeholder="0"></div>
-            <div class="form-group"><label class="label">ملاحظات</label><textarea id="d_expensesNotes" class="control" rows="2"></textarea></div>
-          </div>
-        </div>
-        <div class="form-group"><label class="label">صافي شهري (تلقائي)</label><input id="d_netMonthly" type="number" class="control compact" placeholder="0" readonly style="max-width:160px"></div>
-      </div>
-
-      <div class="form-group" style="grid-column:1/-1">
-        <label class="label">الزواج / المشاريع</label>
-        <div class="grid cols-2" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
-          <div style="border:1px solid #e5e7eb;border-radius:10px;padding:10px">
-            <div class="form-group"><label class="label">يوجد حالة زواج؟</label>
-              <select id="d_marriageEnabled" class="control">
-                <option value="لا">لا يوجد حالة زواج في الأسرة</option>
-                <option value="نعم">نعم يوجد حالة زواج في الأسرة</option>
-              </select>
-            </div>
-            <div class="form-group"><label class="label">اسم العروسة</label><input id="d_brideName" class="control"></div>
-            <div class="form-group"><label class="label">اسم العريس</label><input id="d_groomName" class="control"></div>
-            <div class="form-group"><label class="label">مهنة العريس</label><input id="d_groomJob" class="control"></div>
-            <div class="form-group"><label class="label">تاريخ كتب الكتاب</label><input id="d_contractDate" type="date" class="control"></div>
-            <div class="form-group"><label class="label">تاريخ الزواج</label><input id="d_weddingDate" type="date" class="control"></div>
-            <div class="form-group"><label class="label">المتوفر</label><input id="d_marriageAvailable" class="control"></div>
-            <div class="form-group"><label class="label">المطلوب</label><input id="d_marriageNeeded" class="control"></div>
-          </div>
-          <div style="border:1px solid #e5e7eb;border-radius:10px;padding:10px">
-            <div class="form-group"><label class="label">يوجد مشروع؟</label>
-              <select id="d_projectsEnabled" class="control">
-                <option value="لا">لا تملك الأسرة مهارات عمل مشروع</option>
-                <option value="نعم">نعم تستطيع الأسرة عمل مشروع</option>
-              </select>
-            </div>
-            <div class="form-group"><label class="label">نوع المشروع</label><input id="d_projectType" class="control"></div>
-            <div class="form-group"><label class="label">الخبرة والاستعداد</label><select id="d_projectExperience" class="control"></select></div>
-            <div class="form-group"><label class="label">احتياجات المشروع</label><textarea id="d_projectNeeds" class="control" rows="3"></textarea></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="form-group" style="grid-column:1/-1">
-        <div class="grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
-          <div class="form-group"><label class="label">احتياجات الأسرة</label><textarea id="d_familyNeeds" class="control" rows="3"></textarea></div>
-          <div class="form-group"><label class="label">تقرير الباحث</label><textarea id="d_researcherReport" class="control" rows="3"></textarea></div>
-        </div>
-      </div>
-    </div>
-    <div class="tabs" style="margin-top:10px;display:flex;gap:10px;justify-content:flex-start;align-items:center">
-      <button class="btn" type="submit" style="background:#2563eb;color:#fff;border-color:#2563eb;font-weight:900;padding:12px 18px;border-radius:14px;box-shadow:0 10px 22px rgba(37,99,235,.18)">💾 حفظ الحالة</button>
-    </div>
-  `;
-  host.setAttribute('data-rendered', '1');
-
-  try {
-    const govSel = document.getElementById('d_governorate');
-    if (govSel) govSel.innerHTML = ['<option value="">اختر المحافظة</option>'].concat(GOVS.map(g => `<option>${escapeHtml(g)}</option>`)).join('');
-  } catch { }
-  try {
-    const box = document.getElementById('d_categoriesBox');
-    if (box) {
-      box.innerHTML = (CATEGORIES || []).map((c) => {
-        const v = escapeHtml(c);
-        return `
-          <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #e5e7eb;border-radius:14px;background:#fff;cursor:pointer;box-shadow:0 1px 0 rgba(15,23,42,.03)">
-            <input type="checkbox" class="cat-box" value="${v}" style="width:18px;height:18px;accent-color:#2563eb" />
-            <span style="font-weight:700;color:#0f172a">${v}</span>
-          </label>`;
-      }).join('');
-    }
-  } catch { }
-  try {
-    const ms = document.getElementById('d_maritalStatus');
-    if (ms) {
-      ms.innerHTML = ['<option value="">اختر</option>'].concat((MARITAL_STATUS_OPTIONS || []).map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`)).join('');
-    }
-  } catch { }
-  try {
-    const pe = document.getElementById('d_projectExperience');
-    if (pe) {
-      pe.innerHTML = ['<option value="">اختر</option>'].concat((PROJECT_EXPERIENCE_OPTIONS || []).map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`)).join('');
-    }
-  } catch { }
-  try {
-    const govSel = document.getElementById('d_governorate');
-    const areaList = document.getElementById('d_areaList');
-    const fillAreas = () => {
-      if (!areaList) return;
-      const gov = (govSel?.value || '').toString().trim();
-      const areas = (AppState.cases || [])
-        .filter(c => (c?.governorate || '').toString().trim() === gov)
-        .map(c => (c?.area || '').toString().trim())
-        .filter(Boolean);
-      const uniq = Array.from(new Set(areas)).sort((a, b) => a.localeCompare(b));
-      areaList.innerHTML = uniq.map(a => `<option value="${escapeHtml(a)}"></option>`).join('');
-    };
-    if (govSel) govSel.addEventListener('change', fillAreas);
-    fillAreas();
-  } catch { }
-  try {
-    const dt = document.getElementById('d_date');
-    if (dt && !dt.value) dt.value = new Date().toISOString().slice(0, 10);
-  } catch { }
-  try {
-    const d = document.getElementById('d_deliveredAmount');
-    if (d && (d.value === '' || d.value == null)) d.value = '200';
-  } catch { }
-  try {
-    const no = document.getElementById('d_caseNo');
-    if (no) no.value = String(getNextCaseNo_());
-  } catch { }
-
-  try {
-    const btn = document.getElementById('d_addMedicalRow');
-    if (btn) btn.onclick = () => addDetailsMedicalRow({}, '');
-  } catch { }
-  try { addDetailsMedicalRow({}, ''); } catch { }
-
-  try {
-    const btn = document.getElementById('d_addFamilyMemberRow');
-    if (btn) btn.onclick = () => addNewCaseFamilyMemberRow_({});
-  } catch { }
-  try { addNewCaseFamilyMemberRow_({}); } catch { }
-
-  try {
-    const incomeTotal = document.getElementById('d_incomeTotal');
-    const expensesTotal = document.getElementById('d_expensesTotal');
-    const net = document.getElementById('d_netMonthly');
-    const calc = () => {
-      const inc = Number(incomeTotal?.value || 0) || 0;
-      const exp = Number(expensesTotal?.value || 0) || 0;
-      if (net) net.value = String(Math.max(-999999999, Math.min(999999999, inc - exp)));
-    };
-    if (incomeTotal) incomeTotal.addEventListener('input', calc);
-    if (expensesTotal) expensesTotal.addEventListener('input', calc);
-    calc();
-  } catch { }
-
-  try {
-    const onlyDigitsMax = (el, maxLen) => {
-      if (!el) return;
-      el.addEventListener('input', () => {
-        const raw = (el.value || '').toString();
-        const digits = raw.replace(/[^0-9\u0660-\u0669\u06F0-\u06F9]/g, '');
-        const toLatin = (s) => s.replace(/[\u0660-\u0669]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))
-          .replace(/[\u06F0-\u06F9]/g, d => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)));
-        const lat = toLatin(digits).slice(0, maxLen);
-        if (el.value !== lat) el.value = lat;
-      });
-    };
-    onlyDigitsMax(document.getElementById('d_id'), 14);
-    onlyDigitsMax(document.getElementById('d_phone'), 11);
-    onlyDigitsMax(document.getElementById('d_whatsapp'), 11);
-  } catch { }
-
-  try {
-    if (host.getAttribute('data-wired') !== '1') {
-      host.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await submitNewCase_();
-      });
-      host.setAttribute('data-wired', '1');
-    }
-  } catch { }
-
-  try { updateCasesListUiState_(); } catch { }
-}
-
-function addNewCaseFamilyMemberRow_(row) {
-  const tb = document.getElementById('d_familyMembersBody');
-  if (!tb) return;
-  const r = row || {};
-  const tr = document.createElement('tr');
-  const relOpts = ['<option value="">اختر</option>'].concat((RELATION_OPTIONS || []).map(v => `<option value="${escapeHtml(v)}" ${String(r.relation || '') === String(v) ? 'selected' : ''}>${escapeHtml(v)}</option>`)).join('');
-  const workOpts = ['<option value="">اختر</option>'].concat((WORKING_OPTIONS || []).map(v => `<option value="${escapeHtml(v)}" ${String(r.works || '') === String(v) ? 'selected' : ''}>${escapeHtml(v)}</option>`)).join('');
-  tr.innerHTML = `
-    <td><input class="control" data-field="name" value="${escapeHtml((r.name || '').toString())}"></td>
-    <td><select class="control" data-field="relation">${relOpts}</select></td>
-    <td><input class="control compact" data-field="age" type="number" value="${escapeHtml((r.age ?? '').toString())}" style="min-width:70px;max-width:90px"></td>
-    <td><select class="control" data-field="works">${workOpts}</select></td>
-    <td><input class="control compact" data-field="avgIncome" type="number" value="${escapeHtml((r.avgIncome ?? '').toString())}" style="min-width:90px;max-width:110px"></td>
-    <td><button type="button" class="btn" onclick="this.closest('tr').remove()">🗑️</button></td>
-  `;
-  tb.appendChild(tr);
-}
-
-function openSponsorshipFromToolbar() {
-  try {
-    const sel = getSelectedCaseIds();
-    if (sel.length) {
-      openBulkSponsorshipModal();
-      return;
-    }
-    openSponsorshipModalAdvanced();
-  } catch (e) {
-    alert(`تعذر فتح نافذة تسليم الكفالة.\n\nالخطأ: ${e?.message || 'غير معروف'}`);
-  }
-}
-
-function enterCaseEditMode() {
-  try {
-    if (!hasPerm('cases_edit')) { alert('لا تملك صلاحية تعديل الحالة'); return; }
-    const id = AppState.currentCaseId;
-    if (!id) { alert('لا توجد حالة محددة للتعديل'); return; }
-    openCaseDetails(id, 'edit');
-  } catch (e) {
-    alert(`تعذر الدخول لوضع التعديل.\n\nالخطأ: ${e?.message || 'غير معروف'}`);
-  }
-}
-
-async function submitNewCase_() {
-  if (!hasPerm('cases_create')) { alert('لا تملك صلاحية إضافة حالات'); return; }
-  const idRaw = (document.getElementById('d_id')?.value || '').toString().trim();
-  const familyHead = (document.getElementById('d_familyHead')?.value || '').toString().trim();
-  const phoneRaw = (document.getElementById('d_phone')?.value || '').toString().trim();
-  const whatsappRaw = (document.getElementById('d_whatsapp')?.value || '').toString().trim();
-  const caseGrade = (document.getElementById('d_caseGrade')?.value || '').toString().trim();
-  const maritalStatus = (document.getElementById('d_maritalStatus')?.value || '').toString().trim();
-  const governorate = (document.getElementById('d_governorate')?.value || '').toString().trim();
-  const area = (document.getElementById('d_area')?.value || '').toString().trim();
-  const categories = Array.from(document.querySelectorAll('#d_categoriesBox input.cat-box:checked'))
-    .map(b => (b?.value || '').toString().trim())
-    .filter(Boolean);
-
-  const normalizeDigits_ = (s) => {
-    const raw = (s || '').toString();
-    const digits = raw.replace(/[^0-9\u0660-\u0669\u06F0-\u06F9]/g, '');
-    const latin = digits
-      .replace(/[\u0660-\u0669]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))
-      .replace(/[\u06F0-\u06F9]/g, d => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)));
-    return latin;
-  };
-
-  const id = normalizeDigits_(idRaw);
-  const phone = normalizeDigits_(phoneRaw);
-  const whatsapp = normalizeDigits_(whatsappRaw);
-
-  if (!id) { alert('رقم قومي (ID) مطلوب'); return; }
-  if (!/^\d{14}$/.test(id)) { alert('رقم قومي (ID) يجب أن يكون 14 رقم'); return; }
-  if (!caseGrade) { alert('تقييم الحالة مطلوب'); return; }
-  if (!familyHead) { alert('اسم رب الأسرة مطلوب'); return; }
-  if (!maritalStatus) { alert('الحالة الاجتماعية مطلوبة'); return; }
-  if (!phone) { alert('الهاتف مطلوب'); return; }
-  if (!/^\d{11}$/.test(phone)) { alert('الهاتف يجب أن يكون 11 رقم'); return; }
-  if (whatsapp && !/^\d{11}$/.test(whatsapp)) { alert('رقم واتساب يجب أن يكون 11 رقم'); return; }
-  if (!governorate) { alert('المحافظة مطلوبة'); return; }
-  if (!area) { alert('المنطقة مطلوبة'); return; }
-  if (!categories.length) { alert('الفئة مطلوبة (يمكن اختيار أكثر من فئة)'); return; }
-
-  const norm = (s) => (s || '').toString().trim().replace(/\s+/g, ' ').toLowerCase();
-  const dupCase = (AppState.cases || []).find(c => normalizeDigits_(c?.id) === id);
-  if (dupCase) {
-    const msg = `يوجد حالة بنفس الرقم القومي بالفعل.\n\n` +
-      `رقم الحالة: ${dupCase?.caseNo ?? ''}\n` +
-      `اسم رب الأسرة: ${dupCase?.familyHead || ''}\n` +
-      `الهاتف: ${dupCase?.phone || ''}`;
-    alert(msg);
-    return;
-  }
-
-  const dupPhoneCase = (AppState.cases || []).find(c => normalizeDigits_(c?.phone) && normalizeDigits_(c?.phone) === phone);
-  if (dupPhoneCase) {
-    const msg = `تنبيه: يوجد حالة بنفس رقم الهاتف بالفعل.\n\n` +
-      `رقم الحالة: ${dupPhoneCase?.caseNo ?? ''}\n` +
-      `اسم رب الأسرة: ${dupPhoneCase?.familyHead || ''}\n` +
-      `الرقم القومي: ${dupPhoneCase?.id || ''}\n\n` +
-      `هل تريد المتابعة وحفظ الحالة؟`;
-    if (!confirm(msg)) return;
-  }
-
-  const dupNameCase = (AppState.cases || []).find(c => norm(c?.familyHead) && norm(c?.familyHead) === norm(familyHead));
-  if (dupNameCase) {
-    const msg = `تنبيه: يوجد حالة بنفس اسم رب الأسرة بالفعل.\n\n` +
-      `رقم الحالة: ${dupNameCase?.caseNo ?? ''}\n` +
-      `الهاتف: ${dupNameCase?.phone || ''}\n` +
-      `الرقم القومي: ${dupNameCase?.id || ''}\n\n` +
-      `هل تريد المتابعة وحفظ الحالة؟`;
-    if (!confirm(msg)) return;
-  }
-
-  const yn = (v) => {
-    const s = (v || '').toString().trim();
-    return (s === 'نعم' || s.toLowerCase() === 'yes' || s === 'true' || s === '1');
-  };
-  const parseJsonOr = (raw, fallback) => {
-    try {
-      const s = (raw || '').toString().trim();
-      if (!s) return fallback;
-      return JSON.parse(s);
-    } catch {
-      return fallback;
+      return read(sessionStorage, key) ?? fallback.get(key) ?? null;
+    },
+    setItem(key, value) {
+      if (getRememberMe_()) {
+        write(localStorage, key, value);
+        remove(sessionStorage, key);
+      } else if (!write(sessionStorage, key, value)) {
+        fallback.set(key, value);
+      } else {
+        remove(localStorage, key);
+      }
+    },
+    removeItem(key) {
+      remove(localStorage, key);
+      remove(sessionStorage, key);
+      fallback.delete(key);
     }
   };
+}
 
-  const medBody = document.getElementById('d_medicalBody');
-  const medRows = medBody ? Array.from(medBody.querySelectorAll('tr')) : [];
-  const medicalCases = medRows.map(tr => {
-    const get = (field) => (tr.querySelector(`[data-field="${field}"]`)?.value || '').trim();
-    const row = {
-      name: get('name'),
-      diseaseType: (tr.querySelector('[data-field="diseaseType"]')?.value || '').trim(),
-      treatmentSources: get('treatmentSources'),
-      specialty: get('specialty'),
-      hospital: get('hospital'),
-      required: get('required'),
-      estimatedCost: get('estimatedCost')
-    };
-    const hasAny = [row.name, row.treatmentSources, row.specialty, row.hospital, row.required, row.estimatedCost]
-      .some(v => String(v || '').trim() !== '');
-    if (!hasAny) return null;
+function clearPersistedAuthStorage_() {
+  try { localStorage.removeItem(FRONTEND_CONFIG.authStorageKey); } catch { }
+  try { sessionStorage.removeItem(FRONTEND_CONFIG.authStorageKey); } catch { }
+}
+
+function normalizeProfileRecord_(record) {
+  if (!record) return null;
+  const perms = record.permissions && typeof record.permissions === 'object' ? record.permissions : {};
+  const email = (record.email || '').toString();
+  const derivedUsername = email.includes('@') ? email.split('@')[0] : '';
+  return {
+    ...record,
+    username: (record.username || derivedUsername || '').toString(),
+    full_name: record.full_name || record.name || '',
+    permissions: perms,
+    is_active: record.is_active !== false,
+    updated_at: record.updated_at || '',
+    created_at: record.created_at || '',
+    last_seen_at: record.last_seen_at || '',
+    email
+  };
+}
+
+async function fetchProfileById_(client, userId) {
+  const raw = client?.raw || client || null;
+  if (!raw || !userId) return null;
+  try {
+    const { data, error } = await raw.from('profiles').select('*').eq('id', String(userId)).maybeSingle();
+    if (error) return null;
+    return normalizeProfileRecord_(data);
+  } catch {
+    return null;
+  }
+}
+
+async function hydrateAuthUser_(client, authUser) {
+  if (!authUser) return null;
+  const profile = await fetchProfileById_(client, authUser.id);
+  if (!profile) return normalizeProfileRecord_(authUser);
+  return normalizeProfileRecord_({
+    ...authUser,
+    ...profile,
+    email: authUser.email || profile.email || ''
+  });
+}
+
+async function fetchAuthenticatedProfile_() {
+  if (!DatabaseClient) return null;
+  try {
+    const { data: authData, error } = await DatabaseClient.raw.auth.getUser();
+    if (error || !authData?.user?.id) return null;
+    const profile = await fetchProfileById_(DatabaseClient, authData.user.id);
+    return profile || normalizeProfileRecord_(authData.user);
+  } catch {
+    return null;
+  }
+}
+
+function normalizeCaseRecord_(record) {
+  if (!record) return null;
+  return {
+    ...record,
+    id: record.id || record.case_id || '',
+    data: record.data && typeof record.data === 'object' ? record.data : {},
+    updated_at: record.updated_at || '',
+    created_by: record.created_by || null,
+    updated_by: record.updated_by || null
+  };
+}
+
+function normalizeAuditRecord_(record) {
+  if (!record) return null;
+  const out = {
+    ...record,
+    created_at: record.created_at || '',
+    updated_at: record.updated_at || '',
+    action: record.action || '',
+    case_id: record.case_id || '',
+    details: record.details || '',
+    created_by: record.created_by || null
+  };
+  const expanded = normalizeProfileRecord_(record.profiles || record.created_by_profile || null);
+  if (expanded) {
+    out.profiles = { username: expanded.username || '', full_name: expanded.full_name || '', email: expanded.email || '' };
+  }
+  return out;
+}
+
+function randomTempPassword_() {
+  return `Kh${Math.random().toString(36).slice(2, 8)}!${Math.random().toString(10).slice(2, 6)}`;
+}
+
+function validatePasswordPolicy_(password) {
+  const value = (password || '').toString();
+  const min = Number(FRONTEND_CONFIG.minPasswordLength || 10) || 10;
+  if (value.length < min) return `كلمة المرور يجب أن تكون ${min} أحرف على الأقل`;
+  if (!/[A-Z]/.test(value) || !/[a-z]/.test(value) || !/[0-9]/.test(value) || !/[^A-Za-z0-9]/.test(value)) {
+    return 'كلمة المرور يجب أن تحتوي على حرف كبير وحرف صغير ورقم ورمز';
+  }
+  return '';
+}
+
+function sanitizeProfileMutationPayload_(payload) {
+  const body = { ...(payload || {}) };
+  delete body.password;
+  delete body.passwordConfirm;
+  delete body.oldPassword;
+  return body;
+}
+
+function normalizeQueryResult_(tableName, result) {
+  if (!result || result.error) return result;
+  const mapRow = (row) => {
+    const table = mapCompatTableName_(tableName);
+    if (table === 'profiles') return normalizeProfileRecord_(row);
+    if (table === 'cases') return normalizeCaseRecord_(row);
+    if (table === 'audit_log') return normalizeAuditRecord_(row);
     return row;
-  }).filter(Boolean);
-
-  const obj = {
-    id,
-    caseNo: Number(document.getElementById('d_caseNo')?.value || getNextCaseNo_()) || getNextCaseNo_(),
-    caseGrade,
-    familyHead,
-    phone,
-    whatsapp,
-    address: (document.getElementById('d_address')?.value || '').toString().trim(),
-    governorate,
-    area,
-    category: categories.join('، '),
-    categories,
-    status: 'جديدة',
-    urgency: '',
-    maritalStatus,
-    familyCount: Number(document.getElementById('d_familyCount')?.value || 0) || 0,
-    jobs: {
-      father: (document.getElementById('d_fatherJob')?.value || '').toString().trim(),
-      mother: (document.getElementById('d_motherJob')?.value || '').toString().trim()
-    },
-    explorerName: (document.getElementById('d_explorerName')?.value || '').toString().trim(),
-    date: (document.getElementById('d_date')?.value || '').toString().trim(),
-    deliveredAmount: Number(document.getElementById('d_deliveredAmount')?.value || 200) || 200,
-    tags: [],
-    housing: {
-      housingDesc: (document.getElementById('d_housingDesc')?.value || '').toString().trim(),
-      roomsCount: Number(document.getElementById('d_roomsCount')?.value || 0) || 0,
-      bathroomType: (document.getElementById('d_bathroomType')?.value || '').toString().trim(),
-      waterExists: (document.getElementById('d_waterExists')?.value || '').toString().trim(),
-      roofExists: (document.getElementById('d_roofExists')?.value || '').toString().trim(),
-      areaType: (document.getElementById('d_areaType')?.value || '').toString().trim()
-    },
-    debts: {
-      enabled: yn(document.getElementById('d_debtsEnabled')?.value || ''),
-      amount: Number(document.getElementById('d_debtAmount')?.value || 0) || 0,
-      owner: (document.getElementById('d_debtOwner')?.value || '').toString().trim(),
-      hasCourtOrder: (document.getElementById('d_hasCourtOrder')?.value || '').toString().trim(),
-      reason: (document.getElementById('d_debtReason')?.value || '').toString().trim()
-    },
-    income: {
-      notes: (document.getElementById('d_incomeNotes')?.value || '').toString(),
-      total: Number(document.getElementById('d_incomeTotal')?.value || 0) || 0
-    },
-    expenses: {
-      notes: (document.getElementById('d_expensesNotes')?.value || '').toString(),
-      total: Number(document.getElementById('d_expensesTotal')?.value || 0) || 0
-    },
-    netMonthly: Number(document.getElementById('d_netMonthly')?.value || 0) || 0,
-    marriage: {
-      enabled: yn(document.getElementById('d_marriageEnabled')?.value || ''),
-      brideName: (document.getElementById('d_brideName')?.value || '').toString().trim(),
-      groomName: (document.getElementById('d_groomName')?.value || '').toString().trim(),
-      groomJob: (document.getElementById('d_groomJob')?.value || '').toString().trim(),
-      contractDate: (document.getElementById('d_contractDate')?.value || '').toString().trim(),
-      weddingDate: (document.getElementById('d_weddingDate')?.value || '').toString().trim(),
-      available: (document.getElementById('d_marriageAvailable')?.value || '').toString().trim(),
-      needed: (document.getElementById('d_marriageNeeded')?.value || '').toString().trim()
-    },
-    project: {
-      enabled: yn(document.getElementById('d_projectsEnabled')?.value || ''),
-      type: (document.getElementById('d_projectType')?.value || '').toString().trim(),
-      experience: (document.getElementById('d_projectExperience')?.value || '').toString().trim(),
-      needs: (document.getElementById('d_projectNeeds')?.value || '').toString().trim()
-    },
-    familyMembers: (function () {
-      try {
-        const tb = document.getElementById('d_familyMembersBody');
-        if (tb) {
-          const rows = Array.from(tb.querySelectorAll('tr'));
-          return rows.map(tr => {
-            const get = (field) => (tr.querySelector(`[data-field="${field}"]`)?.value || '').toString().trim();
-            const row = {
-              name: get('name'),
-              relation: get('relation'),
-              age: get('age'),
-              works: get('works'),
-              avgIncome: get('avgIncome')
-            };
-            const hasAny = Object.values(row).some(v => String(v || '').trim() !== '');
-            if (!hasAny) return null;
-            const ageNum = Number(row.age);
-            const incNum = Number(row.avgIncome);
-            return {
-              name: row.name,
-              relation: row.relation,
-              age: row.age === '' ? '' : (isNaN(ageNum) ? row.age : ageNum),
-              works: row.works,
-              avgIncome: row.avgIncome === '' ? '' : (isNaN(incNum) ? row.avgIncome : incNum)
-            };
-          }).filter(Boolean);
-        }
-      } catch { }
-      return parseFamilyMembersPlain((document.getElementById('d_familyMembers')?.value || '').toString());
-    })(),
-    needsShort: '',
-    familyNeeds: (document.getElementById('d_familyNeeds')?.value || '').toString(),
-    researcherReport: (document.getElementById('d_researcherReport')?.value || '').toString(),
-    medicalCases,
-    importInfo: parseJsonOr('', null),
-    explorationInfo: parseJsonOr('', null),
-    assistanceHistory: [],
-    sponsorships: []
   };
+  if (Array.isArray(result.data)) {
+    return { ...result, data: result.data.map(mapRow) };
+  }
+  return { ...result, data: mapRow(result.data) };
+}
 
+class SupabaseCompatQuery_ {
+  constructor(client, tableName) {
+    this.client = client;
+    this.originalTable = (tableName || '').toString().trim();
+    this.table = mapCompatTableName_(tableName);
+    this.query = client.raw.from(this.table);
+    this.mode = 'generic';
+  }
+
+  _apply(methodName, ...args) {
+    this.query = this.query[methodName](...args);
+    return this;
+  }
+
+  select(columns) { return this._apply('select', columns || '*'); }
+  eq(field, value) { return this._apply('eq', field, value); }
+  neq(field, value) { return this._apply('neq', field, value); }
+  in(field, values) { return this._apply('in', field, values); }
+  order(field, opts = {}) { return this._apply('order', field, opts || {}); }
+  limit(value) { return this._apply('limit', Math.max(0, Number(value) || 0)); }
+  range(from, to) { return this._apply('range', Math.max(0, Number(from) || 0), Math.max(0, Number(to) || 0)); }
+  insert(payload) {
+    const body = this.table === 'profiles' ? sanitizeProfileMutationPayload_(payload) : (payload || {});
+    this.mode = 'insert';
+    return this._apply('insert', body);
+  }
+  update(payload) {
+    const body = this.table === 'profiles' ? sanitizeProfileMutationPayload_(payload) : (payload || {});
+    this.mode = 'update';
+    return this._apply('update', body);
+  }
+  upsert(payload) {
+    const body = this.table === 'profiles' ? sanitizeProfileMutationPayload_(payload) : (payload || {});
+    this.mode = 'upsert';
+    return this._apply('upsert', body);
+  }
+  delete() {
+    this.mode = 'delete';
+    return this._apply('delete');
+  }
+  async maybeSingle() {
+    return normalizeQueryResult_(this.originalTable, await this.query.maybeSingle());
+  }
+  async single() {
+    return normalizeQueryResult_(this.originalTable, await this.query.single());
+  }
+  then(resolve, reject) { return this.exec().then(resolve, reject); }
+
+  async exec() {
+    return normalizeQueryResult_(this.originalTable, await this.query);
+  }
+}
+
+function createSupabaseCompatClient_() {
   try {
-    AppState.cases = Array.isArray(AppState.cases) ? AppState.cases : [];
-    AppState.cases.push(obj);
-    ensureAssistanceArrays();
-    try { ensureCaseNumbers_(); } catch { }
-    try {
-      if (SupabaseClient) await upsertCaseToDb(obj);
-      else throw new Error('Supabase not configured');
-    } catch (e) {
-      await onSupabaseWriteError_('تعذر حفظ الحالة في قاعدة البيانات حالياً.', e);
-      return;
-    }
-    try { logAction('إضافة حالة', obj.id, `caseNo: ${obj.caseNo} | familyHead: ${obj.familyHead}`); } catch { }
-    alert('تم حفظ الحالة');
-    try { renderCasesTable(); } catch { }
-    try { updateDashboardStats(); } catch { }
-    try { generateReportPreview(); } catch { }
-    try { updateNavBadges(); } catch { }
-    try {
-      const host = document.getElementById('caseForm');
-      if (host) {
-        host.innerHTML = '';
-        host.removeAttribute('data-rendered');
-        host.removeAttribute('data-wired');
+    if (!window.supabase?.createClient) return null;
+    if (!FRONTEND_CONFIG.supabaseUrl || !FRONTEND_CONFIG.supabaseAnonKey) return null;
+    const authLock = async (_name, _acquireTimeout, fn) => await fn();
+    const raw = window.supabase.createClient(FRONTEND_CONFIG.supabaseUrl, FRONTEND_CONFIG.supabaseAnonKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: false,
+        storageKey: FRONTEND_CONFIG.authStorageKey,
+        storage: createSupabaseAuthStorage_(),
+        lock: authLock
       }
+    });
+    const compat = {
+      raw,
+      from(tableName) { return new SupabaseCompatQuery_(compat, tableName); },
+      async rpc(name, params = {}) {
+        try {
+          return await raw.rpc(name, params || {});
+        } catch (error) {
+          return { data: null, error };
+        }
+      },
+      functions: {
+        async invoke(name, options = {}) {
+          try {
+            return await raw.functions.invoke(name, options || {});
+          } catch (error) {
+            return { data: null, error };
+          }
+        }
+      },
+      auth: {
+        async signInWithPassword({ email, password }) {
+          try {
+            const authData = await raw.auth.signInWithPassword({ email: (email || '').toString().trim(), password: password || '' });
+            if (authData?.error) return authData;
+            const user = await hydrateAuthUser_(compat, authData?.data?.user || null);
+            return {
+              data: {
+                user,
+                session: authData?.data?.session ? { ...authData.data.session, user } : null
+              },
+              error: null
+            };
+          } catch (error) {
+            return { data: null, error };
+          }
+        },
+        async signOut() {
+          const res = await raw.auth.signOut();
+          clearPersistedAuthStorage_();
+          return res;
+        },
+        async getSession() {
+          const result = await raw.auth.getSession();
+          if (result?.error || !result?.data?.session?.user) return result;
+          const user = await hydrateAuthUser_(compat, result.data.session.user);
+          return { data: { session: { ...result.data.session, user } }, error: null };
+        },
+        async getUser() {
+          const result = await raw.auth.getUser();
+          if (result?.error || !result?.data?.user) return result;
+          const user = await hydrateAuthUser_(compat, result.data.user);
+          return { data: { user }, error: null };
+        },
+        onAuthStateChange(callback) {
+          const wrapped = async (event, session) => {
+            const user = await hydrateAuthUser_(compat, session?.user || null);
+            try {
+              callback(event, session ? { ...session, user } : session);
+            } catch { }
+          };
+          return raw.auth.onAuthStateChange(wrapped);
+        },
+        async resetPasswordForEmail(email, options = {}) {
+          try {
+            return await raw.auth.resetPasswordForEmail((email || '').toString().trim(), options || {});
+          } catch (error) {
+            return { data: null, error };
+          }
+        },
+        async updateUser(payload = {}) {
+          try {
+            const body = sanitizeProfileMutationPayload_(payload);
+            const result = await raw.auth.updateUser(body);
+            if (result?.error || !result?.data?.user) return result;
+            const user = await hydrateAuthUser_(compat, result.data.user);
+            return { data: { user }, error: null };
+          } catch (error) {
+            return { data: null, error };
+          }
+        },
+        async authRefresh() {
+          try {
+            const refreshed = await raw.auth.refreshSession();
+            if (refreshed?.error || !refreshed?.data?.user) return refreshed;
+            const user = await hydrateAuthUser_(compat, refreshed.data.user);
+            return { data: { user }, error: null };
+          } catch (error) {
+            return { data: null, error };
+          }
+        },
+        async exchangeCodeForSession(input) {
+          try {
+            const rawInput = (input || location.href || '').toString();
+            const url = new URL(rawInput, location.origin);
+            const code = (url.searchParams.get('code') || '').toString().trim();
+            if (!code) return { data: { session: null, user: null }, error: null };
+            return await raw.auth.exchangeCodeForSession(code);
+          } catch (error) {
+            return { data: null, error };
+          }
+        },
+        async getSessionFromUrl() {
+          try {
+            const searchCode = new URL(location.href).searchParams.get('code');
+            if (searchCode) return await compat.auth.exchangeCodeForSession(location.href);
+            const hash = (location.hash || '').toString().replace(/^#/, '');
+            const params = new URLSearchParams(hash);
+            const access_token = (params.get('access_token') || '').toString().trim();
+            const refresh_token = (params.get('refresh_token') || '').toString().trim();
+            if (access_token && refresh_token) {
+              return await raw.auth.setSession({ access_token, refresh_token });
+            }
+            return { data: { session: null, user: null }, error: null };
+          } catch (error) {
+            return { data: null, error };
+          }
+        },
+        async setSession(payload) {
+          try {
+            return await raw.auth.setSession(payload || {});
+          } catch (error) {
+            return { data: null, error };
+          }
+        }
+      }
+    };
+
+    try {
+      window.addEventListener('beforeunload', () => {
+        try {
+          if (!getRememberMe_()) {
+            clearPersistedAuthStorage_();
+          }
+        } catch { }
+      });
     } catch { }
-    try { showSection('casesList', 'navCasesBtn'); } catch { }
+
+    return compat;
   } catch (e) {
-    alert(`تعذر حفظ الحالة.\n\nالخطأ: ${e?.message || 'غير معروف'}`);
+    try { console.error('Supabase init error:', e); } catch { }
+    return null;
   }
 }
 
-function getSelectedCaseIds() {
-  const host = document.getElementById('casesCardsGrid') || document.getElementById('casesTableBody');
-  if (!host) return [];
-  return Array.from(host.querySelectorAll('input.case-select:checked'))
-    .map(b => (b.getAttribute('data-case-id') || '').toString().trim())
-    .filter(Boolean);
-}
+let DatabaseClient = createSupabaseCompatClient_();
+try { window.CharityApi?.setClient?.(DatabaseClient); } catch { }
+let AuthBusy_ = false;
+let IsRecoveryUrl_ = false;
+let SessionRecoveryInProgress_ = false;
 
-function clearBulkSelection() {
+function ensureAccessibleFormLabels_() {
   try {
-    const host = document.getElementById('casesCardsGrid') || document.getElementById('casesTableBody');
-    if (!host) return;
-    Array.from(host.querySelectorAll('input.case-select')).forEach(b => { b.checked = false; });
-  } catch { }
-  try {
-    const allBox = document.getElementById('casesSelectAll');
-    if (allBox) allBox.checked = false;
-  } catch { }
-  try { onCaseSelectionChange(); } catch { }
-}
-
-function onCaseSelectionChange() {
-  const ids = getSelectedCaseIds();
-  try {
-    const countEl = document.getElementById('bulkSelectedCount');
-    if (countEl) countEl.textContent = String(ids.length);
-  } catch { }
-  try {
-    const bar = document.getElementById('bulkActionsBar');
-    if (bar) bar.classList.toggle('hidden', ids.length === 0);
-  } catch { }
-
-  try {
-    const host = document.getElementById('casesCardsGrid') || document.getElementById('casesTableBody');
-    const allBox = document.getElementById('casesSelectAll');
-    if (host && allBox) {
-      const boxes = Array.from(host.querySelectorAll('input.case-select'));
-      const checked = boxes.filter(b => b.checked).length;
-      allBox.indeterminate = checked > 0 && checked < boxes.length;
-      allBox.checked = boxes.length > 0 && checked === boxes.length;
-    }
-  } catch { }
-}
-
-function ensureCaseNumbers_() {
-  const list = Array.isArray(AppState.cases) ? AppState.cases : [];
-  const rows = list.map((c, i) => {
-    const no = Number(c?.caseNo);
-    const has = Number.isFinite(no) && no > 0;
-    const upd = c?.updated_at || '';
-    const dt = c?.date || '';
-    return { c, i, has, no, upd, dt, id: (c?.id || '').toString() };
-  });
-
-  rows.sort((a, b) => {
-    if (a.has && b.has) return a.no - b.no;
-    if (a.has) return -1;
-    if (b.has) return 1;
-    const d = String(a.dt || '').localeCompare(String(b.dt || ''));
-    if (d !== 0) return d;
-    const u = String(a.upd || '').localeCompare(String(b.upd || ''));
-    if (u !== 0) return u;
-    return a.id.localeCompare(b.id);
-  });
-
-  let n = 1;
-  for (const r of rows) {
-    try { r.c.caseNo = n; } catch { }
-    n += 1;
-  }
-}
-
-function ensureAssistanceArrays() {
-  try {
-    if (!Array.isArray(AppState.cases)) return;
-    AppState.cases.forEach(c => {
-      if (!c || typeof c !== 'object') return;
-      if (!Array.isArray(c.sponsorships)) c.sponsorships = [];
-      if (!Array.isArray(c.assistanceHistory)) c.assistanceHistory = [];
+    const controls = Array.from(document.querySelectorAll('input, select, textarea'));
+    controls.forEach((el, index) => {
+      try {
+        if (el.type === 'hidden') return;
+        if (el.getAttribute('aria-label') || el.getAttribute('aria-labelledby')) return;
+        const id = (el.id || '').toString().trim();
+        if (id && document.querySelector(`label[for="${CSS.escape(id)}"]`)) return;
+        const localLabel = el.closest('label') || el.closest('.form-group')?.querySelector?.('.label') || el.parentElement?.previousElementSibling;
+        const labelText = (localLabel?.textContent || '').toString().replace(/\s+/g, ' ').trim();
+        const fallback = (el.getAttribute('placeholder') || el.name || id || `حقل ${index + 1}`).toString().trim();
+        el.setAttribute('aria-label', labelText || fallback);
+      } catch { }
     });
   } catch { }
 }
 
-const SUPABASE_URL = 'https://fbctibquzuxfjonhbrjr.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_HWMOnpbnXOqCQm37lf7iyA_np0iIKMo';
-let SupabaseClient = null;
-let AuthBusy_ = false;
-let IsRecoveryUrl_ = false;
-let SessionRecoveryInProgress_ = false;
+try {
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ensureAccessibleFormLabels_);
+  else ensureAccessibleFormLabels_();
+  const observeLabels_ = () => {
+    try {
+      const observer = new MutationObserver(() => {
+        try { ensureAccessibleFormLabels_(); } catch { }
+      });
+      observer.observe(document.documentElement, { childList: true, subtree: true });
+    } catch { }
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', observeLabels_);
+  else observeLabels_();
+} catch { }
+
 function computeIsRecoveryUrl_() {
-  try {
-    const hash = (location.hash || '').toString();
-    const search = (location.search || '').toString();
-    const raw = `${search}${hash}`;
-    return raw.includes('type=recovery') || raw.includes('access_token=') || raw.includes('code=');
-  } catch { return false; }
+  return false;
 }
 function getRememberMe_() {
   try { return (localStorage.getItem('rememberMe') || '') === '1'; } catch { return false; }
@@ -1210,40 +2244,9 @@ function getRememberMe_() {
 function setRememberMe_(v) {
   try { localStorage.setItem('rememberMe', v ? '1' : '0'); } catch { }
   if (!v) {
-    try { localStorage.removeItem('sb-session'); } catch { }
+    clearPersistedAuthStorage_();
   }
 }
-function initSupabaseClient_() {
-  try {
-    if (!(window.supabase && typeof window.supabase.createClient === 'function')) return null;
-    const store = localStorage;
-    const storageKey = 'sb-session';
-    const storage = {
-      getItem: (key) => {
-        try { return store.getItem(key); } catch { return null; }
-      },
-      setItem: (key, value) => {
-        try { store.setItem(key, value); } catch { }
-      },
-      removeItem: (key) => {
-        try { store.removeItem(key); } catch { }
-      }
-    };
-    return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: {
-        storage,
-        storageKey,
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true
-      }
-    });
-  } catch (e) {
-    try { console.error('Supabase init error:', e); } catch { }
-    return null;
-  }
-}
-SupabaseClient = initSupabaseClient_();
 
 const PERMISSIONS = [
   'dashboard',
@@ -1346,15 +2349,15 @@ function wireUserMgmtAutosave_() {
 
 async function saveUserMgmtForm_(silent) {
   if (!hasPerm('users_manage')) { if (!silent) alert('لا تملك صلاحية إدارة المستخدمين'); return; }
-  if (!SupabaseClient) { if (!silent) alert('تعذر الاتصال بقاعدة البيانات'); return; }
+  if (!DatabaseClient) { if (!silent) alert('تعذر الاتصال بقاعدة البيانات'); return; }
   const uname = (document.getElementById('userMgmtUsername')?.value || '').trim();
   const name = (document.getElementById('userMgmtName')?.value || '').trim();
   if (!uname) return;
 
   const isActive = !!document.getElementById('userMgmtIsActive')?.checked;
   const role = (document.getElementById('userMgmtRole')?.value || 'custom').toString().trim() || 'custom';
-  const { data: existing, error: exErr } = await SupabaseClient
-    .from('profiles')
+  const { data: existing, error: exErr } = await DatabaseClient
+    .from('users')
     .select('id,permissions')
     .eq('username', uname)
     .maybeSingle();
@@ -1373,10 +2376,12 @@ async function saveUserMgmtForm_(silent) {
     }
   } catch { }
 
-  const { error } = await SupabaseClient
-    .from('profiles')
-    .update({ full_name: name, permissions, is_active: isActive })
-    .eq('id', existing.id);
+  const { error } = await DatabaseClient.rpc('admin_update_profile', {
+    p_username: uname,
+    p_full_name: name,
+    p_permissions: permissions,
+    p_is_active: isActive
+  });
   if (error) return;
   if (!silent) {
     try { await logAction('تحديث مستخدم (سريع)', '', `username: ${uname}`); } catch { }
@@ -1419,16 +2424,19 @@ function buildUserPermissionsUi_(selected) {
 }
 
 async function setUserActiveQuick_(id, makeActive) {
-  if (!SupabaseClient) return;
+  if (!DatabaseClient) return;
   if (!hasPerm('users_manage')) { alert('لا تملك صلاحية إدارة المستخدمين'); return; }
   const v = !!makeActive;
   const ok = confirm(v ? 'تفعيل هذا المستخدم؟' : 'تعطيل هذا المستخدم؟');
   if (!ok) return;
-  const { error } = await SupabaseClient.from('profiles').update({ is_active: v }).eq('id', String(id));
+  const { data: profileRow } = await DatabaseClient.from('users').select('username').eq('id', String(id)).maybeSingle();
+  const uname = (profileRow?.username || '').toString().trim();
+  const { error } = await DatabaseClient.rpc('admin_set_profile_active', {
+    p_username: uname,
+    p_is_active: v
+  });
   if (error) { alert('تعذر تحديث حالة المستخدم'); return; }
   try {
-    const { data } = await SupabaseClient.from('profiles').select('username').eq('id', String(id)).maybeSingle();
-    const uname = data?.username || '';
     await logAction(v ? 'تفعيل مستخدم' : 'تعطيل مستخدم', '', `username: ${uname || ''} | id: ${id}`);
   } catch { }
   try { await renderUsersList(); } catch { }
@@ -1508,70 +2516,71 @@ function hasPerm(perm) {
 
 async function setCurrentUserFromSession_(user) {
   if (!user) return;
-  const username = (user.email || '').split('@')[0] || '';
-  const prof = await ensureProfileForUser(user, username);
+  const normalized = normalizeProfileRecord_(user) || user;
+  const username = (normalized.username || (normalized.email || '').split('@')[0] || '').toString();
+  const prof = await ensureProfileForUser(normalized, username);
   if (prof && prof.is_active === false) {
-    try { await SupabaseClient?.auth?.signOut?.(); } catch { }
+    try { await DatabaseClient?.auth?.signOut?.(); } catch { }
     throw new Error('inactive');
   }
   AppState.currentUser = {
-    id: user.id,
+    id: normalized.id,
     username: prof?.username || username,
-    name: prof?.full_name || username,
+    name: prof?.full_name || prof?.name || username,
+    email: prof?.email || normalized.email || '',
     permissions: prof?.permissions || {}
   };
   AppState.isAuthenticated = true;
-
-  // Update last seen if column exists (ignore errors)
-  try {
-    await SupabaseClient.from('profiles').update({ last_seen_at: new Date().toISOString() }).eq('id', user.id);
-  } catch { }
+  try { AppState._myProfileCache = { userId: normalized.id, profile: prof || normalized }; } catch { }
 }
 function roleLabel() { return '👤' }
 
 function usernameToEmail(u) {
-  const x = (u || '').toString().trim().toLowerCase();
-  if (!x) return '';
-  if (x.includes('@')) return x;
-  return `${x}@app.local`;
+  const raw = (u || '').toString().trim().toLowerCase();
+  if (!raw) return '';
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw) ? raw : '';
 }
 
 async function ensureProfileForUser(user, username) {
-  if (!SupabaseClient || !user?.id) return null;
-  const { data: existing } = await SupabaseClient.from('profiles').select('*').eq('id', user.id).maybeSingle();
-  if (existing) return existing;
+  if (!user) return null;
+  try {
+    const id = (user.id || '').toString().trim();
+    if (!id || !DatabaseClient) return normalizeProfileRecord_(user) || null;
+    const hydrated = await fetchAuthenticatedProfile_();
+    if (hydrated && hydrated.id === id) return hydrated;
 
-  const payload = {
-    id: user.id,
-    username: (username || '').toString().trim(),
-    full_name: '',
-    permissions: {}
-  };
-  const { data: created, error } = await SupabaseClient.from('profiles').insert(payload).select('*').single();
-  if (error) throw error;
-  return created;
+    const { data: existing } = await DatabaseClient.from('users').select('*').eq('id', id).maybeSingle();
+
+    if (existing) {
+      if (!existing.username && username) {
+        try { await DatabaseClient.from('users').update({ username: (username || '').toString().trim() }).eq('id', id); } catch { }
+      }
+      return existing;
+    }
+    return normalizeProfileRecord_(user) || null;
+  } catch {
+    return normalizeProfileRecord_(user) || null;
+  }
 }
 
 async function getMyProfile() {
-  if (!SupabaseClient) return null;
-  // Cache to avoid many concurrent auth.getUser() calls (can trigger AbortError lock contention)
+  if (!DatabaseClient) return null;
   if (AppState._myProfileCache && AppState._myProfileCache.userId && AppState._myProfileCache.profile) {
     return AppState._myProfileCache.profile;
   }
-  const { data: auth, error: authErr } = await runAuthOp_(() => SupabaseClient.auth.getUser());
+  const { data: auth, error: authErr } = await runAuthOp_(() => DatabaseClient.auth.getUser());
   if (authErr) return null;
   const user = auth?.user;
   if (!user) return null;
-  const { data: prof } = await SupabaseClient.from('profiles').select('*').eq('id', user.id).maybeSingle();
-  const out = prof || null;
-  AppState._myProfileCache = { userId: user.id, profile: out };
+  const out = normalizeProfileRecord_(user) || user;
+  AppState._myProfileCache = { userId: out.id, profile: out };
   return out;
 }
 
 async function getMyAuthUserId_() {
-  if (!SupabaseClient) return null;
+  if (!DatabaseClient) return null;
   try {
-    const { data: auth, error } = await runAuthOp_(() => SupabaseClient.auth.getUser());
+    const { data: auth, error } = await runAuthOp_(() => DatabaseClient.auth.getUser());
     if (error) return null;
     const id = auth?.user?.id;
     return id ? String(id) : null;
@@ -1601,24 +2610,41 @@ function normalizeMissingCoreFields_(it) {
   } catch { }
 }
 
-async function reloadCasesFromSupabase_() {
+function ensureAssistanceArrays() {
+  const normalize = (item) => {
+    if (!item || typeof item !== 'object') return;
+    if (!Array.isArray(item.sponsorships)) item.sponsorships = [];
+    if (!Array.isArray(item.assistanceHistory)) item.assistanceHistory = [];
+  };
+
+  try {
+    if (Array.isArray(AppState?.cases)) {
+      AppState.cases.forEach(normalize);
+    }
+  } catch { }
+
+  try { normalize(AppState?.currentCase); } catch { }
+}
+
+async function reloadCasesFromDatabase_() {
   try {
     await loadCasesFromDb(true);
   } catch { }
 }
 
-async function onSupabaseWriteError_(fallbackMsg, e) {
+async function onDatabaseWriteError_(fallbackMsg, e) {
   try {
     const msg = (fallbackMsg || 'تعذر الحفظ في قاعدة البيانات حالياً.').toString();
     alert(`${msg}\n\nالخطأ: ${e?.message || 'خطأ غير معروف'}`);
   } catch {
     try { alert('تعذر الحفظ في قاعدة البيانات حالياً.'); } catch { }
   }
-  try { await reloadCasesFromSupabase_(); } catch { }
+  try { await reloadCasesFromDatabase_(); } catch { }
 }
 
 async function loadCasesFromDb(force = false) {
-  if (!SupabaseClient) { AppState.cases = []; return; }
+  if (!DatabaseClient) { AppState.cases = []; return; }
+  const previousLimit = Math.max(CASES_LIST_INITIAL_LIMIT, Number(AppState._casesListLimit || 0) || CASES_LIST_INITIAL_LIMIT);
   try {
     const lastAt = Number(AppState._casesLoadedAt || 0) || 0;
     if (!force && lastAt && (Date.now() - lastAt) < 8000 && Array.isArray(AppState.cases) && AppState.cases.length) {
@@ -1642,18 +2668,17 @@ async function loadCasesFromDb(force = false) {
     }
   } catch { }
 
-  const { data, error } = await SupabaseClient
+  const { data, error } = await DatabaseClient
     .from('cases')
     .select('id,data,updated_at')
-    .order('updated_at', { ascending: false })
-    .limit(5000);
+    .order('updated_at', { ascending: false });
   if (error) {
     AppState.cases = [];
     try {
       const grid = document.getElementById('casesCardsGrid');
       const msg = (error.message || '').toString();
       const code = (error.code || '').toString();
-      if (grid) grid.innerHTML = `<div style="padding:14px;border:1px solid #fecaca;background:#fff1f2;color:#991b1b;border-radius:12px;text-align:center">تعذر تحميل الحالات من قاعدة البيانات.<br>تأكد من وجود الصلاحية <b>cases_read</b> للمستخدم ومن سياسات RLS.<br><div style="margin-top:8px;color:#7f1d1d;font-size:.9rem">${escapeHtml(code ? `code: ${code} | ` : '')}${escapeHtml(msg)}</div></div>`;
+      if (grid) grid.innerHTML = `<div style="padding:14px;border:1px solid #fecaca;background:#fff1f2;color:#991b1b;border-radius:12px;text-align:center">تعذر تحميل الحالات من قاعدة البيانات.<br>تأكد من وجود الصلاحية <b>cases_read</b> للمستخدم ومن قواعد Supabase.<br><div style="margin-top:8px;color:#7f1d1d;font-size:.9rem">${escapeHtml(code ? `code: ${code} | ` : '')}${escapeHtml(msg)}</div></div>`;
     } catch { }
     throw error;
   }
@@ -1664,6 +2689,7 @@ async function loadCasesFromDb(force = false) {
     return out;
   });
   AppState.cases = list;
+  try { AppState._casesListLimit = Math.max(previousLimit, CASES_LIST_INITIAL_LIMIT); } catch { try { resetCasesListPager_(); } catch { } }
   try { AppState._casesLoadedAt = Date.now(); } catch { }
   try { AppState._casesVersion = (Number(AppState._casesVersion || 0) || 0) + 1; } catch { }
   ensureAssistanceArrays();
@@ -1675,7 +2701,7 @@ async function loadCasesFromDb(force = false) {
 }
 
 async function upsertCaseToDb(caseObj) {
-  if (!SupabaseClient) throw new Error('Supabase not configured');
+  if (!DatabaseClient) throw new Error('Supabase not configured');
   if (!caseObj || !caseObj.id) throw new Error('Missing case id');
   const prof = await getMyProfile();
   const actorId = (prof?.id || (await getMyAuthUserId_()) || null);
@@ -1687,7 +2713,7 @@ async function upsertCaseToDb(caseObj) {
     updated_by: actorId,
     updated_at: now
   };
-  const { data, error } = await SupabaseClient.from('cases').upsert(row).select('id,data,updated_at');
+  const { data, error } = await DatabaseClient.from('cases').upsert(row).select('id,data,updated_at');
   if (error) {
     try { console.error('upsertCaseToDb error:', error); } catch { }
     throw error;
@@ -1703,21 +2729,39 @@ async function upsertCaseToDb(caseObj) {
 }
 
 async function deleteCaseFromDb(id) {
-  if (!SupabaseClient) throw new Error('Supabase not configured');
-  const { error } = await SupabaseClient.rpc('delete_case', { p_id: String(id) });
+  if (!DatabaseClient) throw new Error('Supabase not configured');
+  const { error } = await DatabaseClient.rpc('delete_case', { p_id: String(id || '') });
   if (error) throw error;
 }
 
 async function deleteAllCasesFromDb() {
-  if (!SupabaseClient) throw new Error('Supabase not configured');
+  if (!DatabaseClient) throw new Error('Supabase not configured');
   // Safety: never allow mass delete without explicit typed confirmation.
   let ok = false;
   try { ok = (prompt('تحذير خطير: اكتب DELETE-ALL لتأكيد حذف كل الحالات من قاعدة البيانات:') || '').toString().trim().toUpperCase() === 'DELETE-ALL'; } catch { ok = false; }
   if (!ok) throw new Error('cancelled');
-  // Avoid RPC that may execute a DELETE without a WHERE clause (blocked by PostgREST).
-  // Use a safe delete with an explicit filter.
-  const { error } = await SupabaseClient.from('cases').delete().neq('id', '');
+  const { error } = await DatabaseClient.rpc('delete_all_cases', {});
   if (error) throw error;
+}
+
+async function syncCasesAfterMutation_(caseId = '', options = {}) {
+  const uiState = options.uiState || captureCasesUiState_();
+  try { await loadCasesFromDb(true); } catch { }
+  const requestedId = (caseId || '').toString().trim();
+  const fallbackCaseId = (options.fallbackCaseId || '').toString().trim();
+  const activeId = requestedId && (AppState.cases || []).some((item) => String(item?.id || '').trim() === requestedId)
+    ? requestedId
+    : (fallbackCaseId && (AppState.cases || []).some((item) => String(item?.id || '').trim() === fallbackCaseId) ? fallbackCaseId : '');
+  try { refreshCaseViews_(activeId, { ...options, reopenDetails: false }); } catch { }
+  try {
+    restoreCasesUiState_(uiState, {
+      focusCaseId: activeId,
+      reopenDetails: !!options.reopenDetails && !!activeId,
+      caseDetailsTab: (options.preserveTab === false ? 'details' : (uiState.caseDetailsTab || options.caseDetailsTab || 'details')),
+      forceOpenDetails: !!options.reopenDetails && !!activeId,
+      restoreScroll: options.restoreScroll !== false
+    });
+  } catch { }
 }
 
 function initDashboardDrilldown() {
@@ -1867,10 +2911,10 @@ function matchesDashboardFilter(c, key) {
 }
 async function logAction(action, caseId, details) {
   try {
-    if (!SupabaseClient) return;
+    if (!DatabaseClient) return;
     try { if (isHiddenSuperAdmin_()) return; } catch { }
     const prof = await getMyProfile();
-    await SupabaseClient.from('audit_log').insert({
+    await DatabaseClient.from('audit_log').insert({
       action: action || '',
       case_id: caseId || '',
       details: details || '',
@@ -1895,12 +2939,12 @@ async function renderAuditLog() {
     } catch { }
     return { short: s, full };
   };
-  if (!SupabaseClient) {
+  if (!DatabaseClient) {
     body.innerHTML = '<tr><td colspan="5" style="text-align:center">تعذر الاتصال بقاعدة البيانات</td></tr>';
     if (delBody) delBody.innerHTML = '<tr><td colspan="4" style="text-align:center">تعذر الاتصال بقاعدة البيانات</td></tr>';
     return;
   }
-  const { data, error } = await SupabaseClient
+  const { data, error } = await DatabaseClient
     .from('audit_log')
     .select('created_at,action,case_id,details,profiles:created_by(username,full_name)')
     .order('created_at', { ascending: false })
@@ -1941,8 +2985,8 @@ async function renderAuditLog() {
 }
 
 async function exportAuditLog() {
-  if (!SupabaseClient) return;
-  const { data } = await SupabaseClient
+  if (!DatabaseClient) return;
+  const { data } = await DatabaseClient
     .from('audit_log')
     .select('created_at,action,case_id,details')
     .order('created_at', { ascending: false })
@@ -1961,7 +3005,7 @@ async function clearAuditLog() {
   alert('مسح سجل الإجراءات غير متاح حالياً');
 }
 
-document.addEventListener('DOMContentLoaded', () => { init(); loadSettings(); ensureAssistanceArrays(); });
+document.addEventListener('DOMContentLoaded', () => { loadSettings(); init(); ensureAssistanceArrays(); try { loadPendingQueue_(); } catch { } try { void trySyncPendingQueue(); } catch { } });
 
 function init() {
   try { IsRecoveryUrl_ = computeIsRecoveryUrl_(); } catch { IsRecoveryUrl_ = false; }
@@ -1969,7 +3013,9 @@ function init() {
   try {
     window.addEventListener('beforeunload', () => {
       try {
-        if (!getRememberMe_()) localStorage.removeItem('sb-session');
+        if (!getRememberMe_()) {
+          clearPersistedAuthStorage_();
+        }
       } catch { }
     });
   } catch { }
@@ -1984,6 +3030,11 @@ function init() {
     const rm = document.getElementById('rememberMe');
     if (rm) rm.checked = getRememberMe_();
   } catch { }
+  try {
+    window.addEventListener('online', () => {
+      try { void trySyncPendingQueue(); } catch { }
+    });
+  } catch { }
   const importInput = document.getElementById('importInput'); if (importInput) { importInput.addEventListener('change', onImportFile) }
   const jsonImportInput = document.getElementById('jsonImportInput'); if (jsonImportInput) { jsonImportInput.addEventListener('change', onJSONImportFile) }
   const listImportInput = document.getElementById('listImportInput'); if (listImportInput) { listImportInput.addEventListener('change', onListImportFile) }
@@ -1994,10 +3045,11 @@ function init() {
   setFilterOptions();
   // header ui
   initHeaderUi();
+  wireMobileNav_();
   // auth session events
   try {
-    if (SupabaseClient?.auth?.onAuthStateChange) {
-      SupabaseClient.auth.onAuthStateChange(async (_event, session) => {
+    if (DatabaseClient?.auth?.onAuthStateChange) {
+      DatabaseClient.auth.onAuthStateChange(async (_event, session) => {
         try { clearMyProfileCache_(); } catch { }
         if (!session?.user) return;
         if (AuthBusy_) return;
@@ -2017,8 +3069,8 @@ function init() {
     }
   } catch { }
   // restore session
-  if (!SessionRecoveryInProgress_) {
-    void restoreSupabaseSession();
+  if (!SessionRecoveryInProgress_ && getRememberMe_()) {
+    void restoreDatabaseSession();
   }
   try { buildUserPermissionsUi_({}); } catch { }
 
@@ -2027,38 +3079,37 @@ function init() {
 
 async function sendPasswordResetEmail_() {
   const hint = document.getElementById('loginHint');
-  try { if (hint) { hint.classList.remove('hidden'); hint.textContent = 'جارٍ إرسال رابط إعادة تعيين كلمة المرور...'; } } catch { }
-  if (!SupabaseClient) {
-    try { if (hint) hint.textContent = 'تعذر الاتصال بقاعدة البيانات (Supabase)'; } catch { }
+  try {
+    if (hint) {
+      hint.classList.remove('hidden');
+      hint.textContent = 'جارٍ إرسال رابط إعادة تعيين كلمة المرور...';
+    }
+  } catch { }
+  if (!DatabaseClient) {
+    try { if (hint) hint.textContent = 'تعذر الاتصال بقاعدة البيانات'; } catch { }
     return;
   }
   try {
     const raw = (document.getElementById('username')?.value || '').toString().trim();
     if (!raw) {
-      try { if (hint) hint.textContent = 'اكتب اسم المستخدم أو البريد أولاً'; } catch { }
+      try { if (hint) hint.textContent = 'اكتب البريد الإلكتروني أولًا'; } catch { }
       return;
     }
-    const candidates = [];
-    if (raw.includes('@')) {
-      candidates.push(raw);
-      candidates.push(raw.toLowerCase());
-    } else {
-      candidates.push(`${raw}@app.local`);
-      candidates.push(`${raw.toLowerCase()}@app.local`);
-      try { candidates.push(usernameToEmail(raw)); } catch { }
-    }
-    const uniq = Array.from(new Set(candidates.map(s => (s || '').toString().trim()).filter(Boolean)));
-    const email = uniq[0];
+    const email = usernameToEmail(raw);
     if (!email) {
-      try { if (hint) hint.textContent = 'تعذر تحديد البريد الإلكتروني'; } catch { }
+      try { if (hint) hint.textContent = 'أدخل بريدًا إلكترونيًا كاملًا مثل user@gmail.com'; } catch { }
       return;
     }
 
     const redirectTo = `${location.origin}${location.pathname}`;
-    const res = await SupabaseClient.auth.resetPasswordForEmail(email, { redirectTo });
+    const res = await DatabaseClient.auth.resetPasswordForEmail(email, { redirectTo });
     if (res?.error) throw res.error;
-    try { if (hint) hint.textContent = 'تم إرسال رابط إعادة تعيين كلمة المرور إلى البريد (إن كان موجوداً). افحص البريد الوارد والـSpam.'; } catch { }
-    try { showToast_('تم إرسال رابط إعادة تعيين كلمة المرور (إن كان البريد موجوداً).', 'success'); } catch { }
+    try {
+      if (hint) {
+        hint.textContent = 'تم إرسال رسالة إعادة تعيين كلمة المرور إلى البريد الإلكتروني إن كان الحساب موجودًا. افحص البريد الوارد والرسائل غير المرغوبة.';
+      }
+    } catch { }
+    try { showToast_('تم إرسال رابط إعادة تعيين كلمة المرور إذا كان البريد موجودًا.', 'success'); } catch { }
     try {
       const fp = document.getElementById('forgotPasswordBtn');
       if (fp) fp.style.display = 'none';
@@ -2069,9 +3120,8 @@ async function sendPasswordResetEmail_() {
     try { if (hint) hint.textContent = msg ? `تعذر إرسال الرابط: ${msg}` : 'تعذر إرسال رابط إعادة تعيين كلمة المرور'; } catch { }
   }
 }
-
 async function detectRecoveryFlow_() {
-  if (!SupabaseClient) return;
+  if (!DatabaseClient) return;
   if (SessionRecoveryInProgress_) {
     return;
   }
@@ -2116,17 +3166,17 @@ async function detectRecoveryFlow_() {
 
   try {
     AuthBusy_ = true;
-    if (SupabaseClient.auth.getSessionFromUrl) {
-      await runAuthOp_(() => SupabaseClient.auth.getSessionFromUrl({ storeSession: true }));
-    } else if (SupabaseClient.auth.exchangeCodeForSession && raw.includes('code=')) {
-      await runAuthOp_(() => SupabaseClient.auth.exchangeCodeForSession(location.href));
+    if (DatabaseClient.auth.getSessionFromUrl) {
+      await runAuthOp_(() => DatabaseClient.auth.getSessionFromUrl({ storeSession: true }));
+    } else if (DatabaseClient.auth.exchangeCodeForSession && raw.includes('code=')) {
+      await runAuthOp_(() => DatabaseClient.auth.exchangeCodeForSession(location.href));
     } else {
       const h = (location.hash || '').toString().replace(/^#/, '');
       const p = new URLSearchParams(h);
       const access_token = (p.get('access_token') || '').toString();
       const refresh_token = (p.get('refresh_token') || '').toString();
-      if (access_token && refresh_token && SupabaseClient.auth.setSession) {
-        await runAuthOp_(() => SupabaseClient.auth.setSession({ access_token, refresh_token }));
+      if (access_token && refresh_token && DatabaseClient.auth.setSession) {
+        await runAuthOp_(() => DatabaseClient.auth.setSession({ access_token, refresh_token }));
       }
     }
   } catch (e) {
@@ -2136,7 +3186,7 @@ async function detectRecoveryFlow_() {
   }
 
   try {
-    const { data } = await SupabaseClient.auth.getSession();
+    const { data } = await DatabaseClient.auth.getSession();
     if (data?.session?.user) {
       SessionRecoveryInProgress_ = false;
       return;
@@ -2189,8 +3239,8 @@ async function applyRecoveryPassword_() {
   try { if (btn) btn.setAttribute('disabled', 'disabled'); } catch { }
   try { if (hint) { hint.style.display = 'block'; hint.textContent = 'جارٍ الحفظ...'; } } catch { }
 
-  if (!SupabaseClient) {
-    try { if (hint) hint.textContent = 'تعذر الاتصال بقاعدة البيانات (Supabase)'; } catch { }
+  if (!DatabaseClient) {
+    try { if (hint) hint.textContent = 'تعذر الاتصال بقاعدة البيانات'; } catch { }
     try { if (btn) btn.removeAttribute('disabled'); } catch { }
     return;
   }
@@ -2201,8 +3251,9 @@ async function applyRecoveryPassword_() {
       if (hint) hint.textContent = 'أدخل كلمة المرور الجديدة وتأكيدها';
       return;
     }
-    if (p1.trim().length < 6) {
-      if (hint) hint.textContent = 'كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل';
+    const passwordPolicyError = validatePasswordPolicy_(p1.trim());
+    if (passwordPolicyError) {
+      if (hint) hint.textContent = passwordPolicyError;
       return;
     }
     if (p1 !== p2) {
@@ -2211,7 +3262,7 @@ async function applyRecoveryPassword_() {
     }
 
     const res = await withTimeout_(
-      runAuthOp_(() => SupabaseClient.auth.updateUser({ password: p1 })),
+      runAuthOp_(() => DatabaseClient.auth.updateUser({ password: p1 })),
       15000,
       'تعذر حفظ كلمة المرور: انتهت المهلة. أعد المحاولة.'
     );
@@ -2225,7 +3276,7 @@ async function applyRecoveryPassword_() {
 
     try {
       void withTimeout_(
-        runAuthOp_(() => SupabaseClient.auth.signOut(), { retryLock: true }),
+        runAuthOp_(() => DatabaseClient.auth.signOut(), { retryLock: true }),
         7000,
         'timeout'
       );
@@ -2242,6 +3293,7 @@ async function applyRecoveryPassword_() {
     const msg = (e?.message || e?.error_description || '').toString().trim();
     if (hint) hint.textContent = msg ? `تعذر حفظ كلمة المرور: ${msg}` : 'تعذر حفظ كلمة المرور';
   } finally {
+    try { delete AppState._lastValidatedPassword; } catch { }
     try { if (btn) btn.removeAttribute('disabled'); } catch { }
   }
 }
@@ -2281,6 +3333,11 @@ function applyRoleBasedUi_() {
   const can = (p) => {
     try { return !!eff?.[p]; } catch { return false; }
   };
+  const canOpenMedical = () => {
+    try {
+      return can('medical_committee') || can('reports') || can('users_manage') || role === 'manager' || role === 'doctor' || role === 'medical_committee' || role === 'super_admin' || role === 'hidden_super_admin';
+    } catch { return false; }
+  };
 
   try {
     const delAllBtn = document.getElementById('deleteAllCasesBtn');
@@ -2290,58 +3347,88 @@ function applyRoleBasedUi_() {
   // default by permissions
   setBtn('quickAddBtn', can('cases_create'));
   setBtn('navCasesBtn', can('cases_read'));
+  setBtn('beneficiariesBtn', can('cases_read'));
+  setBtn('regionsBtn', can('cases_read') || can('reports') || can('dashboard'));
   setBtn('dashboardBtn', can('dashboard'));
   setBtn('auditBtn', can('audit'));
   setBtn('settingsBtn', can('settings'));
-  setBtn('medicalCommitteeBtn', can('medical_committee'));
+  setBtn('medicalCommitteeBtn', canOpenMedical());
   setBtn('reportsBtn', can('reports'));
+  setBtn('globalSearchBtn', can('cases_read') || can('users_manage') || can('audit'));
+  setBtn('notificationsBtn', can('cases_read') || can('dashboard'));
+  setBtn('usersBtn', can('users_manage'));
 
   // strict visibility rules per role
   if (role === 'explorer') {
     setBtn('quickAddBtn', true);
     setBtn('navCasesBtn', true);
+    setBtn('beneficiariesBtn', true);
+    setBtn('regionsBtn', true);
     setBtn('settingsBtn', true);
     setBtn('medicalCommitteeBtn', false);
     setBtn('dashboardBtn', false);
     setBtn('reportsBtn', false);
+    setBtn('globalSearchBtn', true);
+    setBtn('notificationsBtn', true);
+    setBtn('usersBtn', false);
     setBtn('auditBtn', false);
   }
   if (role === 'manager') {
     setBtn('quickAddBtn', true);
     setBtn('navCasesBtn', true);
+    setBtn('beneficiariesBtn', true);
+    setBtn('regionsBtn', true);
     setBtn('settingsBtn', true);
     setBtn('dashboardBtn', true);
-    setBtn('medicalCommitteeBtn', false);
+    setBtn('medicalCommitteeBtn', true);
     setBtn('reportsBtn', true);
+    setBtn('globalSearchBtn', true);
+    setBtn('notificationsBtn', true);
+    setBtn('usersBtn', true);
     setBtn('auditBtn', false);
   }
   if (role === 'doctor') {
     setBtn('medicalCommitteeBtn', true);
     setBtn('quickAddBtn', false);
     setBtn('navCasesBtn', false);
+    setBtn('beneficiariesBtn', false);
+    setBtn('regionsBtn', false);
     setBtn('dashboardBtn', false);
     setBtn('reportsBtn', false);
     setBtn('auditBtn', false);
     setBtn('settingsBtn', true);
+    setBtn('globalSearchBtn', true);
+    setBtn('notificationsBtn', true);
+    setBtn('usersBtn', false);
   }
   if (role === 'medical_committee') {
     setBtn('medicalCommitteeBtn', true);
     setBtn('quickAddBtn', false);
     setBtn('navCasesBtn', false);
+    setBtn('beneficiariesBtn', false);
+    setBtn('regionsBtn', false);
     setBtn('dashboardBtn', false);
     setBtn('reportsBtn', false);
     setBtn('auditBtn', false);
     setBtn('settingsBtn', false);
+    setBtn('globalSearchBtn', true);
+    setBtn('notificationsBtn', true);
+    setBtn('usersBtn', false);
   }
   if (role === 'hidden_super_admin') {
     // full access (still hidden from user lists and audit log)
     setBtn('quickAddBtn', true);
     setBtn('navCasesBtn', true);
+    setBtn('beneficiariesBtn', true);
+    setBtn('regionsBtn', true);
     setBtn('dashboardBtn', true);
     setBtn('reportsBtn', true);
     setBtn('auditBtn', true);
     setBtn('settingsBtn', true);
     setBtn('medicalCommitteeBtn', true);
+    setBtn('globalSearchBtn', true);
+    setBtn('notificationsBtn', true);
+    setBtn('usersBtn', true);
   }
 
   // Hide settings entry from dropdown if user can't access settings
@@ -2409,15 +3496,21 @@ async function onLogin(e) {
   }
   AuthBusy_ = true;
 
-  const username = (document.getElementById('username')?.value || '').toString().trim();
+  const email = usernameToEmail((document.getElementById('username')?.value || '').toString().trim());
   const password = (document.getElementById('password')?.value || '').toString();
-  if (!username || !password) {
+  if (!email || !password) {
     try { if (errBox) errBox.classList.remove('hidden'); } catch { }
+    try {
+      if (hintBox && !email) {
+        hintBox.classList.remove('hidden');
+        hintBox.textContent = 'يجب تسجيل الدخول بالبريد الإلكتروني الكامل فقط، مثل user@gmail.com';
+      }
+    } catch { }
     AuthBusy_ = false;
     try { if (submitBtn) submitBtn.removeAttribute('disabled'); } catch { }
     return;
   }
-  if (!SupabaseClient) {
+  if (!DatabaseClient) {
     alert('تعذر الاتصال بقاعدة البيانات');
     AuthBusy_ = false;
     try { if (submitBtn) submitBtn.removeAttribute('disabled'); } catch { }
@@ -2432,29 +3525,14 @@ async function onLogin(e) {
   } catch { }
 
   try {
-    const unameRaw = (username || '').toString().trim();
-    const candidates = [];
-    if (unameRaw.includes('@')) {
-      candidates.push(unameRaw);
-      candidates.push(unameRaw.toLowerCase());
-    } else {
-      candidates.push(`${unameRaw}@app.local`);
-      candidates.push(`${unameRaw.toLowerCase()}@app.local`);
-      candidates.push(usernameToEmail(unameRaw));
-    }
-    const uniq = Array.from(new Set(candidates.map(s => (s || '').toString().trim()).filter(Boolean)));
-
     let lastErr = null;
     let data = null;
-    for (const email of uniq) {
-      try {
-        const res = await runAuthOp_(() => SupabaseClient.auth.signInWithPassword({ email, password }));
-        if (res?.error) { lastErr = res.error; continue; }
-        data = res?.data || null;
-        if (data?.user) break;
-      } catch (ex) {
-        lastErr = ex;
-      }
+    try {
+      const res = await runAuthOp_(() => DatabaseClient.auth.signInWithPassword({ email, password }));
+      if (res?.error) { lastErr = res.error; }
+      data = res?.data || null;
+    } catch (ex) {
+      lastErr = ex;
     }
 
     if (!data?.user) {
@@ -2474,13 +3552,13 @@ async function onLogin(e) {
     try { if (forgotBtn) forgotBtn.style.display = 'none'; } catch { }
   } catch (authErr) {
     try { console.error('login error:', authErr); } catch { }
-    // Better hint: profile may exist but auth user/password is wrong or user was not created in Supabase Auth.
+    // Better hint: user may exist but the password is wrong or the account is inactive in Supabase.
     try {
-      const unameKey = (username || '').toString().trim();
+      const unameKey = (email || '').toString().trim();
       let profRow = null;
       try {
-        const q = await SupabaseClient
-          .from('profiles')
+        const q = await DatabaseClient
+          .from('users')
           .select('id,username,is_active')
           .eq('username', unameKey)
           .maybeSingle();
@@ -2488,7 +3566,7 @@ async function onLogin(e) {
       } catch { profRow = null; }
 
       if (profRow && profRow.is_active === false) {
-        alert('هذا المستخدم معطّل. راجع الإدارة لإعادة التفعيل.');
+        alert('هذا المستخدم معطل. راجع الإدارة لإعادة التفعيل.');
         try {
           if (forgotBtn) { forgotBtn.style.display = 'block'; }
           if (hintBox) {
@@ -2500,8 +3578,12 @@ async function onLogin(e) {
         return;
       }
       if (profRow) {
-        const emailHint = usernameToEmail(unameKey);
-        alert('اسم المستخدم موجود، لكن تعذر تسجيل الدخول.\n\nالأسباب الشائعة:\n- كلمة المرور غير صحيحة\n- المستخدم لم يتم إنشاؤه داخل Supabase (Authentication → Users) بنفس البريد\n\nالبريد الذي يتوقعه النظام غالباً: ' + emailHint + '\n\nملاحظة: إذا كان حسابك في Supabase معمول ببريد مختلف (مثل Gmail)، اكتب البريد الكامل في خانة "اسم المستخدم".');
+        alert(
+          'البريد الإلكتروني موجود كاسم مستخدم، لكن تعذر تسجيل الدخول.\n\n' +
+          'الأسباب الشائعة:\n' +
+          '- كلمة المرور غير صحيحة\n' +
+          '- البريد غير موجود داخل Supabase Auth أو الحساب غير مفعل'
+        );
         try {
           if (forgotBtn) { forgotBtn.style.display = 'block'; }
           if (hintBox) {
@@ -2551,16 +3633,16 @@ async function logout() {
     IsRecoveryUrl_ = false;
   } catch { }
   try {
-    if (SupabaseClient?.auth?.signOut) {
+    if (DatabaseClient?.auth?.signOut) {
       await withTimeout_(
-        runAuthOp_(() => SupabaseClient.auth.signOut(), { retryLock: true }),
+        runAuthOp_(() => DatabaseClient.auth.signOut(), { retryLock: true }),
         7000,
         'timeout'
       );
     }
   } catch { }
   // Ensure local persisted session is cleared even if signOut fails.
-  try { localStorage.removeItem('sb-session'); } catch { }
+  try { clearPersistedAuthStorage_(); } catch { }
   try {
     AppState.currentUser = null;
     AppState.isAuthenticated = false;
@@ -2570,16 +3652,125 @@ async function logout() {
   try { setTimeout(() => { try { location.reload(); } catch { } }, 200); } catch { }
 }
 
+function showDefaultAllowedSection_() {
+  try {
+    if (hasPerm('cases_read')) return showSection('casesList', 'navCasesBtn');
+    if (hasPerm('dashboard')) return showSection('dashboard', 'dashboardBtn');
+    if (hasPerm('reports')) return showSection('reports', 'reportsBtn');
+    if (hasPerm('settings')) return showSection('settings', 'settingsBtn');
+  } catch { }
+  try { showSection('settings', 'settingsBtn'); } catch { }
+}
+
+function countBy_(rows, getter) {
+  const map = new Map();
+  (rows || []).forEach((row) => {
+    const key = (getter(row) || 'غير محدد').toString().trim() || 'غير محدد';
+    map.set(key, (map.get(key) || 0) + 1);
+  });
+  return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
+}
+
+function renderBeneficiariesPage_() {
+  const host = document.getElementById('beneficiariesContent');
+  if (!host) return;
+  const q = (document.getElementById('beneficiarySearch')?.value || '').toString().trim().toLowerCase();
+  const rows = (AppState.cases || []).filter((item) => {
+    const hay = [item.familyHead, item.phone, item.whatsapp, item.governorate, item.area, item.address, item.id].join(' ').toLowerCase();
+    return !q || hay.includes(q);
+  }).slice(0, 250);
+  if (!rows.length) {
+    host.innerHTML = '<div class="ds-empty-state">لا توجد أسر مطابقة للبحث الحالي.</div>';
+    return;
+  }
+  host.innerHTML = `<table><thead><tr><th>الأسرة</th><th>الهاتف</th><th>المحافظة</th><th>المنطقة</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody>${rows.map((item) => `
+    <tr>
+      <td><strong>${escapeHtml(item.familyHead || 'بدون اسم')}</strong><br><small>${escapeHtml(item.id || '')}</small></td>
+      <td>${escapeHtml(item.phone || item.whatsapp || '-')}</td>
+      <td>${escapeHtml(item.governorate || '-')}</td>
+      <td>${escapeHtml(item.area || '-')}</td>
+      <td><span class="pill">${escapeHtml(item.status || 'جديدة')}</span></td>
+      <td><button class="btn mini" type="button" onclick="openCaseDetails('${escapeHtml(item.id)}')">عرض</button></td>
+    </tr>`).join('')}</tbody></table>`;
+}
+
+function renderRegionsPage_() {
+  const host = document.getElementById('regionsContent');
+  if (!host) return;
+  const cases = AppState.cases || [];
+  const govs = countBy_(cases, (item) => item.governorate);
+  const areas = countBy_(cases, (item) => item.area).slice(0, 12);
+  const item = ([name, count], kind) => `
+    <button class="region-stat-item" type="button" onclick="showSection('casesList','navCasesBtn')" data-region-kind="${escapeHtml(kind)}">
+      <span class="region-stat-name">${escapeHtml(name)}</span>
+      <span class="region-stat-count">${escapeHtml(String(count))}</span>
+    </button>`;
+  const card = (title, hint, kind, list) => `
+    <section class="ds-section-panel region-stat-panel">
+      <div class="region-stat-panel-head">
+        <div class="ds-section-panel-title">${escapeHtml(title)}</div>
+        <p class="region-stat-panel-hint">${escapeHtml(hint)}</p>
+      </div>
+      <div class="region-stat-list">
+        ${list.length ? list.map((entry) => item(entry, kind)).join('') : '<div class="ds-empty-state compact">لا توجد بيانات مناطق بعد.</div>'}
+      </div>
+    </section>`;
+  host.innerHTML =
+    card('المحافظات', 'توزيع الحالات حسب المحافظة', 'governorate', govs) +
+    card('المناطق الأكثر نشاطاً', 'أكثر المناطق حضورًا داخل الحالات الحالية', 'area', areas);
+}
+
+function renderGlobalSearchPage_() {
+  const host = document.getElementById('globalSearchResults');
+  if (!host) return;
+  const q = (document.getElementById('globalSearchInput')?.value || '').toString().trim().toLowerCase();
+  if (!q) {
+    host.innerHTML = '<div class="ds-empty-state">اكتب كلمة بحث لعرض النتائج من الحالات والأسر والمناطق.</div>';
+    return;
+  }
+  const rows = (AppState.cases || []).filter((item) => [
+    item.id, item.familyHead, item.phone, item.whatsapp, item.governorate, item.area, item.address, item.category, item.status, item.needsShort
+  ].join(' ').toLowerCase().includes(q)).slice(0, 40);
+  host.innerHTML = rows.length ? rows.map((item) => `
+    <article class="case-card" onclick="openCaseDetails('${escapeHtml(item.id)}')">
+      <h3 class="case-card-title">${escapeHtml(item.familyHead || 'حالة بدون اسم')}</h3>
+      <p>${escapeHtml([item.governorate, item.area, item.category].filter(Boolean).join(' - ') || 'لا توجد بيانات تصنيف')}</p>
+      <span class="pill">${escapeHtml(item.status || 'جديدة')}</span>
+    </article>`).join('') : '<div class="ds-empty-state">لا توجد نتائج مطابقة.</div>';
+}
+
+function renderNotificationsPage_() {
+  const host = document.getElementById('notificationsContent');
+  if (!host) return;
+  const cases = AppState.cases || [];
+  const items = [];
+  cases.filter((c) => String(c.urgency || '').includes('عاجل')).slice(0, 12).forEach((c) => items.push({ level: 'warn', title: 'حالة عاجلة', text: c.familyHead || c.id, id: c.id }));
+  cases.filter((c) => String(c.category || '').includes('طبية') || String(c.category || '').includes('مرضية')).slice(0, 12).forEach((c) => items.push({ level: 'ok', title: 'متابعة طبية', text: c.familyHead || c.id, id: c.id }));
+  cases.filter((c) => !c.phone && !c.whatsapp).slice(0, 12).forEach((c) => items.push({ level: 'info', title: 'بيانات ناقصة', text: `لا يوجد هاتف للحالة: ${c.familyHead || c.id}`, id: c.id }));
+  host.innerHTML = items.length ? items.slice(0, 30).map((item) => `
+    <article class="case-card">
+      <span class="pill ${item.level === 'warn' ? 'danger' : ''}">${escapeHtml(item.title)}</span>
+      <h3 class="case-card-title">${escapeHtml(item.text)}</h3>
+      <button class="btn mini" type="button" onclick="openCaseDetails('${escapeHtml(item.id)}')">فتح الحالة</button>
+    </article>`).join('') : '<div class="ds-empty-state">لا توجد إشعارات حالياً.</div>';
+}
+
 function showSection(key, navBtnId) {
   const map = {
     newCase: 'newCaseSection',
     casesList: 'casesListSection',
+    beneficiaries: 'beneficiariesSection',
+    regions: 'regionsSection',
     dashboard: 'dashboardSection',
     reports: 'reportsSection',
+    globalSearch: 'globalSearchSection',
+    notifications: 'notificationsSection',
     audit: 'auditSection',
     settings: 'settingsSection',
     userManagement: 'userManagementSection',
-    medicalCommittee: 'medicalCommitteeSection'
+    medicalCommittee: 'medicalCommitteeSection',
+    unauthorized: 'unauthorizedSection',
+    notFound: 'notFoundSection'
   };
 
   try {
@@ -2587,24 +3778,45 @@ function showSection(key, navBtnId) {
     const eff = getEffectivePermissions_(AppState.currentUser?.permissions || {});
     const role = (eff?.__role || 'custom').toString().trim();
 
-      const allow = (permKey) => {
+      const allow = (permKey, targetId) => {
         if (!permKey) return true;
+        if (targetId === 'medicalCommitteeSection') {
+          return !!(
+            eff?.medical_committee ||
+            eff?.reports ||
+            eff?.users_manage ||
+            role === 'manager' ||
+            role === 'doctor' ||
+            role === 'medical_committee' ||
+            role === 'super_admin' ||
+            role === 'hidden_super_admin'
+          );
+        }
         return !!eff?.[permKey];
       };
 
     const need = {
       newCaseSection: 'cases_create',
       casesListSection: 'cases_read',
+      beneficiariesSection: 'cases_read',
+      regionsSection: 'cases_read',
       dashboardSection: 'dashboard',
       reportsSection: 'reports',
+      globalSearchSection: 'cases_read',
+      notificationsSection: 'cases_read',
       auditSection: 'audit',
       settingsSection: 'settings',
       userManagementSection: 'users_manage',
-      medicalCommitteeSection: 'medical_committee'
+      medicalCommitteeSection: 'medical_committee',
+      unauthorizedSection: null,
+      notFoundSection: null
     };
     const perm = need[targetId0];
-    if (!allow(perm)) {
-      alert('لا تملك صلاحية فتح هذه الصفحة');
+    if (!allow(perm, targetId0)) {
+      const isBootstrapping = !AppState?.isAuthenticated || !AppState?.currentUser || !Object.keys(eff || {}).length;
+      if (!isBootstrapping) {
+        showSection('unauthorized');
+      }
       return;
     }
   } catch { }
@@ -2672,15 +3884,46 @@ function showSection(key, navBtnId) {
     try { renderNewCaseForm_(); } catch { }
   }
 
+  if (targetId === 'beneficiariesSection') {
+    try { renderBeneficiariesPage_(); } catch { }
+  }
+
+  if (targetId === 'regionsSection') {
+    try { renderRegionsPage_(); } catch { }
+  }
+
+  if (targetId === 'globalSearchSection') {
+    try { renderGlobalSearchPage_(); } catch { }
+  }
+
+  if (targetId === 'notificationsSection') {
+    try { renderNotificationsPage_(); } catch { }
+  }
+
   if (targetId === 'userManagementSection') {
     try { syncSettingsPermissionsUi_(); } catch { }
     try { setTimeout(() => { try { void renderUsersList(); } catch { } }, 0); } catch { }
   }
 
   try {
+    const defaultNavMap = {
+      newCaseSection: 'quickAddBtn',
+      casesListSection: 'navCasesBtn',
+      beneficiariesSection: 'beneficiariesBtn',
+      regionsSection: 'regionsBtn',
+      dashboardSection: 'dashboardBtn',
+      reportsSection: 'reportsBtn',
+      globalSearchSection: 'globalSearchBtn',
+      notificationsSection: 'notificationsBtn',
+      auditSection: 'auditBtn',
+      settingsSection: 'settingsBtn',
+      userManagementSection: 'usersBtn',
+      medicalCommitteeSection: 'medicalCommitteeBtn'
+    };
+    const resolvedNavBtnId = navBtnId || defaultNavMap[targetId] || '';
     Array.from(document.querySelectorAll('#mainNav .nav-btn, #mainNav .sidebar-nav-item')).forEach(b => b.classList.remove('active'));
-    if (navBtnId) {
-      const btn = document.getElementById(navBtnId);
+    if (resolvedNavBtnId) {
+      const btn = document.getElementById(resolvedNavBtnId);
       if (btn) btn.classList.add('active');
     }
   } catch { }
@@ -2691,23 +3934,31 @@ function showSection(key, navBtnId) {
       const sectionTitles = {
         newCaseSection: 'إضافة حالة جديدة',
         casesListSection: 'قائمة الحالات',
+        beneficiariesSection: 'المستفيدون والأسر',
+        regionsSection: 'المناطق والمحافظات',
         dashboardSection: 'الإحصائيات',
         reportsSection: 'التقارير',
+        globalSearchSection: 'البحث العام',
+        notificationsSection: 'الإشعارات',
         auditSection: 'سجل الإجراءات',
         settingsSection: 'الإعدادات',
         userManagementSection: 'إدارة المستخدمين',
-        medicalCommitteeSection: 'لجنة العمليات الطبية'
+        medicalCommitteeSection: 'لجنة العمليات الطبية',
+        unauthorizedSection: 'غير مصرح',
+        notFoundSection: 'الصفحة غير موجودة'
       };
       topbarTitle.textContent = sectionTitles[targetId] || 'لجنة أسرة كريمة';
     }
   } catch { }
 }
 
-async function restoreSupabaseSession() {
-  if (!SupabaseClient) return;
+async function restoreDatabaseSession() {
+  if (!DatabaseClient) return;
+  if (!getRememberMe_()) return;
   if (AuthBusy_) return;
   if (IsRecoveryUrl_) return;
-  const { data: sess, error } = await runAuthOp_(() => SupabaseClient.auth.getSession(), { retryLock: false });
+  try { if (DatabaseClient?.auth?.authRefresh) await runAuthOp_(() => DatabaseClient.auth.authRefresh(), { retryLock: false }); } catch { }
+  const { data: sess, error } = await runAuthOp_(() => DatabaseClient.auth.getSession(), { retryLock: false });
   if (error) {
     try { console.error('getSession error:', error); } catch { }
     return;
@@ -2720,9 +3971,11 @@ async function restoreSupabaseSession() {
     try { showSection('casesList', 'navCasesBtn'); } catch { }
     try { await loadCasesFromDb(); } catch (e) { try { console.error('loadCasesFromDb error:', e); } catch { } }
   } catch (e) {
-    try { console.error('restoreSupabaseSession error:', e); } catch { }
+    try { console.error('restoreDatabaseSession error:', e); } catch { }
   }
 }
+
+
 
 function formatTodayDDMMYYYY() {
   const d = new Date();
@@ -2954,6 +4207,7 @@ function resetCasesListFilters() {
   try { if (window.filterGovernorate) filterGovernorate.value = ''; } catch { }
   try { if (window.filterArea) filterArea.value = ''; } catch { }
   try { if (window.filterCaseGrade) filterCaseGrade.value = ''; } catch { }
+  try { if (window.filterNeeds) filterNeeds.value = ''; } catch { }
   try {
     AppState.dashboardFilter = null;
     const bar = document.getElementById('casesListActiveFilter');
@@ -2981,16 +4235,18 @@ function getCasesListFiltersState_() {
       cats = Array.from(filterCategoriesGroup.querySelectorAll('input[type="checkbox"]')).filter(b => b.checked).length;
     }
   } catch { cats = 0; }
-  return { q, explorer, gov, area, grade, cats };
+  const needs = (window.filterNeeds ? (filterNeeds.value || '').toString().trim() : '');
+  return { q, explorer, gov, area, grade, needs, cats };
 }
 
 function updateCasesListUiState_() {
   try {
     const s = getCasesListFiltersState_();
-    const hasLocal = !!(s.q || s.explorer || s.gov || s.area || s.grade || s.cats);
+    const hasLocal = !!(s.q || s.explorer || s.gov || s.area || s.grade || s.needs || s.cats);
     const btn = document.getElementById('casesClearFiltersBtn');
     if (btn) btn.classList.toggle('hidden', !hasLocal);
   } catch { }
+  try { renderCasesQuickSections_(); } catch { }
 }
 
 function clearCasesListFilters() {
@@ -2999,50 +4255,113 @@ function clearCasesListFilters() {
   try { if (window.filterGovernorate) filterGovernorate.value = ''; } catch { }
   try { if (window.filterArea) filterArea.value = ''; } catch { }
   try { if (window.filterCaseGrade) filterCaseGrade.value = ''; } catch { }
+  try { if (window.filterNeeds) filterNeeds.value = ''; } catch { }
   try {
     if (window.filterCategoriesGroup) {
       const boxes = filterCategoriesGroup.querySelectorAll('input[type="checkbox"]');
       boxes.forEach(b => { b.checked = false; });
     }
   } catch { }
-  try { renderCasesTable(); } catch { }
-  try { updateCasesListUiState_(); } catch { }
+  try {
+    AppState.dashboardFilter = null;
+    const bar = document.getElementById('casesListActiveFilter');
+    const lab = document.getElementById('casesListActiveFilterLabel');
+    if (lab) lab.textContent = '';
+    if (bar) bar.classList.add('hidden');
+  } catch { }
   try { resetCasesListPager_(); } catch { }
+  try { filterCases(); } catch { try { renderCasesTable(); } catch { } }
+  try { updateCasesListUiState_(); } catch { }
 }
 
-function exportFilteredCasesToExcel() {
-  const list = getFilteredCases();
-  if (!list.length) { alert('لا توجد حالات للتصدير'); return; }
+const CASES_GRADE_SECTIONS_ = [
+  { key: '', label: 'كل الحالات', note: 'الكل' },
+  { key: 'حالة قيد الانتظار', label: 'قيد الانتظار', note: 'تحتاج إجراء' },
+  { key: 'حالة مرفوضة', label: 'المرفوضة', note: 'تحتاج مراجعة' },
+  { key: 'حالة موسمية', label: 'الموسمية', note: 'موسمية' },
+  { key: 'حالة مستديمة', label: 'المستديمة', note: 'دائمة' }
+];
+
+function isRejectedCase_(item) {
+  const grade = normalizeCaseGrade_((item?.caseGrade || '').toString());
+  const status = String(item?.status || '').trim();
+  return grade === 'حالة مرفوضة' || status === 'مرفوضة';
+}
+
+function getFilteredCasesBase_(options = {}) {
+  const skipGrade = !!options.skipGrade;
+  const gov = window.filterGovernorate ? filterGovernorate.value : '';
+  const areaTxt = window.filterArea ? filterArea.value.trim() : '';
+  const grade = skipGrade ? '' : (window.filterCaseGrade ? filterCaseGrade.value : '');
+  const q = window.caseSearch ? caseSearch.value.trim() : '';
+  const explorerQ = window.filterExplorer ? filterExplorer.value.trim() : '';
+  const needsQ = window.filterNeeds ? filterNeeds.value.trim() : '';
+  const catsHost = window.filterCategoriesGroup ? filterCategoriesGroup : null;
+  const selectedCats = catsHost ? Array.from(catsHost.querySelectorAll('input[type="checkbox"]')).filter(b => b.checked).map(b => b.value) : [];
+  const dashKey = AppState.dashboardFilter?.key;
+  return (AppState.cases || []).filter((x) => {
+    const okGov = !gov || x.governorate === gov;
+    const okArea = !areaTxt || (x.area || '').includes(areaTxt);
+    const okGrade = !grade || (x.caseGrade || '') === grade;
+    const okCats = !selectedCats.length || selectedCats.some((c) => (x.category || '').includes(c));
+    const hay = [x.id, x.familyHead, x.phone, x.address, x.governorate, x.area, x.category, x.explorerName, x.date]
+      .map((v) => (v || '').toString())
+      .join(' ');
+    const okQ = !q || hay.toLowerCase().includes(q.toLowerCase());
+    const ex = (x.explorerName || '').toString();
+    const okExplorer = !explorerQ || ex.toLowerCase().includes(explorerQ.toLowerCase());
+    const needsHay = [x.needsShort, x.familyNeeds, x.description, x.researcherReport, x.category, x.tags]
+      .map((v) => (Array.isArray(v) ? v.join(' ') : (v || '').toString()))
+      .join(' ');
+    const okNeeds = !needsQ || needsHay.toLowerCase().includes(needsQ.toLowerCase());
+    const okDash = !dashKey || matchesDashboardFilter(x, dashKey);
+    return okGov && okArea && okGrade && okCats && okQ && okExplorer && okNeeds && okDash;
+  });
+}
+
+function getCasesSectionCount_(gradeKey) {
+  const list = getFilteredCasesBase_({ skipGrade: true });
+  if (!gradeKey) return list.length;
+  return list.filter((item) => normalizeCaseGrade_((item?.caseGrade || '').toString()) === gradeKey).length;
+}
+
+function renderCasesQuickSections_() {
+  const host = document.getElementById('casesQuickSections');
+  if (!host) return;
+  const activeGrade = (window.filterCaseGrade ? (filterCaseGrade.value || '').toString().trim() : '');
+  host.innerHTML = CASES_GRADE_SECTIONS_.map((section) => {
+    const active = activeGrade === section.key;
+    const activeCls = active ? ' is-active' : '';
+    const allCls = !section.key ? ' cases-quick-section--all' : '';
+    return `
+      <button type="button" class="cases-quick-section${activeCls}${allCls}" onclick="applyCasesGradeSection_('${escapeHtml(section.key)}')">
+        <span class="cases-quick-section-label">${escapeHtml(section.label)}</span>
+        <span class="cases-quick-section-note">${escapeHtml(section.note)}</span>
+        <span class="cases-quick-section-count">${escapeHtml(String(getCasesSectionCount_(section.key)))}</span>
+      </button>`;
+  }).join('');
+}
+
+function applyCasesGradeSection_(gradeKey) {
+  try {
+    if (window.filterCaseGrade) filterCaseGrade.value = (gradeKey || '').toString();
+  } catch { }
+  try { resetCasesListPager_(); } catch { }
+  filterCases();
+}
+
+function exportCasesToExcelFromList_(list, filePrefix = 'cases-view') {
+  const source = Array.isArray(list) ? list : [];
+  if (!source.length) { alert('لا توجد حالات للتصدير'); return; }
 
   const sumNum = (v) => Number(v ?? 0) || 0;
   const needOf = (c) => Math.max(0, sumNum(c.estimatedAmount) - sumNum(c.deliveredAmount));
 
   const headers = [
-    'رقم الحالة',
-    'اسم الحالة',
-    'الرقم القومي',
-    'الهاتف',
-    'رقم واتساب',
-    'العنوان',
-    'المحافظة',
-    'المنطقة',
-    'الفئة',
-    'الحالة',
-    'الاستعجال',
-    'تقييم الحالة',
-    'المستكشف',
-    'تاريخ البحث',
-    'مبلغ تقديري',
-    'مبلغ منفذ',
-    'الاحتياج',
-    'عدد الكفالات المسجلة',
-    'إجمالي الكفالات المسجلة',
-    'تاريخ آخر كفالة',
-    'عدد المساعدات (غير الكفالة)',
-    'إجمالي المساعدات (غير الكفالة)'
+    'رقم الحالة', 'اسم الحالة', 'الرقم القومي', 'الهاتف', 'رقم واتساب', 'العنوان', 'المحافظة', 'المنطقة', 'الفئة', 'الحالة', 'الاستعجال', 'تقييم الحالة', 'المستكشف', 'تاريخ البحث', 'مبلغ تقديري', 'مبلغ منفذ', 'الاحتياج', 'عدد الكفالات المسجلة', 'إجمالي الكفالات المسجلة', 'تاريخ آخر كفالة', 'عدد المساعدات (غير الكفالة)', 'إجمالي المساعدات (غير الكفالة)'
   ];
   const rows = [headers];
-  list.forEach(c => {
+  source.forEach(c => {
     const hist = Array.isArray(c.assistanceHistory) ? c.assistanceHistory : [];
     const spons = hist.filter(x => (x?.type || '') === 'sponsorship');
     const other = hist.filter(x => (x?.type || '') && (x?.type || '') !== 'sponsorship');
@@ -3052,32 +4371,11 @@ function exportFilteredCasesToExcel() {
     const otherCount = other.length;
     const otherTotal = other.reduce((a, x) => a + (Number(x?.amount ?? 0) || 0), 0);
     rows.push([
-      String(c.caseNo ?? ''),
-      String(c.familyHead ?? ''),
-      String(c.id ?? ''),
-      String(c.phone ?? ''),
-      String(c.whatsapp ?? ''),
-      String(c.address ?? ''),
-      String(c.governorate ?? ''),
-      String(c.area ?? ''),
-      String(c.category ?? ''),
-      String(c.status ?? ''),
-      String(c.urgency ?? ''),
-      String(c.caseGrade ?? ''),
-      String(c.explorerName ?? ''),
-      String(c.date ?? ''),
-      String(c.estimatedAmount ?? ''),
-      String(c.deliveredAmount ?? ''),
-      String(needOf(c)),
-      String(sponsCount),
-      String(sponsTotal),
-      String(lastSponsDate),
-      String(otherCount),
-      String(otherTotal)
+      String(c.caseNo ?? ''), String(c.familyHead ?? ''), String(c.id ?? ''), String(c.phone ?? ''), String(c.whatsapp ?? ''), String(c.address ?? ''), String(c.governorate ?? ''), String(c.area ?? ''), String(c.category ?? ''), String(c.status ?? ''), String(c.urgency ?? ''), String(c.caseGrade ?? ''), String(c.explorerName ?? ''), String(c.date ?? ''), String(c.estimatedAmount ?? ''), String(c.deliveredAmount ?? ''), String(needOf(c)), String(sponsCount), String(sponsTotal), String(lastSponsDate), String(otherCount), String(otherTotal)
     ]);
   });
 
-  const fname = `cases-view-${new Date().toISOString().slice(0, 10)}.xlsx`;
+  const fname = `${filePrefix}-${new Date().toISOString().slice(0, 10)}.xlsx`;
   try {
     if (!window.XLSX) throw new Error('XLSX missing');
     const wb = window.XLSX.utils.book_new();
@@ -3091,9 +4389,9 @@ function exportFilteredCasesToExcel() {
   } catch { }
 
   try {
-    let csv = headers.join(',') + '\n';
+    let csv = headers.join(',') + "\n";
     rows.slice(1).forEach(r => {
-      csv += r.map(v => `"${String(v ?? '').replaceAll('"', '""')}"`).join(',') + '\n';
+      csv += r.map(v => `"${String(v ?? '').replaceAll('"', '""')}"`).join(',') + "\n";
     });
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -3105,6 +4403,14 @@ function exportFilteredCasesToExcel() {
   } catch {
     alert('تعذر تصدير البيانات');
   }
+}
+
+function exportFilteredCasesToExcel() {
+  exportCasesToExcelFromList_(getFilteredCases(), 'cases-view');
+}
+
+function exportSelectedCasesToExcel() {
+  exportCasesToExcelFromList_(getSelectedCases_(), 'cases-selected');
 }
 
 function generateImportedCaseId() {
@@ -3770,7 +5076,7 @@ function importFromJSONBackup(text) {
   if (!raw) { alert('الملف لا يحتوي على بيانات حالات'); return; }
   const ok = confirm('سيتم استبدال كل الحالات الحالية بالنسخة الاحتياطية. هل تريد المتابعة؟');
   if (!ok) return;
-  const ok2 = confirm('تحذير: هذه العملية قد تحذف البيانات من قاعدة البيانات (Supabase) وتستبدلها بالكامل. هل تريد المتابعة؟');
+  const ok2 = confirm('تحذير: هذه العملية قد تستبدل كل البيانات المخزنة في قاعدة البيانات. هل تريد المتابعة؟');
   if (!ok2) return;
   let ok3 = false;
   try { ok3 = (prompt('اكتب كلمة CONFIRM للتأكيد النهائي:') || '').toString().trim().toUpperCase() === 'CONFIRM'; } catch { ok3 = false; }
@@ -3800,7 +5106,7 @@ function importFromJSONBackup(text) {
   ensureAssistanceArrays();
   // Persist to Supabase (replace all remote cases)
   try {
-    if (SupabaseClient) {
+    if (DatabaseClient) {
       (async () => {
         try { await deleteAllCasesFromDb(); } catch { }
         for (const c of sanitized) {
@@ -4097,9 +5403,9 @@ function importFromParsedRows_(headers, dataRows, parseRow) {
   const byId = new Map(AppState.cases.map(c => [c.id, c]));
   imported.forEach(c => { byId.set(c.id, c); });
   AppState.cases = Array.from(byId.values());
-  // Persist to Supabase (sequential to avoid concurrent auth.getUser lock aborts)
+  // Persist to Supabase
   try {
-    if (SupabaseClient) {
+    if (DatabaseClient) {
       (async () => {
         for (const c of imported) {
           try { await upsertCaseToDb(c); } catch { }
@@ -4354,35 +5660,14 @@ function renderMedicalTable() {
 }
 
 function getFilteredCases() {
-  const gov = window.filterGovernorate ? filterGovernorate.value : '';
-  const areaTxt = window.filterArea ? filterArea.value.trim() : '';
-  const grade = window.filterCaseGrade ? filterCaseGrade.value : '';
-  const q = window.caseSearch ? caseSearch.value.trim() : '';
-  const explorerQ = window.filterExplorer ? filterExplorer.value.trim() : '';
-  const catsHost = window.filterCategoriesGroup ? filterCategoriesGroup : null;
-  const selectedCats = catsHost ? Array.from(catsHost.querySelectorAll('input[type="checkbox"]')).filter(b => b.checked).map(b => b.value) : [];
-  const dashKey = AppState.dashboardFilter?.key;
-  return AppState.cases.filter(x => {
-    const okGov = !gov || x.governorate === gov;
-    const okArea = !areaTxt || (x.area || '').includes(areaTxt);
-    const okGrade = !grade || (x.caseGrade || '') === grade;
-    const okCats = !selectedCats.length || selectedCats.some(c => (x.category || '').includes(c));
-    const hay = [x.id, x.familyHead, x.phone, x.address, x.governorate, x.area, x.category, x.explorerName, x.date]
-      .map(v => (v || '').toString())
-      .join(' ');
-    const okQ = !q || hay.toLowerCase().includes(q.toLowerCase());
-    const ex = (x.explorerName || '').toString();
-    const okExplorer = !explorerQ || ex.toLowerCase().includes(explorerQ.toLowerCase());
-    const okDash = !dashKey || matchesDashboardFilter(x, dashKey);
-    return okGov && okArea && okGrade && okCats && okQ && okExplorer && okDash;
-  });
+  return getFilteredCasesBase_();
 }
 
 function renderCasesTable() {
   const list = getFilteredCasesCached_();
   const grid = document.getElementById('casesCardsGrid');
   if (!grid) return;
-  const limit = Number(AppState._casesListLimit || 60) || 60;
+  const limit = Math.max(CASES_LIST_INITIAL_LIMIT, Number(AppState._casesListLimit || 0) || CASES_LIST_INITIAL_LIMIT);
   const visible = list.slice(0, Math.max(0, limit));
   const cards = visible.map(x => {
     if (!Array.isArray(x.sponsorships)) x.sponsorships = [];
@@ -4390,10 +5675,11 @@ function renderCasesTable() {
     const lastSponsor = getLastSponsorship(x);
     const sponsorLabel = formatSponsorshipLabel(lastSponsor);
     const title = (x.familyHead || '').toString().trim() || x.id;
-    const urgencyClass = x.urgency === 'عاجل جدًا' ? 'b-new' : x.urgency === 'عاجل' ? 'b-proc' : 'b-done';
+    const urgencyText = (x.urgency || '').toString().trim();
+    const urgencyClass = urgencyText === 'عاجل جدًا' ? 'b-new' : urgencyText === 'عاجل' ? 'b-proc' : 'b-done';
     const statusClass = x.status === 'جديدة' ? 'b-new' : x.status === 'محولة' ? 'b-proc' : 'b-done';
     const shortDesc = (x.description || '').toString().trim();
-    const clipped = shortDesc.length > 140 ? shortDesc.slice(0, 140) + '…' : shortDesc;
+    const clipped = shortDesc.length > 140 ? `${shortDesc.slice(0, 140)}...` : shortDesc;
     return `
       <div class="case-card" data-case-row="${x.id}">
         <div class="case-card-head">
@@ -4405,7 +5691,7 @@ function renderCasesTable() {
             <div class="case-card-meta">${escapeHtml((x.governorate || '').toString())}${x.area ? ' - ' + escapeHtml((x.area || '').toString()) : ''}</div>
           </div>
           <div class="case-card-badges">
-            <span class="badge ${urgencyClass}">${escapeHtml((x.urgency || '').toString())}</span>
+            ${urgencyText ? `<span class="badge ${urgencyClass}">${escapeHtml(urgencyText)}</span>` : ''}
             <span class="badge ${statusClass}">${escapeHtml((x.status || '').toString())}</span>
           </div>
         </div>
@@ -4419,7 +5705,7 @@ function renderCasesTable() {
         </div>
 
         <div class="case-card-actions" onclick="event.stopPropagation();">
-          <button type="button" class="btn" onclick="openSingleSponsorshipModal('${x.id}')">💳 دفع الكفالة الشهرية</button>
+          <button type="button" class="btn" onclick="openSingleSponsorshipModal('${x.id}')">دفع الكفالة الشهرية</button>
           <button type="button" class="btn light" style="color:#1f2937;border-color:#e5e7eb" onclick="openCaseDetails('${x.id}')">عرض التفاصيل</button>
         </div>
       </div>`;
@@ -4443,14 +5729,18 @@ function renderCasesTable() {
   });
   try { onCaseSelectionChange(); } catch { }
   try { updateCasesListUiState_(); } catch { }
+  try { renderCasesQuickSections_(); } catch { }
 
   try {
     const meta = document.getElementById('casesListMeta');
-    if (meta) meta.textContent = `يعرض ${Math.min(visible.length, list.length)} من ${list.length}`;
+    if (meta) meta.textContent = `يعرض ${Math.min(visible.length, list.length)} من ${list.length} حالة محمّلة`;
   } catch { }
   try {
     const btn = document.getElementById('casesLoadMoreBtn');
-    if (btn) btn.style.display = (visible.length < list.length) ? 'inline-flex' : 'none';
+    if (btn) {
+      btn.style.display = (visible.length < list.length) ? 'inline-flex' : 'none';
+      btn.textContent = (visible.length < list.length) ? `تحميل ${Math.min(CASES_LIST_LOAD_STEP, list.length - visible.length)} حالة إضافية` : 'تم عرض كل الحالات';
+    }
   } catch { }
 }
 
@@ -4473,10 +5763,10 @@ function setFilterOptions() {
     if (window.filterCaseGrade) {
       filterCaseGrade.innerHTML = [
         '<option value="">كل التقييمات</option>',
-        '<option>حالة مستديمة</option>',
-        '<option>حالة موسمية</option>',
+        '<option>حالة قيد الانتظار</option>',
         '<option>حالة مرفوضة</option>',
-        '<option>حالة قيد الانتظار</option>'
+        '<option>حالة مستديمة</option>',
+        '<option>حالة موسمية</option>'
       ].join('');
     }
   } catch { }
@@ -4510,6 +5800,7 @@ function setFilterOptions() {
       };
     }
   } catch { }
+  try { renderCasesQuickSections_(); } catch { }
 }
 
 function toggleSelectAllCases(checked) {
@@ -4534,8 +5825,11 @@ function openSingleSponsorshipModal(caseId) {
   try {
     const start = document.getElementById('sponsorStart');
     const amt = document.getElementById('sponsorAmount');
+    const typeSel = document.getElementById('sponsorType');
     if (start) start.value = new Date().toISOString().slice(0, 10);
     if (amt) amt.value = '';
+    if (typeSel) typeSel.value = 'sponsorship';
+    try { onSponsorTypeChange_(); } catch { }
   } catch { }
   m.classList.add('show');
   m.setAttribute('aria-hidden', 'false');
@@ -4557,8 +5851,11 @@ function openBulkSponsorshipModal() {
   try {
     const start = document.getElementById('sponsorStart');
     const amt = document.getElementById('sponsorAmount');
+    const typeSel = document.getElementById('sponsorType');
     if (start) start.value = new Date().toISOString().slice(0, 10);
     if (amt) amt.value = '';
+    if (typeSel) typeSel.value = 'sponsorship';
+    try { onSponsorTypeChange_(); } catch { }
   } catch { }
   m.classList.add('show');
   m.setAttribute('aria-hidden', 'false');
@@ -4575,8 +5872,11 @@ function closeBulkSponsorshipModal() {
   try {
     const start = document.getElementById('sponsorStart');
     const amt = document.getElementById('sponsorAmount');
+    const typeSel = document.getElementById('sponsorType');
     if (start) start.value = '';
     if (amt) amt.value = '';
+    if (typeSel) typeSel.value = 'sponsorship';
+    try { onSponsorTypeChange_(); } catch { }
   } catch { }
   try { m.removeAttribute('data-single-case-id'); } catch { }
   try { m.removeAttribute('data-target-ids'); } catch { }
@@ -4588,6 +5888,7 @@ function closeBulkSponsorshipModal() {
 function setCaseDetailsTab(tabKey) {
   const k = (tabKey || 'details').toString();
   AppState.caseDetailsTab = k;
+  const body = document.getElementById('caseDetailsBody');
   const details = document.getElementById('casePanelDetails');
   const payments = document.getElementById('casePanelPayments');
   const logPanel = document.getElementById('casePanelChangeLog');
@@ -4597,6 +5898,15 @@ function setCaseDetailsTab(tabKey) {
   if (k === 'changelog') {
     try { void renderCaseChangeLog_(); } catch { }
   }
+  try {
+    const activePanel = k === 'payments' ? payments : (k === 'changelog' ? logPanel : details);
+    if (body) body.scrollTop = 0;
+    if (activePanel && typeof activePanel.scrollTo === 'function') {
+      activePanel.scrollTo({ top: 0, left: 0 });
+    } else if (activePanel) {
+      activePanel.scrollTop = 0;
+    }
+  } catch { }
   try { syncCaseDetailsButtons(); } catch { }
 }
 
@@ -4606,6 +5916,8 @@ function syncCaseDetailsButtons() {
   const payBtn = document.getElementById('caseTabPayments');
   const logBtn = document.getElementById('caseTabChangeLog');
   if (detailsBtn) {
+    detailsBtn.classList.toggle('is-active', k === 'details');
+    detailsBtn.setAttribute('aria-pressed', k === 'details' ? 'true' : 'false');
     detailsBtn.classList.toggle('light', k !== 'details');
     if (k === 'details') {
       try { detailsBtn.removeAttribute('style'); } catch { }
@@ -4614,6 +5926,8 @@ function syncCaseDetailsButtons() {
     }
   }
   if (payBtn) {
+    payBtn.classList.toggle('is-active', k === 'payments');
+    payBtn.setAttribute('aria-pressed', k === 'payments' ? 'true' : 'false');
     payBtn.classList.toggle('light', k !== 'payments');
     if (k === 'payments') {
       try { payBtn.removeAttribute('style'); } catch { }
@@ -4622,6 +5936,8 @@ function syncCaseDetailsButtons() {
     }
   }
   if (logBtn) {
+    logBtn.classList.toggle('is-active', k === 'changelog');
+    logBtn.setAttribute('aria-pressed', k === 'changelog' ? 'true' : 'false');
     logBtn.classList.toggle('light', k !== 'changelog');
     if (k === 'changelog') {
       try { logBtn.removeAttribute('style'); } catch { }
@@ -4632,15 +5948,19 @@ function syncCaseDetailsButtons() {
 
   try {
     const canEdit = hasPerm('cases_edit');
+    const canDelete = hasPerm('cases_delete');
     const mode = (AppState.caseDetailsMode || 'view').toString();
     const toggleBtn = document.getElementById('caseEditToggleBtn');
     const delBtn = document.getElementById('deleteCaseBtn');
+    const rejectBtn = document.getElementById('rejectCaseBtn');
     const printBtn = document.getElementById('printCaseBtn');
     const shotBtn = document.getElementById('paymentsScreenshotBtn');
     const detailsShotBtn = document.getElementById('caseDetailsScreenshotBtn');
     const inPayments = k === 'payments';
+    const current = (AppState.cases || []).find((item) => String(item?.id || '').trim() === String(AppState.currentCaseId || '').trim());
+    const isRejected = isRejectedCase_(current);
     if (toggleBtn) {
-      toggleBtn.style.display = (canEdit && !inPayments) ? 'inline-flex' : 'none';
+      toggleBtn.classList.toggle('hidden', !(canEdit && !inPayments && !isRejected));
       if (mode === 'edit') {
         toggleBtn.textContent = '💾 حفظ التعديلات';
         toggleBtn.classList.add('primary-save');
@@ -4649,7 +5969,8 @@ function syncCaseDetailsButtons() {
         toggleBtn.classList.remove('primary-save');
       }
     }
-    if (delBtn) delBtn.style.display = (canEdit && !inPayments) ? 'inline-flex' : 'none';
+    if (rejectBtn) rejectBtn.classList.toggle('hidden', !(canEdit && !inPayments && !isRejected));
+    if (delBtn) delBtn.classList.toggle('hidden', !(canDelete && !inPayments && isRejected));
     if (printBtn) {
       try { printBtn.textContent = inPayments ? '🖨️ طباعة' : '🖨️ طباعة'; } catch { }
     }
@@ -4777,8 +6098,11 @@ function openSponsorshipModalAdvanced() {
   try {
     const start = document.getElementById('sponsorStart');
     const amt = document.getElementById('sponsorAmount');
+    const typeSel = document.getElementById('sponsorType');
     if (start) start.value = new Date().toISOString().slice(0, 10);
     if (amt) amt.value = '';
+    if (typeSel) typeSel.value = 'sponsorship';
+    try { onSponsorTypeChange_(); } catch { }
   } catch { }
 
   m.classList.add('show');
@@ -4830,6 +6154,31 @@ function onSponsorScopeChange() {
   }
 }
 
+function onSponsorTypeChange_() {
+  const type = (document.getElementById('sponsorType')?.value || 'sponsorship').toString().trim();
+  const wrap = document.getElementById('sponsorAmountWrap');
+  const input = document.getElementById('sponsorAmount');
+  const label = wrap ? wrap.querySelector('label') : null;
+  if (!input) return;
+
+  const isCash = type === 'sponsorship';
+  const shouldHideAmount = type === 'in_kind';
+  if (wrap) wrap.classList.toggle('hidden', shouldHideAmount);
+
+  input.required = isCash;
+  input.min = isCash ? '1' : '0';
+  if (shouldHideAmount) input.value = '';
+
+  if (label) {
+    label.textContent = isCash
+      ? 'قيمة الكفالة *'
+      : type === 'ramadan_bags'
+        ? 'عدد الشنط / القيمة التقديرية (اختياري)'
+        : 'قيمة تقديرية (اختياري)';
+  }
+  input.placeholder = isCash ? '0' : (type === 'ramadan_bags' ? 'مثال: 50' : 'اختياري');
+}
+
 function computeSponsorTargetIds_() {
   const m = document.getElementById('bulkSponsorshipModal');
   const singleId = (m?.getAttribute('data-single-case-id') || '').toString().trim();
@@ -4874,7 +6223,7 @@ function computeSponsorTargetIds_() {
 function renderPaymentsTabHtml_(it) {
   try {
     const changed = ensurePaymentUids_(it);
-    if (changed) { try { if (SupabaseClient) void upsertCaseToDb(it); } catch { } }
+    if (changed) { try { if (DatabaseClient) void upsertCaseToDb(it); } catch { } }
   } catch { }
 
   const allHist = Array.isArray(it?.assistanceHistory) ? it.assistanceHistory : [];
@@ -4993,7 +6342,7 @@ function openEditPaymentModal(caseId, uid) {
   if (!it) { alert('الحالة غير موجودة'); return; }
   try {
     const changed = ensurePaymentUids_(it);
-    if (changed) { try { if (SupabaseClient) void upsertCaseToDb(it); } catch { } }
+    if (changed) { try { if (DatabaseClient) void upsertCaseToDb(it); } catch { } }
   } catch { }
   const hist = Array.isArray(it.assistanceHistory) ? it.assistanceHistory : [];
   const idx = hist.findIndex((x) => (x?.uid || '').toString() === (uid || '').toString());
@@ -5065,13 +6414,14 @@ async function applyEditPayment() {
     logAction('تعديل عملية', caseId, JSON.stringify({ uid, type, date, amount, by, notes }));
   } catch { }
 
+  const uiState = captureCasesUiState_();
   try {
-    if (SupabaseClient) {
+    if (DatabaseClient) {
       await upsertCaseToDb(it);
     }
   } catch (e) {
     try { console.error('upsertCaseToDb (edit payment) error:', e); } catch { }
-    await onSupabaseWriteError_('تعذر حفظ التعديل في قاعدة البيانات حالياً.', e);
+    await onDatabaseWriteError_('تعذر حفظ التعديل في قاعدة البيانات حالياً.', e);
     return;
   }
   try {
@@ -5081,9 +6431,7 @@ async function applyEditPayment() {
       setCaseDetailsTab('payments');
     }
   } catch { }
-  renderCasesTable();
-  try { updateDashboardStats(); } catch { }
-  try { generateReportPreview(); } catch { }
+  await syncCasesAfterMutation_(caseId, { reopenDetails: (AppState.currentCaseId || '') === caseId, preserveTab: true, uiState });
   closeEditPaymentModal();
   alert('تم حفظ التعديل');
 }
@@ -5104,13 +6452,14 @@ async function deletePaymentRecord() {
   it.assistanceHistory.splice(idx, 1);
   try { logAction('حذف عملية', caseId, JSON.stringify({ uid, deleted })); } catch { }
 
+  const uiState = captureCasesUiState_();
   try {
-    if (SupabaseClient) {
+    if (DatabaseClient) {
       await upsertCaseToDb(it);
     }
   } catch (e) {
     try { console.error('upsertCaseToDb (delete payment) error:', e); } catch { }
-    await onSupabaseWriteError_('تعذر حذف العملية من قاعدة البيانات حالياً.', e);
+    await onDatabaseWriteError_('تعذر حذف العملية من قاعدة البيانات حالياً.', e);
     return;
   }
   try {
@@ -5120,9 +6469,7 @@ async function deletePaymentRecord() {
       setCaseDetailsTab('payments');
     }
   } catch { }
-  renderCasesTable();
-  try { updateDashboardStats(); } catch { }
-  try { generateReportPreview(); } catch { }
+  await syncCasesAfterMutation_(caseId, { reopenDetails: (AppState.currentCaseId || '') === caseId, preserveTab: true, uiState });
   closeEditPaymentModal();
   alert('تم حذف العملية');
 }
@@ -5135,10 +6482,17 @@ async function applyBulkSponsorship() {
   const ids = computeSponsorTargetIds_();
   if (!ids.length) { alert('لا توجد حالات مطابقة للنطاق المختار'); return; }
   const startDate = (document.getElementById('sponsorStart')?.value || '').trim();
+  const sponsorType = (document.getElementById('sponsorType')?.value || 'sponsorship').toString().trim() || 'sponsorship';
   const amountRaw = (document.getElementById('sponsorAmount')?.value || '').toString().trim();
-  const amount = Number(amountRaw);
+  const hasAmount = amountRaw !== '';
+  const amount = hasAmount ? Number(amountRaw) : '';
   if (!startDate) { alert('تاريخ بداية الكفالة مطلوب'); return; }
-  if (!amountRaw || Number.isNaN(amount) || amount <= 0) { alert('قيمة الكفالة مطلوبة'); return; }
+  if (sponsorType === 'sponsorship') {
+    if (!hasAmount || Number.isNaN(amount) || amount <= 0) { alert('قيمة الكفالة مطلوبة'); return; }
+  } else if (hasAmount && (Number.isNaN(amount) || amount < 0)) {
+    alert('القيمة المدخلة غير صالحة');
+    return;
+  }
 
   let saveBtn = null;
   let watchdog = null;
@@ -5163,7 +6517,15 @@ async function applyBulkSponsorship() {
   const createdAt = new Date().toISOString();
   const byName = (AppState.currentUser?.name || AppState.currentUser?.username || '').toString().trim();
   const byUser = (AppState.currentUser?.username || '').toString().trim();
-  const record = { uid: `${createdAt}__${Math.random().toString(16).slice(2)}`, type: 'sponsorship', date: startDate, amount, createdAt, byName, byUser };
+  const record = {
+    uid: `${createdAt}__${Math.random().toString(16).slice(2)}`,
+    type: sponsorType,
+    date: startDate,
+    amount: hasAmount ? amount : '',
+    createdAt,
+    byName,
+    byUser
+  };
 
   let updated = 0;
   const failed = [];
@@ -5175,9 +6537,8 @@ async function applyBulkSponsorship() {
       if (!Array.isArray(it.assistanceHistory)) it.assistanceHistory = [];
       it.assistanceHistory.push({ ...record, uid: `${createdAt}__${Math.random().toString(16).slice(2)}` });
       try {
-        if (SupabaseClient) {
+        if (DatabaseClient) {
           await upsertCaseToDb(it);
-          try { console.log('Sponsorship saved to DB for case:', id); } catch { }
         }
       } catch (e) {
         try { console.error('upsertCaseToDb (sponsorship) error:', e); } catch { }
@@ -5187,14 +6548,13 @@ async function applyBulkSponsorship() {
     }
 
     try {
-      renderCasesTable();
-      try { updateDashboardStats(); } catch { }
-      try { generateReportPreview(); } catch { }
+      const uiState = captureCasesUiState_();
+      await syncCasesAfterMutation_(singleId || ids[0] || '', { reopenDetails: !!singleId, preserveTab: true, uiState });
       try {
         const scope = (document.getElementById('sponsorScope')?.value || (singleId ? 'selected' : 'selected')).toString();
-        logAction('تسليم كفالة', '', `scope: ${scope} | عدد الحالات: ${updated} | failed: ${failed.length}`);
+        logAction('تسليم كفالة', '', `type: ${sponsorType} | scope: ${scope} | عدد الحالات: ${updated} | failed: ${failed.length}`);
       } catch {
-        logAction('تسليم كفالة', '', `عدد الحالات: ${updated} | failed: ${failed.length}`);
+        logAction('تسليم كفالة', '', `type: ${sponsorType} | عدد الحالات: ${updated} | failed: ${failed.length}`);
       }
     } catch { }
 
@@ -5207,15 +6567,16 @@ async function applyBulkSponsorship() {
       }
     } catch { }
 
-    try { logAction('إضافة كفالة', '', `عدد الحالات: ${updated} | failed: ${failed.length}`); } catch { }
+    try { logAction('إضافة كفالة', '', `type: ${sponsorType} | عدد الحالات: ${updated} | failed: ${failed.length}`); } catch { }
 
     if (failed.length) {
       const msg = failed.slice(0, 8).map(x => `${x.id}: ${x.message}`).join('\n');
       setTimeout(() => alert(`تعذر حفظ بعض عمليات الكفالة في قاعدة البيانات (${failed.length}).\n\n${msg}`), 100);
-      try { await reloadCasesFromSupabase_(); } catch { }
+      try { await reloadCasesFromDatabase_(); } catch { }
       return;
     }
-    setTimeout(() => alert(`تم تسجيل الكفالة لعدد ${updated} حالة`), 100);
+    const doneLabel = sponsorType === 'sponsorship' ? 'الكفالة' : getAssistanceTypeLabel_(sponsorType);
+    setTimeout(() => alert(`تم تسجيل ${doneLabel} لعدد ${updated} حالة`), 100);
   } catch (e) {
     try { console.error('applyBulkSponsorship unexpected error:', e); } catch { }
     alert(`حدث خطأ غير متوقع أثناء تسليم الكفالة.\n\nالخطأ: ${e?.message || 'خطأ غير معروف'}\n\nحاول مرة أخرى.`);
@@ -5301,19 +6662,17 @@ async function applyAddAssistance() {
   const rec = { uid, type: finalType, date, amount, notes, createdAt, byName, byUser };
   it.assistanceHistory.push(rec);
   try { logAction('إضافة مساعدة', caseId, JSON.stringify(rec)); } catch { }
+  const uiState = captureCasesUiState_();
   try {
-    if (SupabaseClient) {
+    if (DatabaseClient) {
       await upsertCaseToDb(it);
-      try { console.log('Assistance saved to DB for case:', caseId, 'Type:', finalType); } catch { }
     }
   } catch (e) {
     try { console.error('upsertCaseToDb (assistance) error:', e); } catch { }
-    await onSupabaseWriteError_('تعذر حفظ المساعدة في قاعدة البيانات حالياً.', e);
+    await onDatabaseWriteError_('تعذر حفظ المساعدة في قاعدة البيانات حالياً.', e);
     return;
   }
-  renderCasesTable();
-  try { updateDashboardStats(); } catch { }
-  try { generateReportPreview(); } catch { }
+  await syncCasesAfterMutation_(caseId, { reopenDetails: (AppState.currentCaseId || '') === caseId, preserveTab: true, uiState });
   logAction('إضافة مساعدة', caseId, `النوع: ${finalType}${amountRaw ? ` - المبلغ: ${amount}` : ''}`);
   closeAddAssistanceModal();
   try {
@@ -5556,13 +6915,13 @@ function scheduleCasesListRender_() {
 }
 
 function resetCasesListPager_() {
-  try { AppState._casesListLimit = 60; } catch { }
+  try { AppState._casesListLimit = CASES_LIST_INITIAL_LIMIT; } catch { }
 }
 
 function loadMoreCases() {
   try {
-    const cur = Number(AppState._casesListLimit || 60) || 60;
-    AppState._casesListLimit = cur + 60;
+    const cur = Number(AppState._casesListLimit || CASES_LIST_INITIAL_LIMIT) || CASES_LIST_INITIAL_LIMIT;
+    AppState._casesListLimit = cur + CASES_LIST_LOAD_STEP;
   } catch { }
   renderCasesTable();
 }
@@ -5573,6 +6932,7 @@ function makeCasesFilterKey_() {
   const grade = window.filterCaseGrade ? filterCaseGrade.value : '';
   const q = window.caseSearch ? caseSearch.value.trim() : '';
   const explorerQ = window.filterExplorer ? filterExplorer.value.trim() : '';
+  const needsQ = window.filterNeeds ? filterNeeds.value.trim() : '';
   let cats = '';
   try {
     const catsHost = window.filterCategoriesGroup ? filterCategoriesGroup : null;
@@ -5581,7 +6941,7 @@ function makeCasesFilterKey_() {
   } catch { }
   const dashKey = (AppState.dashboardFilter?.key || '').toString();
   const v = Number(AppState._casesVersion || 0) || 0;
-  return [v, gov, areaTxt, grade, q, explorerQ, cats, dashKey].join('||');
+  return [v, gov, areaTxt, grade, q, explorerQ, needsQ, cats, dashKey].join('||');
 }
 
 function getFilteredCasesCached_() {
@@ -5603,27 +6963,74 @@ function updateCaseStatus(id, val) {
   const it = AppState.cases.find(x => x.id === id);
   if (it) {
     it.status = val; renderCasesTable();
-    try { if (SupabaseClient) void upsertCaseToDb(it); } catch { }
+    try { if (DatabaseClient) void upsertCaseToDb(it); } catch { }
     sendStatusUpdateToSheets({ id: it.id, status: it.status });
     logAction('تغيير حالة', it.id, val);
   }
 }
 
 // Settings UI & Storage
+function readStorageJson_(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallback;
+    return JSON.parse(raw);
+  } catch { return fallback; }
+}
+function writeStorageJson_(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch { }
+}
+function normalizeSettingsState_(raw) {
+  const base = createDefaultSettings_();
+  const src = (raw && typeof raw === 'object') ? raw : {};
+  const regions = Array.isArray(src.regions)
+    ? src.regions
+      .filter(r => r && typeof r === 'object')
+      .map(r => ({
+        name: (r.name || '').toString().trim(),
+        url: (r.url || '').toString().trim(),
+        token: (r.token || '').toString().trim() || null
+      }))
+      .filter(r => r.name && r.url)
+    : [];
+  const activeRegion = (src.activeRegion || '').toString().trim() || null;
+  const fallbackUrl = (src.url || src.googleSheetsUrl || '').toString().trim() || base.url;
+  return {
+    url: fallbackUrl,
+    token: (src.token || '').toString().trim() || null,
+    regions,
+    activeRegion: regions.some(r => r.name === activeRegion) ? activeRegion : null
+  };
+}
+function persistSettingsState_() {
+  const normalized = normalizeSettingsState_(AppState.settings);
+  AppState.settings = normalized;
+  AppState.googleSheetsUrl = normalized.url || FRONTEND_CONFIG.googleSheetsUrl;
+  writeStorageJson_(FRONTEND_CONFIG.settingsStorageKey, normalized);
+  return normalized;
+}
 function loadSettings() {
-  try { AppState.settings = { url: null, token: null, regions: [], activeRegion: null }; } catch { AppState.settings = { url: null, token: null, regions: [], activeRegion: null } }
+  try {
+    const stored = readStorageJson_(FRONTEND_CONFIG.settingsStorageKey, null);
+    AppState.settings = normalizeSettingsState_(stored);
+  } catch {
+    AppState.settings = createDefaultSettings_();
+  }
+  AppState.googleSheetsUrl = AppState.settings.url || FRONTEND_CONFIG.googleSheetsUrl;
 }
 function saveSettings() {
+  const next = { ...normalizeSettingsState_(AppState.settings) };
+  const urlInput = document.getElementById('settingsUrlInput');
   const tokenEl = document.getElementById('settingsTokenInput');
-  if (!tokenEl) return;
-  const token = (tokenEl.value || '').trim();
-  if (!token) return;
-  AppState.settings = { ...AppState.settings, url: AppState.googleSheetsUrl, token: token || null };
+  if (urlInput && (urlInput.value || '').toString().trim()) next.url = (urlInput.value || '').toString().trim();
+  if (tokenEl) next.token = (tokenEl.value || '').toString().trim() || null;
+  AppState.settings = next;
+  persistSettingsState_();
   try {
     const b = document.getElementById('syncBadge');
     if (b) b.textContent = '';
   } catch { }
-  alert('تم حفظ الإعدادات');
+  if (tokenEl || urlInput) alert('تم حفظ الإعدادات');
 }
 function openSettings() {
   if (!hasPerm('settings')) { alert('لا تملك صلاحية فتح الإعدادات'); return; }
@@ -5631,17 +7038,29 @@ function openSettings() {
   if (!m) return;
   const urlInput = document.getElementById('settingsUrlInput');
   if (urlInput) {
-    urlInput.value = AppState.googleSheetsUrl || '';
+    urlInput.value = getConfiguredUrl() || '';
     urlInput.readOnly = true;
   }
   const tokenEl = document.getElementById('settingsTokenInput');
-  if (tokenEl) tokenEl.value = AppState.settings.token || '';
+  if (tokenEl) tokenEl.value = getToken() || '';
   try { renderUsersList(); } catch { }
   m.classList.add('show');
   m.setAttribute('aria-hidden', 'false');
 }
-function closeSettings() { const m = document.getElementById('settingsModal'); m.classList.remove('show'); m.setAttribute('aria-hidden', 'true'); }
-function getConfiguredUrl() { return AppState.googleSheetsUrl }
+function closeSettings() {
+  const m = document.getElementById('settingsModal');
+  if (!m) return;
+  m.classList.remove('show');
+  m.setAttribute('aria-hidden', 'true');
+}
+function getConfiguredUrl() {
+  const reg = getActiveRegion();
+  if (reg && reg.url) return reg.url;
+  const settingsUrl = (AppState.settings?.url || '').toString().trim();
+  if (settingsUrl) return settingsUrl;
+  const stateUrl = (AppState.googleSheetsUrl || '').toString().trim();
+  return stateUrl || FRONTEND_CONFIG.googleSheetsUrl;
+}
 function getToken() { const reg = getActiveRegion(); if (reg && reg.token) return reg.token; return AppState.settings.token }
 
 // Regions management
@@ -5659,6 +7078,7 @@ function populateRegionSelect() {
 function onRegionChange(e) {
   const name = e.target.value || null;
   AppState.settings.activeRegion = name && name.length ? name : null;
+  persistSettingsState_();
   // Reload from region source
   loadRemoteCases();
 }
@@ -5684,6 +7104,7 @@ function addOrUpdateRegion() {
   const obj = { name, url, token: token || null };
   if (idx >= 0) regs[idx] = obj; else regs.push(obj);
   AppState.settings.regions = regs;
+  persistSettingsState_();
   renderRegions(); populateRegionSelect();
 }
 function removeRegion() {
@@ -5691,6 +7112,7 @@ function removeRegion() {
   if (!name) { alert('أدخل اسم المنطقة لحذفها'); return; }
   AppState.settings.regions = (AppState.settings.regions || []).filter(r => r.name !== name);
   if (AppState.settings.activeRegion === name) AppState.settings.activeRegion = null;
+  persistSettingsState_();
   renderRegions(); populateRegionSelect();
 }
 
@@ -7226,10 +8648,10 @@ function openCaseDetails(id, mode) {
     const paymentsHtml = renderPaymentsTabHtml_(it);
     const logHtml = `<div id="casePanelChangeLog" class="hidden" style="grid-column:1/-1"><div style="color:#64748b">اختر تبويب السجل لعرض التغييرات.</div></div>`;
     body.innerHTML = `
-      <div  class="caseDetailsBodyBtnAdd" style="grid-column:1/-1;display:flex;gap:8px;justify-content:flex-start;flex-wrap:wrap;margin-bottom:10px">
-        <button id="caseTabDetails" type="button" class="btn" onclick="setCaseDetailsTab('details')">تفاصيل الحالة</button>
-        <button id="caseTabPayments" type="button" class="btn light" onclick="setCaseDetailsTab('payments')" style="color:#1f2937;border-color:#e5e7eb">المدفوعات/المساعدات</button>
-        <button id="caseTabChangeLog" type="button" class="btn light" onclick="setCaseDetailsTab('changelog')" style="color:#1f2937;border-color:#e5e7eb">سجل التغييرات</button>
+      <div class="caseDetailsBodyBtnAdd case-details-tabs" style="grid-column:1/-1;display:flex;gap:8px;justify-content:flex-start;flex-wrap:wrap;margin-bottom:10px">
+        <button id="caseTabDetails" type="button" class="btn case-details-tab" onclick="setCaseDetailsTab('details')">تفاصيل الحالة</button>
+        <button id="caseTabPayments" type="button" class="btn light case-details-tab" onclick="setCaseDetailsTab('payments')" style="color:#1f2937;border-color:#e5e7eb">المدفوعات/المساعدات</button>
+        <button id="caseTabChangeLog" type="button" class="btn light case-details-tab" onclick="setCaseDetailsTab('changelog')" style="color:#1f2937;border-color:#e5e7eb">سجل التغييرات</button>
       </div>
       <div id="casePanelDetails" style="grid-column:1/-1">${detailsHtml}</div>
       <div id="casePanelPayments" class="hidden" style="grid-column:1/-1">${paymentsHtml}</div>
@@ -7364,10 +8786,10 @@ function openCaseDetails(id, mode) {
   const paymentsHtml = renderPaymentsTabHtml_(it);
   const logHtml = `<div id="casePanelChangeLog" class="hidden" style="grid-column:1/-1"><div style="color:#64748b">اختر تبويب السجل لعرض التغييرات.</div></div>`;
   body.innerHTML = `
-    <div style="grid-column:1/-1;display:flex;gap:8px;justify-content:flex-start;flex-wrap:wrap;margin-bottom:10px">
-      <button id="caseTabDetails" type="button" class="btn" onclick="setCaseDetailsTab('details')">تفاصيل الحالة</button>
-      <button id="caseTabPayments" type="button" class="btn light" onclick="setCaseDetailsTab('payments')" style="color:#1f2937;border-color:#e5e7eb">المدفوعات/المساعدات</button>
-      <button id="caseTabChangeLog" type="button" class="btn light" onclick="setCaseDetailsTab('changelog')" style="color:#1f2937;border-color:#e5e7eb">سجل التغييرات</button>
+    <div class="caseDetailsBodyBtnAdd case-details-tabs" style="grid-column:1/-1;display:flex;gap:8px;justify-content:flex-start;flex-wrap:wrap;margin-bottom:10px">
+      <button id="caseTabDetails" type="button" class="btn case-details-tab" onclick="setCaseDetailsTab('details')">تفاصيل الحالة</button>
+      <button id="caseTabPayments" type="button" class="btn light case-details-tab" onclick="setCaseDetailsTab('payments')" style="color:#1f2937;border-color:#e5e7eb">المدفوعات/المساعدات</button>
+      <button id="caseTabChangeLog" type="button" class="btn light case-details-tab" onclick="setCaseDetailsTab('changelog')" style="color:#1f2937;border-color:#e5e7eb">سجل التغييرات</button>
     </div>
     <div id="casePanelDetails" class="grid cols-2" style="grid-column:1/-1">${detailsFormHtml}</div>
     <div id="casePanelPayments" class="hidden" style="grid-column:1/-1">${paymentsHtml}</div>
@@ -7485,11 +8907,70 @@ try {
   }
 } catch { }
 
+async function rejectCurrentCase() {
+  if (!hasPerm('cases_edit')) { alert('لا تملك صلاحية تعديل الحالات'); return; }
+  const id = (AppState.currentCaseId || document.getElementById('d_id')?.value || '').toString().trim();
+  if (!id) { alert('تعذر تحديد الحالة'); return; }
+  const idx = (AppState.cases || []).findIndex(c => String(c?.id || '').trim() === id);
+  if (idx < 0) { alert('الحالة غير موجودة'); return; }
+  const current = AppState.cases[idx] || {};
+  if (isRejectedCase_(current)) { alert('هذه الحالة مرفوضة بالفعل. الحذف متاح فقط بعد الرفض.'); return; }
+  const title = (current.familyHead || current.id || id).toString();
+  if (!confirm(`هل تريد رفض الحالة؟
+${title}`)) return;
+
+  let reason = '';
+  try { reason = (prompt('سبب رفض الحالة (إجباري):') || '').toString().trim(); } catch { reason = ''; }
+  if (!reason) { alert('سبب الرفض مطلوب'); return; }
+
+  const uiState = captureCasesUiState_();
+  const before = JSON.parse(JSON.stringify(current));
+  const rejectedAt = new Date().toISOString();
+  const rejectedByName = (AppState.currentUser?.name || AppState.currentUser?.username || '').toString().trim();
+  const rejectedByUser = (AppState.currentUser?.username || '').toString().trim();
+  const next = {
+    ...current,
+    caseGrade: 'حالة مرفوضة',
+    status: 'مرفوضة',
+    rejectionReason: reason,
+    rejectedAt,
+    rejectedByName,
+    rejectedByUser
+  };
+
+  AppState.cases[idx] = next;
+  refreshCaseViews_(id, { reopenDetails: true, preserveTab: true });
+
+  try {
+    const payload = JSON.stringify({
+      reason,
+      before: { caseGrade: before.caseGrade || '', status: before.status || '' },
+      after: { caseGrade: next.caseGrade || '', status: next.status || '' },
+      rejectedAt
+    });
+    await logAction('رفض حالة', id, `سبب: ${reason} | data:${payload}`);
+  } catch { }
+
+  try {
+    if (DatabaseClient) await upsertCaseToDb(next);
+  } catch (e) {
+    AppState.cases[idx] = before;
+    refreshCaseViews_(id, { reopenDetails: true, preserveTab: true });
+    alert(`تعذر حفظ رفض الحالة في قاعدة البيانات.\n\nالخطأ: ${e?.message || 'خطأ غير معروف'}`);
+    return;
+  }
+
+  await syncCasesAfterMutation_(id, { reopenDetails: true, preserveTab: true, uiState });
+  try { sendUpdateCaseToSheets(next); } catch { }
+  alert('تم رفض الحالة');
+}
+
 function deleteCurrentCase() {
   if (!hasPerm('cases_delete')) { alert('لا تملك صلاحية حذف الحالة'); return; }
   const id = AppState.currentCaseId || document.getElementById('d_id')?.value;
   if (!id) return;
   const it = AppState.cases.find(c => c.id === id);
+  if (!isRejectedCase_(it)) { alert('الحذف النهائي متاح فقط للحالات المرفوضة.'); return; }
   const title = it ? (it.familyHead || it.id || '') : id;
   if (!confirm(`هل تريد حذف الحالة نهائياً؟\n${title}`)) return;
 
@@ -7498,12 +8979,13 @@ function deleteCurrentCase() {
   if (!reason) { alert('سبب الحذف مطلوب'); return; }
 
   (async () => {
+    const uiState = captureCasesUiState_();
     const beforeList = Array.isArray(AppState.cases) ? AppState.cases.slice() : [];
+    const visibleListBeforeDelete = getFilteredCasesCached_().slice();
+    const fallbackCaseId = getAdjacentVisibleCaseId_(id, visibleListBeforeDelete);
     const snapshot = it ? JSON.parse(JSON.stringify(it)) : null;
     AppState.cases = (AppState.cases || []).filter(c => c.id !== id);
-    try { renderCasesTable(); } catch { }
-    try { updateDashboardStats(); } catch { }
-    try { updateNavBadges(); } catch { }
+    refreshCaseViews_('');
 
     try {
       const payload = JSON.stringify({ reason, case: snapshot, deletedAt: new Date().toISOString() });
@@ -7511,16 +8993,15 @@ function deleteCurrentCase() {
     } catch { }
 
     try {
-      if (SupabaseClient) await deleteCaseFromDb(id);
+      if (DatabaseClient) await deleteCaseFromDb(id);
     } catch (e) {
       AppState.cases = beforeList;
-      try { renderCasesTable(); } catch { }
-      try { updateDashboardStats(); } catch { }
-      try { updateNavBadges(); } catch { }
+      refreshCaseViews_('');
       alert(`تعذر حذف الحالة من قاعدة البيانات.\n\nالخطأ: ${e?.message || 'خطأ غير معروف'}`);
       return;
     }
 
+    await syncCasesAfterMutation_('', { uiState, fallbackCaseId, reopenDetails: !!fallbackCaseId, preserveTab: true });
     try { closeCaseDetails(); } catch { }
     alert('تم حذف الحالة');
   })();
@@ -7534,12 +9015,11 @@ function deleteAllCases() {
   if (!confirm('تأكيد أخير: سيتم حذف كل الحالات ولن يمكن استرجاعها.')) return;
 
   (async () => {
+    const uiState = captureCasesUiState_();
     const beforeList = Array.isArray(AppState.cases) ? AppState.cases.slice() : [];
     const snapshot = JSON.parse(JSON.stringify(beforeList || []));
     AppState.cases = [];
-    try { renderCasesTable(); } catch { }
-    try { updateDashboardStats(); } catch { }
-    try { updateNavBadges(); } catch { }
+    refreshCaseViews_('');
 
     try {
       const payload = JSON.stringify({ count, cases: snapshot, deletedAt: new Date().toISOString() });
@@ -7547,16 +9027,15 @@ function deleteAllCases() {
     } catch { }
 
     try {
-      if (SupabaseClient) await deleteAllCasesFromDb();
+      if (DatabaseClient) await deleteAllCasesFromDb();
     } catch (e) {
       AppState.cases = beforeList;
-      try { renderCasesTable(); } catch { }
-      try { updateDashboardStats(); } catch { }
-      try { updateNavBadges(); } catch { }
+      refreshCaseViews_('');
       alert(`تعذر حذف جميع الحالات من قاعدة البيانات.\n\nالخطأ: ${e?.message || 'خطأ غير معروف'}`);
       return;
     }
 
+    await syncCasesAfterMutation_('', { uiState, reopenDetails: false, restoreScroll: true });
     try { closeCaseDetails(); } catch { }
     alert('تم حذف جميع الحالات');
   })();
@@ -7623,7 +9102,7 @@ function parseFamilyMembersPlain(text) {
   }).filter(x => Object.values(x).some(v => String(v || '').trim() !== ''));
 }
 
-function saveCaseEdits() {
+async function saveCaseEdits() {
   if (!hasPerm('cases_edit')) { alert('لا تملك صلاحية تعديل الحالات'); return; }
   const host = document.getElementById('caseDetailsBody');
   const q = (id) => (host ? host.querySelector(`#${id}`) : null);
@@ -7746,11 +9225,16 @@ function saveCaseEdits() {
   try { AppState.caseDetailsDirty = false; } catch { }
   try { AppState.caseDetailsMode = 'view'; } catch { }
   try { AppState.caseDetailsOriginal = null; } catch { }
-  try { void upsertCaseToDb(it); } catch { }
-  renderCasesTable(); updateDashboardStats(); generateReportPreview();
-  try { updateNavBadges(); } catch { }
-  try { logAction('تعديل حالة', it.id, diffMsg); } catch { logAction('تعديل حالة', it.id, 'تم تعديل البيانات'); }
-  closeCaseDetails();
+  const uiState = captureCasesUiState_();
+  try {
+    if (DatabaseClient) await upsertCaseToDb(it);
+  } catch (e) {
+    alert(`تعذر حفظ التعديلات في قاعدة البيانات.\n\nالخطأ: ${e?.message || 'خطأ غير معروف'}`);
+    return;
+  }
+  try { await logAction('تعديل حالة', it.id, diffMsg); } catch { try { await logAction('تعديل حالة', it.id, 'تم تعديل البيانات'); } catch { } }
+  await syncCasesAfterMutation_(it.id, { reopenDetails: true, preserveTab: true, uiState });
+  try { showToast_('تم حفظ التعديلات', 'success'); } catch { }
   alert('تم حفظ التعديلات');
 }
 
@@ -7867,31 +9351,10 @@ function printCurrentCase() {
 }
 
 async function listProfiles_() {
-  if (!SupabaseClient) return [];
-  const canManage = hasPerm('users_manage');
-  if (canManage) {
-    const baseSel = 'id,username,full_name,permissions,is_active,updated_at,last_seen_at';
-    const q = await SupabaseClient
-      .from('profiles')
-      .select(baseSel)
-      .order('updated_at', { ascending: false })
-      .limit(5000);
-    if (q.error) throw q.error;
-    const list = q.data || [];
-    return list.filter(p => {
-      try {
-        const perms = p?.permissions && typeof p.permissions === 'object' ? p.permissions : {};
-        const r = (perms.__role || '').toString().trim();
-        return r !== 'hidden_super_admin';
-      } catch { return true; }
-    });
-  }
-
-  // Safer readonly list for managers: use a restricted RPC (no permissions leakage)
-  const q2 = await SupabaseClient.rpc('list_profiles_public');
-  if (q2.error) throw q2.error;
-  const list2 = q2.data || [];
-  return list2.filter(p => {
+  if (!DatabaseClient) return [];
+  const { data, error } = await DatabaseClient.rpc('list_profiles_public', {});
+  if (error) return [];
+  return (data || []).map((row) => normalizeProfileRecord_(row)).filter((p) => {
     try {
       const perms = p?.permissions && typeof p.permissions === 'object' ? p.permissions : {};
       const r = (perms.__role || '').toString().trim();
@@ -7949,7 +9412,7 @@ function applyPermPreset_(kind) {
 }
 
 async function saveMySettings() {
-  if (!SupabaseClient) { alert('تعذر الاتصال بقاعدة البيانات'); return; }
+  if (!DatabaseClient) { alert('تعذر الاتصال بقاعدة البيانات'); return; }
   if (!AppState.currentUser?.id) { alert('لم يتم تسجيل الدخول'); return; }
   const hint = document.getElementById('mySettingsHint');
   const btn = document.querySelector('#settingsSection button[onclick="saveMySettings()"]');
@@ -7975,9 +9438,10 @@ async function saveMySettings() {
       return;
     }
 
-    if (newPass.trim().length < 6) {
-      if (hint) { hint.style.display = 'block'; hint.textContent = 'كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل'; }
-      else alert('كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل');
+    const passwordPolicyError = validatePasswordPolicy_(newPass.trim());
+    if (passwordPolicyError) {
+      if (hint) { hint.style.display = 'block'; hint.textContent = passwordPolicyError; }
+      else alert(passwordPolicyError);
       return;
     }
 
@@ -7990,7 +9454,7 @@ async function saveMySettings() {
     let email = (AppState.currentUser?.email || '').toString().trim();
     if (!email) {
       try {
-        const u = await SupabaseClient.auth.getUser();
+        const u = await DatabaseClient.auth.getUser();
         email = (u?.data?.user?.email || '').toString().trim();
       } catch { }
     }
@@ -8001,8 +9465,9 @@ async function saveMySettings() {
     }
 
     try {
-      const reauth = await SupabaseClient.auth.signInWithPassword({ email, password: oldPass });
+      const reauth = await DatabaseClient.auth.signInWithPassword({ email, password: oldPass });
       if (reauth?.error) throw reauth.error;
+      try { AppState._lastValidatedPassword = oldPass; } catch { }
     } catch (e) {
       try { console.error('reauth error:', e); } catch { }
       const msg = (e?.message || e?.error_description || '').toString().trim();
@@ -8012,7 +9477,7 @@ async function saveMySettings() {
     }
 
     try {
-      const res = await SupabaseClient.auth.updateUser({ password: newPass });
+      const res = await DatabaseClient.auth.updateUser({ password: newPass, passwordConfirm: newPass, oldPassword: oldPass });
       if (res?.error) throw res.error;
       try { document.getElementById('myOldPassword').value = ''; } catch { }
       try { document.getElementById('myNewPassword').value = ''; } catch { }
@@ -8040,6 +9505,7 @@ async function saveMySettings() {
     if (hint) { hint.style.display = 'block'; hint.textContent = msg ? `حدث خطأ غير متوقع: ${msg}` : 'حدث خطأ غير متوقع'; }
     else alert(msg ? `حدث خطأ غير متوقع: ${msg}` : 'حدث خطأ غير متوقع');
   } finally {
+    try { delete AppState._lastValidatedPassword; } catch { }
     try { if (btn) btn.removeAttribute('disabled'); } catch { }
     try {
       if (ok && hint && (hint.textContent || '').toString().trim() === 'جارٍ الحفظ...') {
@@ -8112,7 +9578,7 @@ try {
 async function renderUsersList() {
   const host = document.getElementById('usersList');
   if (!host) return;
-  if (!SupabaseClient) { host.textContent = 'تعذر الاتصال بقاعدة البيانات'; return; }
+  if (!DatabaseClient) { host.textContent = 'تعذر الاتصال بقاعدة البيانات'; return; }
   if (!(hasPerm('users_manage') || hasPerm('settings'))) { host.textContent = 'لا تملك صلاحية عرض المستخدمين'; return; }
   try {
     const list = await listProfiles_();
@@ -8125,7 +9591,7 @@ async function renderUsersList() {
       const lastSeenRaw = (p.last_seen_at || '').toString();
       const lastSeen = lastSeenRaw ? lastSeenRaw.replace('T', ' ').replace('Z', '') : '';
       const badge = active ? '<span class="pill ok">مفعل</span>' : '<span class="pill off">معطل</span>';
-      return `<div class="user-item" role="button" tabindex="0" onclick="openUserActionsModal('${escapeHtml(safe)}')">
+      return `<div class="user-item" role="button" tabindex="0" aria-label="Open user ${escapeHtml(uname || p.id)}" onclick="openUserActionsModal('${escapeHtml(safe)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openUserActionsModal('${escapeHtml(safe)}')}">
         <div>
           <div class="title">${escapeHtml(uname || p.id)}</div>
           <div class="meta">${escapeHtml(name || '')}${lastSeen ? ` — آخر ظهور: ${escapeHtml(lastSeen)}` : ''}</div>
@@ -8167,14 +9633,14 @@ function openUserActionsModal(usernameKey) {
         let data = null;
         let error = null;
         try {
-          const q1 = await SupabaseClient.from('profiles').select('id,username,full_name,is_active').eq('username', uname).maybeSingle();
+          const q1 = await DatabaseClient.from('users').select('id,username,full_name,is_active').eq('username', uname).maybeSingle();
           data = q1.data; error = q1.error;
         } catch (e1) {
           error = e1;
         }
         if (error) {
           try {
-            const q2 = await SupabaseClient.from('profiles').select('id,username,full_name,is_active').eq('username', uname).maybeSingle();
+            const q2 = await DatabaseClient.from('users').select('id,username,full_name,is_active').eq('username', uname).maybeSingle();
             data = q2.data;
             error = q2.error;
           } catch (e2) {
@@ -8232,7 +9698,7 @@ async function userActionsToggleActive_() {
   const uname = (m.getAttribute('data-username') || '').toString().trim();
   if (!uname) return;
   try {
-    const { data, error } = await SupabaseClient.from('profiles').select('id,is_active').eq('username', uname).maybeSingle();
+    const { data, error } = await DatabaseClient.from('users').select('id,is_active').eq('username', uname).maybeSingle();
     if (error) throw error;
     const current = (data?.is_active !== false);
     await setUserActiveQuick_(data.id, !current);
@@ -8314,7 +9780,7 @@ function buildUserPermsModalUi_(selected) {
 }
 
 async function openUserPermissionsModal_(uname) {
-  if (!SupabaseClient) return;
+  if (!DatabaseClient) return;
   if (!hasPerm('users_manage')) { alert('لا تملك صلاحية إدارة المستخدمين'); return; }
   const m = document.getElementById('userPermissionsModal');
   if (!m) return;
@@ -8328,7 +9794,7 @@ async function openUserPermissionsModal_(uname) {
   try { buildUserPermsModalUi_({}); } catch { }
 
   try {
-    const { data, error } = await SupabaseClient.from('profiles').select('id,username,permissions').eq('username', uname).maybeSingle();
+    const { data, error } = await DatabaseClient.from('users').select('id,username,permissions').eq('username', uname).maybeSingle();
     if (error) throw error;
     const p = data?.permissions && typeof data.permissions === 'object' ? data.permissions : {};
     try {
@@ -8343,6 +9809,7 @@ async function openUserPermissionsModal_(uname) {
     if (meta) meta.textContent = `المستخدم: ${uname}`;
     if (hint) { hint.style.display = 'block'; hint.textContent = 'تعذر تحميل الصلاحيات'; }
   } finally {
+    try { delete AppState._lastValidatedPassword; } catch { }
     try { if (btn) btn.removeAttribute('disabled'); } catch { }
   }
 
@@ -8354,7 +9821,7 @@ async function openUserPermissionsModal_(uname) {
 }
 
 async function saveUserPermissions_() {
-  if (!SupabaseClient) { alert('تعذر الاتصال بقاعدة البيانات'); return; }
+  if (!DatabaseClient) { alert('تعذر الاتصال بقاعدة البيانات'); return; }
   if (!hasPerm('users_manage')) { alert('لا تملك صلاحية إدارة المستخدمين'); return; }
   const m = document.getElementById('userPermissionsModal');
   if (!m) return;
@@ -8379,9 +9846,10 @@ async function saveUserPermissions_() {
       if (r) permissions.__role = r;
     } catch { }
 
-    const { data: existing, error: exErr } = await SupabaseClient.from('profiles').select('id').eq('username', uname).maybeSingle();
-    if (exErr || !existing?.id) throw (exErr || new Error('not found'));
-    const { error } = await SupabaseClient.from('profiles').update({ permissions }).eq('id', existing.id);
+    const { error } = await DatabaseClient.rpc('admin_update_profile', {
+      p_username: uname,
+      p_permissions: permissions
+    });
     if (error) throw error;
     try { await logAction('تحديث صلاحيات مستخدم', '', `target: ${uname}`); } catch { }
     try { await renderUsersList(); } catch { }
@@ -8391,25 +9859,28 @@ async function saveUserPermissions_() {
     try { console.error('saveUserPermissions_ error:', e); } catch { }
     if (hint) { hint.style.display = 'block'; hint.textContent = 'تعذر حفظ الصلاحيات'; }
   } finally {
+    try { delete AppState._lastValidatedPassword; } catch { }
     try { if (btn) btn.removeAttribute('disabled'); } catch { }
   }
 }
 
 async function userActionsDelete_() {
   if (!hasPerm('users_manage')) { alert('لا تملك صلاحية إدارة المستخدمين'); return; }
-  if (!SupabaseClient) { alert('تعذر الاتصال بقاعدة البيانات'); return; }
+  if (!DatabaseClient) { alert('تعذر الاتصال بقاعدة البيانات'); return; }
   const m = document.getElementById('userActionsModal');
   if (!m) return;
   const uname = (m.getAttribute('data-username') || '').toString().trim();
   if (!uname) return;
-  const ok = confirm(`حذف المستخدم نهائياً من ملفه (profiles): ${uname} ؟\n\nملاحظة: هذا لا يحذف مستخدم Supabase Auth إلا إذا كان لديك وظيفة مخصصة لذلك.`);
+  const ok = confirm(`حذف المستخدم نهائياً من النظام: ${uname} ؟
+
+ملاحظة: سيُحذف ملفه من Supabase وفق الصلاحيات والقواعد الخادمية.`);
   if (!ok) return;
   const hint = document.getElementById('userActionsHint');
   if (hint) { hint.style.display = 'none'; hint.textContent = ''; }
   try {
-    const { data: existing, error: exErr } = await SupabaseClient.from('profiles').select('id').eq('username', uname).maybeSingle();
-    if (exErr || !existing?.id) throw (exErr || new Error('not found'));
-    const { error } = await SupabaseClient.from('profiles').delete().eq('id', existing.id);
+    const { error } = await DatabaseClient.rpc('admin_delete_profile', {
+      p_username: uname
+    });
     if (error) throw error;
     try { await logAction('حذف مستخدم', '', `username: ${uname}`); } catch { }
     try { await renderUsersList(); } catch { }
@@ -8434,11 +9905,11 @@ async function userActionsResetPasswordLink_() {
 }
 
 async function prefillUser(usernameKey) {
-  if (!SupabaseClient) return;
+  if (!DatabaseClient) return;
   if (!(hasPerm('users_manage') || hasPerm('settings'))) { alert('لا تملك صلاحية عرض المستخدمين'); return; }
   const uname = (usernameKey || '').toString().trim();
   if (!uname) return;
-  const { data, error } = await SupabaseClient.from('profiles').select('*').eq('username', uname).maybeSingle();
+  const { data, error } = await DatabaseClient.from('users').select('*').eq('username', uname).maybeSingle();
   if (error) { alert('تعذر تحميل المستخدم'); return; }
   const p = data;
   if (!p) { alert('المستخدم غير موجود'); return; }
@@ -8482,15 +9953,15 @@ function onUserMgmtRoleChange_() {
 
 async function addOrUpdateUser() {
   if (!hasPerm('users_manage')) { alert('لا تملك صلاحية إدارة المستخدمين'); return; }
-  if (!SupabaseClient) { alert('تعذر الاتصال بقاعدة البيانات'); return; }
+  if (!DatabaseClient) { alert('تعذر الاتصال بقاعدة البيانات'); return; }
   const uname = (document.getElementById('userMgmtUsername').value || '').trim();
   const name = (document.getElementById('userMgmtName').value || '').trim();
   if (!uname) { alert('اسم المستخدم مطلوب'); return; }
 
   const isActive = !!document.getElementById('userMgmtIsActive')?.checked;
   const role = (document.getElementById('userMgmtRole')?.value || 'custom').toString().trim() || 'custom';
-  const { data: existing, error: exErr } = await SupabaseClient
-    .from('profiles')
+  const { data: existing, error: exErr } = await DatabaseClient
+    .from('users')
     .select('id,full_name,is_active,permissions')
     .eq('username', uname)
     .maybeSingle();
@@ -8515,10 +9986,12 @@ async function addOrUpdateUser() {
     permissions: (existing.permissions && typeof existing.permissions === 'object') ? existing.permissions : {}
   };
 
-  const { error } = await SupabaseClient
-    .from('profiles')
-    .update({ full_name: name, permissions, is_active: isActive })
-    .eq('id', existing.id);
+  const { error } = await DatabaseClient.rpc('admin_update_profile', {
+    p_username: uname,
+    p_full_name: name,
+    p_permissions: permissions,
+    p_is_active: isActive
+  });
   if (error) { alert('تعذر حفظ المستخدم'); return; }
   try {
     const afterPerms = permissions && typeof permissions === 'object' ? permissions : {};
@@ -8555,33 +10028,45 @@ try {
 } catch { }
 
 async function generateResetPasswordLinkForSelectedUser() {
-  if (!SupabaseClient) { alert('تعذر الاتصال بقاعدة البيانات'); return; }
+  if (!DatabaseClient) { alert('تعذر الاتصال بقاعدة البيانات'); return; }
   if (!hasPerm('users_manage')) { alert('لا تملك صلاحية إدارة المستخدمين'); return; }
   const uname = (document.getElementById('userMgmtUsername')?.value || '').trim();
   if (!uname) { alert('اختر مستخدم أولاً'); return; }
-  const email = usernameToEmail(uname);
   try {
-    const { data, error } = await SupabaseClient.functions.invoke('reset-password-link', { body: { email } });
-    if (error) throw error;
-    const link = data?.action_link || data?.link || '';
-    if (!link) { alert('تم تنفيذ الطلب، لكن لم يتم إرجاع رابط'); return; }
-    try { await logAction('إنشاء رابط إعادة تعيين كلمة المرور', '', `target: ${uname}`); } catch { }
-    prompt('انسخ رابط إعادة تعيين كلمة المرور وأرسله للمستخدم:', link);
+    const { data: existing, error: exErr } = await DatabaseClient.from('users').select('id,username,email').eq('username', uname).maybeSingle();
+    if (exErr || !existing?.id) throw (exErr || new Error('not found'));
+    const email = (existing.email || '').toString().trim();
+    if (!email) throw new Error('missing_email');
+    const res = await invokeAuthedEdgeFunction_('reset-password-link', {
+      body: { email }
+    });
+    if (res?.error) throw res.error;
+    const actionLink = (res?.data?.action_link || '').toString().trim();
+    try { await logAction('تعيين كلمة مرور مؤقتة', '', `target: ${uname}`); } catch { }
+    if (actionLink) {
+      prompt('تم إنشاء رابط إعادة تعيين كلمة المرور. انسخه وأرسله للمستخدم:', actionLink);
+    } else {
+      alert('تم إرسال/إنشاء رابط إعادة تعيين كلمة المرور بنجاح.');
+    }
   } catch (e) {
     try { console.error(e); } catch { }
-    alert('تعذر إنشاء رابط إعادة تعيين كلمة المرور. تأكد من نشر Edge Function وإعداد المتغيرات السرية.');
+    const msg = await describeEdgeFunctionError_(e);
+    alert(`تعذر إنشاء رابط إعادة التعيين.
+
+${msg || 'خطأ غير معروف'}`);
   }
 }
 
 async function deleteUser() {
   if (!hasPerm('users_manage')) { alert('لا تملك صلاحية إدارة المستخدمين'); return; }
-  if (!SupabaseClient) { alert('تعذر الاتصال بقاعدة البيانات'); return; }
+  if (!DatabaseClient) { alert('تعذر الاتصال بقاعدة البيانات'); return; }
   const uname = (document.getElementById('userMgmtUsername').value || '').trim();
   if (!uname) { alert('أدخل اسم المستخدم'); return; }
   if (!confirm(`تعطيل المستخدم: ${uname} ؟`)) return;
-  const { data: existing, error: exErr } = await SupabaseClient.from('profiles').select('id').eq('username', uname).maybeSingle();
-  if (exErr || !existing?.id) { alert('المستخدم غير موجود'); return; }
-  const { error } = await SupabaseClient.from('profiles').update({ is_active: false }).eq('id', existing.id);
+  const { error } = await DatabaseClient.rpc('admin_set_profile_active', {
+    p_username: uname,
+    p_is_active: false
+  });
   if (error) { alert('تعذر تعطيل المستخدم'); return; }
   try { await logAction('تعطيل مستخدم', '', `username: ${uname}`); } catch { }
   try { await renderUsersList(); } catch { }
@@ -8590,7 +10075,8 @@ async function deleteUser() {
 function sendUpdateCaseToSheets(c) {
   const payload = { action: 'updateCase', case: normalizeCaseForSheets(c) };
   const url = getConfiguredUrl();
-  postWithRetry(url, payload, 2).catch(() => enqueue({ type: 'updateCase', payload }));
+  const token = getToken();
+  postWithRetry(url, payload, 2, { token }).catch(() => enqueue({ type: 'updateCase', payload, url, token, activeRegion: AppState.settings?.activeRegion || null }));
 }
 function exportToExcel() { exportToCSV() }
 async function printReport() {
@@ -8651,7 +10137,6 @@ async function printReport() {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>طباعة التقرير</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
     ${cssHref ? `<link rel="stylesheet" href="${cssHref}">` : ''}
     <style>
       body{background:#fff;margin:0;padding:0}
@@ -8713,25 +10198,64 @@ function addDetailsMedicalRow(row, disAttr) {
 
 // Google Sheets integration with retry and offline queue
 let PendingQueue_ = [];
+function normalizeQueueJob_(job) {
+  if (!job || typeof job !== 'object') return null;
+  const payload = (job.payload && typeof job.payload === 'object') ? job.payload : null;
+  const url = (job.url || '').toString().trim() || getConfiguredUrl();
+  if (!payload || !url) return null;
+  return {
+    id: (job.id || `${Date.now()}_${Math.random().toString(16).slice(2)}`).toString(),
+    type: (job.type || 'job').toString(),
+    payload,
+    url,
+    token: (job.token || '').toString().trim() || null,
+    activeRegion: (job.activeRegion || '').toString().trim() || null,
+    createdAt: (job.createdAt || new Date().toISOString()).toString()
+  };
+}
+function loadPendingQueue_() {
+  const stored = readStorageJson_(FRONTEND_CONFIG.pendingQueueStorageKey, []);
+  setQueue(stored);
+}
+function persistPendingQueue_() {
+  writeStorageJson_(FRONTEND_CONFIG.pendingQueueStorageKey, getQueue());
+}
 function getQueue() { try { return Array.isArray(PendingQueue_) ? PendingQueue_ : []; } catch { return []; } }
-function setQueue(q) { try { PendingQueue_ = Array.isArray(q) ? q : []; } catch { PendingQueue_ = []; } }
-function enqueue(job) { const q = getQueue(); q.push(job); setQueue(q) }
+function setQueue(q) {
+  try {
+    PendingQueue_ = (Array.isArray(q) ? q : []).map(normalizeQueueJob_).filter(Boolean);
+  } catch { PendingQueue_ = []; }
+  persistPendingQueue_();
+}
+function enqueue(job) {
+  const normalized = normalizeQueueJob_(job);
+  if (!normalized) return;
+  const q = getQueue();
+  q.push(normalized);
+  setQueue(q);
+}
 async function trySyncPendingQueue() {
-  const q = getQueue(); if (!q.length) return;
+  const q = getQueue();
+  if (!q.length) return;
+  try { if (typeof navigator !== 'undefined' && navigator && navigator.onLine === false) return; } catch { }
   const rest = [];
   for (const job of q) {
-    try { await postWithRetry(AppState.googleSheetsUrl, job.payload, 2); } catch { rest.push(job) }
+    try {
+      await postWithRetry(job.url || getConfiguredUrl(), job.payload, 2, { token: job.token || null });
+    } catch {
+      rest.push(job);
+    }
   }
   setQueue(rest);
 }
-async function postWithRetry(url, payload, retries) {
+async function postWithRetry(url, payload, retries, options) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 10000);
   try {
     // Apps Script Web Apps often fail CORS preflight (OPTIONS). Avoid preflight by:
     // - sending body as text/plain (simple request)
     // - not sending custom headers
-    const token = getToken();
+    const token = (options && Object.prototype.hasOwnProperty.call(options, 'token')) ? options.token : getToken();
     const bodyObj = token ? { ...(payload || {}), token } : (payload || {});
     const res = await fetch(url, { method: 'POST', body: JSON.stringify(bodyObj), signal: controller.signal });
     clearTimeout(timer);
@@ -8750,19 +10274,23 @@ async function postWithRetry(url, payload, retries) {
       throw new Error('non-json response');
     }
   } catch (e) {
-    if (retries > 0) return await postWithRetry(url, payload, retries - 1);
+    if (retries > 0) return await postWithRetry(url, payload, retries - 1, options);
     throw e;
+  } finally {
+    try { clearTimeout(timer); } catch { }
   }
 }
 function sendCaseToSheets(c) {
   const payload = { action: 'addCase', case: normalizeCaseForSheets(c) };
   const url = getConfiguredUrl();
-  postWithRetry(url, payload, 2).catch(() => enqueue({ type: 'addCase', payload }));
+  const token = getToken();
+  postWithRetry(url, payload, 2, { token }).catch(() => enqueue({ type: 'addCase', payload, url, token, activeRegion: AppState.settings?.activeRegion || null }));
 }
 function sendStatusUpdateToSheets(u) {
   const payload = { action: 'updateStatus', update: u };
   const url = getConfiguredUrl();
-  postWithRetry(url, payload, 2).catch(() => enqueue({ type: 'updateStatus', payload }));
+  const token = getToken();
+  postWithRetry(url, payload, 2, { token }).catch(() => enqueue({ type: 'updateStatus', payload, url, token, activeRegion: AppState.settings?.activeRegion || null }));
 }
 
 // Load from Google Sheets and merge

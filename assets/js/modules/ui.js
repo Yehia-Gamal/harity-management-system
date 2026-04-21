@@ -18,13 +18,14 @@
         document.body.appendChild(container);
       }
 
-      const toast = document.createElement('div');
-      toast.className = `toast ${type}`;
-      const close = document.createElement('button');
-      close.type = 'button';
-      close.className = 'toast-close';
-      close.textContent = 'x';
-      close.addEventListener('click', () => { try { toast.remove(); } catch { } });
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'toast-close';
+        close.setAttribute('aria-label', 'إغلاق');
+        close.textContent = '×';
+        close.addEventListener('click', () => { try { toast.remove(); } catch { } });
 
       const text = document.createElement('div');
       text.className = 'toast-text';

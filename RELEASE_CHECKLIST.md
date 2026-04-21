@@ -4,7 +4,7 @@
 
 - [ ] Confirm worktree is committed or backed up.
 - [ ] Review `SETUP_AND_DEPLOYMENT.md`.
-- [ ] Review `SCHEMA_AND_RLS_ASSUMPTIONS.md`.
+- [ ] Review `SUPABASE_CONTRACTS.md`.
 - [ ] Confirm Supabase project URL and anon key are correct for target environment.
 - [ ] Set Edge Function secrets:
   - [ ] `SUPABASE_URL`

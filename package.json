@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "check": "powershell -ExecutionPolicy Bypass -File tools/smoke-check.ps1",
+    "check:static": "powershell -ExecutionPolicy Bypass -File tools/static-smoke-check.ps1",
+    "check:js": "node --check assets/js/config.js && node --check assets/js/modules/api.js && node --check assets/js/app.js"
+  },
+  "private": true
+}

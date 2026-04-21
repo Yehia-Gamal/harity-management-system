@@ -24,10 +24,11 @@ Deno.serve(async (req: Request) => {
 
     const body = await req.json().catch(() => ({}));
     const email = String(body?.email || "").trim().toLowerCase();
-    const username = String(body?.username || email).trim();
+    const username = String(body?.username || (email.includes("@") ? email.split("@")[0] : email)).trim();
     const fullName = body?.full_name == null ? "" : String(body.full_name).trim();
     const password = String(body?.password || "").trim() || randomPassword();
     const permissions = sanitizePermissions(body?.permissions);
+    const isActive = body?.is_active !== false;
 
     if (!email || !email.includes("@")) return json({ error: "email_required" }, 400, headers);
     if (!username) return json({ error: "username_required" }, 400, headers);
@@ -52,12 +53,16 @@ Deno.serve(async (req: Request) => {
     }
     createdUserId = created.user.id;
 
-    const { error: profileInsertError } = await supabaseAdmin.from("profiles").insert({
+    const { error: profileInsertError } = await supabaseAdmin.from("profiles").upsert({
       id: createdUserId,
+      email,
       username,
       full_name: fullName,
       permissions,
-      is_active: true,
+      is_active: isActive,
+      updated_at: new Date().toISOString(),
+    }, {
+      onConflict: "id",
     });
 
     if (profileInsertError) {

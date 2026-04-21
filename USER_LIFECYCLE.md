@@ -4,8 +4,8 @@
 
 - Supabase Auth email is the login identity.
 - `profiles.username` is the application username/display alias.
-- If a legacy username has no `@`, the frontend can derive a compatibility email as `username@app.local`.
-- New production users should prefer a real email address in Auth and a stable username in `profiles.username`.
+- Users must sign in with a full email address, for example `user@gmail.com`.
+- New production users should use a real email address in Auth and a stable username in `profiles.username`.
 
 ## Supported Admin Operations
 
@@ -48,5 +48,5 @@
 
 - Decide whether profile deletion should become soft-delete only.
 - Decide whether deactivation should also revoke active sessions.
-- Decide whether `username@app.local` should remain supported or be migrated to real email addresses.
+- Keep login email-only; do not reintroduce compatibility username login.
 - Add a server-side repair/admin script for partial historical Auth/profile mismatches.

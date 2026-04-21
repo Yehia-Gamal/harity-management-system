@@ -36,7 +36,7 @@
 }
 
 body {
-    font-family: 'Tajawal', sans-serif;
+    font-family: var(--font-arabic, 'IBM Plex Sans Arabic', 'Inter', sans-serif);
     background: #f6f8fb;
     color: #1f2937;
     direction: rtl;

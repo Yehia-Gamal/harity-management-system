@@ -24,9 +24,21 @@
     return Math.max(min, Math.min(max, base));
   }
 
+  function coerceArray(value) {
+    return Array.isArray(value) ? value : [];
+  }
+
+  function formatDateTime(value) {
+    const text = (value || '').toString().trim();
+    if (!text) return '';
+    return text.replace('T', ' ').replace('Z', '');
+  }
+
   window.CharityUtils = Object.freeze({
     escapeHtml,
     debounce,
-    clampNumber
+    clampNumber,
+    coerceArray,
+    formatDateTime
   });
 })();

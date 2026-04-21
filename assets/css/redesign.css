@@ -550,11 +550,14 @@
 
 /* Sidebar overlay for mobile */
 .sidebar-overlay {
-  display: none;
+  display: block;
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,.5);
   z-index: 39;
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
 }
@@ -1371,15 +1374,22 @@
     position: fixed;
     box-shadow: none;
     z-index: 50;
+    visibility: hidden;
+    pointer-events: none;
   }
 
   [dir="rtl"] .app-sidebar {
     transform: translateX(100%);
   }
 
-  .app-sidebar.sidebar-open {
+  .app-sidebar.sidebar-open,
+  .app-sidebar.open,
+  #mainNavWrap.sidebar-open,
+  #mainNavWrap.open {
     transform: translateX(0);
     box-shadow: -20px 0 60px rgba(0,0,0,.3);
+    visibility: visible;
+    pointer-events: auto;
   }
 
   .app-sidebar.sidebar-open .sidebar-brand-text,
@@ -1391,7 +1401,9 @@
   }
 
   .sidebar-overlay.active {
-    display: block;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
   }
 
   .app-topbar {
@@ -1530,7 +1542,7 @@
   }
 
   .sidebar-overlay {
-    transition: opacity var(--transition-base);
+    transition: opacity var(--transition-base), visibility 0s linear var(--transition-base);
   }
 
   .sidebar-overlay.active {
@@ -2032,5 +2044,283 @@
 
   .topbar-brand-kicker {
     font-size: .64rem;
+  }
+}
+
+/*
+  16. Mobile Stabilization Pass
+  Keep the JS mobile-nav breakpoint (1100px) aligned with CSS so the sidebar
+  doesn't leak into tablet/mobile layouts, and tighten dense sections.
+*/
+@media (max-width: 1100px) {
+  #mainApp.app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  #mainApp.app-shell > .app-topbar,
+  #mainApp.app-shell > .app-content {
+    grid-column: 1;
+  }
+
+  .app-sidebar {
+    width: min(340px, calc(100vw - 28px));
+    left: auto;
+    right: 0;
+    inset-inline-start: auto;
+    inset-inline-end: auto;
+    transform: translate3d(calc(100% + 24px), 0, 0);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    box-shadow: none;
+  }
+
+  .app-sidebar .sidebar-brand-text,
+  .app-sidebar .sidebar-nav-text,
+  .app-sidebar .sidebar-nav-badge,
+  .app-sidebar .sidebar-user-info {
+    display: flex;
+  }
+
+  .app-sidebar .sidebar-section-label {
+    display: block;
+  }
+
+  .app-sidebar.sidebar-open,
+  .app-sidebar.open,
+  #mainNavWrap.sidebar-open,
+  #mainNavWrap.open {
+    left: auto !important;
+    right: 0 !important;
+    transform: translate3d(0, 0, 0) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    box-shadow: -20px 0 60px rgba(0, 0, 0, .3);
+  }
+
+  body.nav-open,
+  body.sidebar-open {
+    overflow: hidden;
+  }
+
+  .sidebar-overlay {
+    transition: opacity var(--transition-base), visibility 0s linear var(--transition-base);
+  }
+
+  .sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .topbar-toggle,
+  .mobile-only {
+    display: inline-flex !important;
+  }
+
+  .app-topbar {
+    padding: 0 14px;
+    overflow: hidden;
+  }
+
+  .topbar-start {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .topbar-brand-lockup {
+    min-width: 0;
+    flex: 1;
+    gap: 10px;
+  }
+
+  .topbar-brand-text {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .topbar-brand-kicker,
+  .topbar-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .app-content {
+    padding: 16px;
+  }
+
+  #casesListSection .cases-filter-cats-body {
+    display: none;
+  }
+
+  #casesListSection .cases-filter-cats-body.cats-open {
+    display: block;
+  }
+
+  #casesListSection #filterCategoriesGroup {
+    gap: 10px !important;
+  }
+
+  #casesListSection #filterCategoriesGroup label {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 8px;
+    flex: 1 1 220px;
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid #dbe7ff;
+    border-radius: 14px;
+    background: #fff;
+    color: var(--text-primary);
+    font-weight: 700;
+    line-height: 1.45;
+    white-space: normal;
+  }
+
+  #casesListSection #filterCategoriesGroup input {
+    flex: 0 0 auto;
+  }
+
+  #userManagementSection .user-mgmt-layout {
+    grid-template-columns: 1fr !important;
+    height: auto !important;
+    gap: 16px !important;
+  }
+
+  #userManagementSection .user-mgmt-layout > div,
+  #userManagementSection .user-mgmt-layout > .ds-section-panel {
+    min-width: 0;
+    height: auto !important;
+  }
+
+  #userManagementSection .ds-page-header-actions {
+    width: 100%;
+  }
+
+  #userManagementSection .ds-page-header-actions .btn,
+  #userManagementSection .ds-page-header-actions .btn.light {
+    width: 100%;
+    justify-content: center;
+  }
+
+  #usersList {
+    padding: 10px !important;
+  }
+
+  .user-item {
+    align-items: flex-start;
+    min-width: 0;
+  }
+
+  .user-item > div:first-child {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .user-item .title,
+  .user-item .meta {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .user-item .meta {
+    line-height: 1.55;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-topbar {
+    height: 64px;
+    padding: 0 10px;
+  }
+
+  .topbar-brand-lockup {
+    gap: 8px;
+  }
+
+  .topbar-brand-logo {
+    width: 38px;
+    height: 38px;
+    padding: 6px;
+    border-radius: 12px;
+  }
+
+  .topbar-brand-kicker {
+    font-size: .62rem;
+  }
+
+  .topbar-title {
+    font-size: .96rem;
+  }
+
+  #casesListSection .ds-page-header,
+  #userManagementSection .ds-page-header {
+    padding: 18px 14px;
+    border-radius: 18px;
+  }
+
+  #casesListSection .ds-toolbar,
+  #casesListSection #casesListPager {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #casesListSection .ds-toolbar-group {
+    width: 100%;
+  }
+
+  #casesListSection .ds-toolbar-group .btn,
+  #casesListSection .ds-toolbar-group label {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .user-item {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .user-item-actions {
+    width: 100%;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-sidebar {
+    width: calc(100vw - 16px);
+    right: 0;
+    left: auto;
+  }
+
+  .app-content {
+    padding: 10px;
+  }
+
+  .topbar-brand-kicker {
+    font-size: .58rem;
+  }
+
+  .topbar-title {
+    font-size: .9rem;
+  }
+
+  #casesListSection #filterCategoriesGroup label {
+    flex-basis: 100%;
+  }
+
+  .user-item {
+    padding: 12px;
+  }
+
+  .user-item .title {
+    font-size: 1rem;
+  }
+
+  .user-item .meta {
+    font-size: .94rem;
   }
 }

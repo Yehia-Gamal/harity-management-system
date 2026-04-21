@@ -1,14 +1,49 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>لجنة أسرة كريمة – جمعية خواطر أحلى شباب</title>
-  <link rel="icon" type="image/png" href="assets/img/khawatir-logo.png">
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=20260416_0835">
-  <link rel="stylesheet" href="assets/css/redesign.css?v=20260416_0835">
+  <link rel="icon" type="image/png" href="assets/img/royal-logo-blue.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css?v=20260421_1405">
+  <link rel="stylesheet" href="assets/css/redesign.css?v=20260421_1405">
+  <link rel="stylesheet" href="assets/css/runtime-overrides.css?v=20260421_1405">
+  <script>
+    (function () {
+      function labelControls(root) {
+        try {
+          var scope = root && root.querySelectorAll ? root : document;
+          var nodes = scope.querySelectorAll('input, select, textarea');
+          nodes.forEach(function (el, index) {
+            try {
+              if (el.type === 'hidden') return;
+              if (el.getAttribute('aria-label') || el.getAttribute('aria-labelledby')) return;
+              var id = (el.id || '').trim();
+              if (id && document.querySelector('label[for="' + CSS.escape(id) + '"]')) return;
+              var localLabel = el.closest('label') || (el.closest('.form-group') && el.closest('.form-group').querySelector('.label')) || el.parentElement && el.parentElement.previousElementSibling;
+              var text = (localLabel && localLabel.textContent || '').replace(/\s+/g, ' ').trim();
+              var fallback = (el.getAttribute('placeholder') || el.value || el.name || id || ('حقل ' + (index + 1))).trim();
+              el.setAttribute('aria-label', text || fallback);
+            } catch (_) {}
+          });
+        } catch (_) {}
+      }
+      try {
+        new MutationObserver(function (mutations) {
+          mutations.forEach(function (m) {
+            m.addedNodes && m.addedNodes.forEach(function (node) {
+              if (node && node.nodeType === 1) labelControls(node);
+            });
+          });
+        }).observe(document.documentElement, { childList: true, subtree: true });
+        document.addEventListener('DOMContentLoaded', function () { labelControls(document); });
+      } catch (_) {}
+    })();
+  </script>
 </head>
 
 <body>
@@ -17,7 +52,7 @@
     <!-- Brand Panel -->
     <div class="auth-brand-panel">
       <div class="auth-brand-content">
-        <img src="assets/img/khawatir-logo.png" alt="جمعية خواطر أحلى شباب" class="auth-brand-logo" />
+        <img src="assets/img/royal-logo-white.png" alt="جمعية خواطر أحلى شباب" class="auth-brand-logo" />
         <div class="auth-brand-divider"></div>
         <h1 class="auth-brand-title">جمعية خواطر أحلى شباب</h1>
         <p class="auth-brand-subtitle">نظام إدارة لجنة أسرة كريمة<br>منصة متكاملة لإدارة ومتابعة الحالات الخيرية</p>
@@ -51,26 +86,32 @@
         </div>
         <div class="card">
           <div style="text-align:center;margin-bottom:12px">
-            <img src="assets/img/khawatir-logo.png" alt="لوجو جمعية خواطر أحلى شباب"
+            <img src="assets/img/royal-logo-blue.png" alt="لوجو جمعية خواطر أحلى شباب" class="login-logo-blue"
               style="max-width:120px;margin:0 auto 10px;display:block;border-radius:8px;" />
             <h2>لجنة أسرة كريمة</h2>
           </div>
           <form id="loginForm">
             <div class="form-group">
-              <label class="label" for="username">اسم المستخدم</label>
-              <input id="username" class="control" autocomplete="username" required />
+              <label class="label" for="username">البريد الإلكتروني</label>
+              <input aria-label="البريد الإلكتروني" id="username" name="email" type="email" class="control" autocomplete="email" inputmode="email" placeholder="user@gmail.com" required />
             </div>
             <div class="form-group">
               <label class="label" for="password">كلمة المرور</label>
               <div class="password-field">
-                <input id="password" type="password" class="control" autocomplete="current-password" required />
+                <input aria-label="password" id="password" name="password" type="password" class="control" autocomplete="current-password" required />
                 <button class="pw-toggle" type="button" data-pw-target="password"
                   aria-label="إظهار كلمة المرور">👁</button>
               </div>
             </div>
+            <div class="login-extra-row">
+              <label class="remember-me" for="rememberMe">
+                <input aria-label="rememberMe" id="rememberMe" type="checkbox" />
+                <span>تذكرني على هذا الجهاز</span>
+              </label>
+            </div>
             <div class="form-group" style="display:none">
               <label class="label" for="role">نوع المستخدم</label>
-              <select id="role" class="control">
+              <select aria-label="role" id="role" class="control">
                 <option value="">اختر النوع</option>
                 <option value="explorer">مستكشف</option>
                 <option value="data_entry">مدخل بيانات</option>
@@ -103,16 +144,16 @@
         <button class="close-btn" type="button" onclick="closeRecoveryPasswordModal()">×</button>
       </div>
       <form id="recoveryForm" onsubmit="applyRecoveryPassword_(); return false;">
-        <input type="text" name="username" autocomplete="username"
+        <input aria-label="username" type="text" name="username" autocomplete="username"
           style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden" tabindex="-1">
         <div class="grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
           <div class="form-group" style="grid-column:1/-1"><label class="label">كلمة المرور الجديدة</label>
-            <div class="password-field"><input id="recoveryNewPassword" type="password" class="control"
+            <div class="password-field"><input aria-label="أدخل كلمة المرور الجديدة" id="recoveryNewPassword" name="new-password" type="password" class="control"
                 autocomplete="new-password" placeholder="أدخل كلمة المرور الجديدة"><button class="pw-toggle"
                 type="button" data-pw-target="recoveryNewPassword" aria-label="إظهار كلمة المرور">👁</button></div>
           </div>
           <div class="form-group" style="grid-column:1/-1"><label class="label">تأكيد كلمة المرور الجديدة</label>
-            <div class="password-field"><input id="recoveryNewPassword2" type="password" class="control"
+            <div class="password-field"><input aria-label="أعد كتابة كلمة المرور الجديدة" id="recoveryNewPassword2" name="confirm-password" type="password" class="control"
                 autocomplete="new-password" placeholder="أعد كتابة كلمة المرور الجديدة"><button class="pw-toggle"
                 type="button" data-pw-target="recoveryNewPassword2" aria-label="إظهار كلمة المرور">👁</button></div>
           </div>
@@ -132,7 +173,7 @@
     <!-- Sidebar Navigation -->
     <aside class="app-sidebar" id="mainNavWrap">
       <div class="sidebar-brand">
-        <img class="sidebar-brand-logo" src="assets/img/khawatir-logo.png" alt="أحلى شباب" />
+        <img class="sidebar-brand-logo logo-white" src="assets/img/royal-logo-white.png" alt="شعار جمعية خواطر أحلى شباب" />
         <div class="sidebar-brand-text">
           <div class="sidebar-brand-name">جمعية خواطر أحلى شباب</div>
           <div class="sidebar-brand-sub">لجنة أسرة كريمة</div>
@@ -154,6 +195,14 @@
             <span id="casesMedicalBadge" class="sidebar-nav-badge ok hidden">0</span>
           </span>
         </button>
+        <button id="beneficiariesBtn" class="sidebar-nav-item" type="button" onclick="showSection('beneficiaries')">
+          <svg class="sidebar-nav-icon" viewBox="0 0 24 24"><path d="M16 11c1.66 0 3-1.57 3-3.5S17.66 4 16 4s-3 1.57-3 3.5S14.34 11 16 11z"/><path d="M8 11c1.66 0 3-1.57 3-3.5S9.66 4 8 4 5 5.57 5 7.5 6.34 11 8 11z"/><path d="M2 20c.7-3.7 3-6 6-6s5.3 2.3 6 6"/><path d="M10 20c.55-2.9 2.35-5 6-5 2.75 0 4.8 1.8 6 5"/></svg>
+          <span class="sidebar-nav-text">المستفيدون والأسر</span>
+        </button>
+        <button id="regionsBtn" class="sidebar-nav-item" type="button" onclick="showSection('regions')">
+          <svg class="sidebar-nav-icon" viewBox="0 0 24 24"><path d="M21 10c0 7-9 12-9 12S3 17 3 10a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span class="sidebar-nav-text">المناطق والمحافظات</span>
+        </button>
         <button id="medicalCommitteeBtn" class="sidebar-nav-item" type="button" onclick="openMedicalCommittee()">
           <svg class="sidebar-nav-icon" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
           <span class="sidebar-nav-text">لجنة العمليات الطبية</span>
@@ -168,6 +217,14 @@
           <svg class="sidebar-nav-icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
           <span class="sidebar-nav-text">التقارير</span>
         </button>
+        <button id="globalSearchBtn" class="sidebar-nav-item" type="button" onclick="showSection('globalSearch')">
+          <svg class="sidebar-nav-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <span class="sidebar-nav-text">البحث العام</span>
+        </button>
+        <button id="notificationsBtn" class="sidebar-nav-item" type="button" onclick="showSection('notifications')">
+          <svg class="sidebar-nav-icon" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="sidebar-nav-text">الإشعارات</span>
+        </button>
 
         <div class="sidebar-section-label">النظام</div>
         <button id="auditBtn" class="sidebar-nav-item" type="button" onclick="showSection('audit')">
@@ -177,6 +234,10 @@
         <button id="settingsBtn" class="sidebar-nav-item" type="button" onclick="showSection('settings')">
           <svg class="sidebar-nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           <span class="sidebar-nav-text">الإعدادات</span>
+        </button>
+        <button id="usersBtn" class="sidebar-nav-item" type="button" onclick="showSection('userManagement')">
+          <svg class="sidebar-nav-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
+          <span class="sidebar-nav-text">المستخدمون والصلاحيات</span>
         </button>
       </nav>
 
@@ -192,15 +253,15 @@
         </div>
       </div>
     </aside>
-    <div class="sidebar-overlay" onclick="closeMobileNav()"></div>
+    <div class="sidebar-overlay" aria-hidden="true"></div>
 
     <!-- Topbar -->
     <header class="app-topbar">
       <div class="topbar-start">
-        <button id="mobileNavToggle" class="topbar-toggle" type="button" onclick="toggleMobileNav()" aria-expanded="false" aria-controls="mainNavWrap">
+        <button id="mobileNavToggle" class="topbar-toggle" type="button" aria-label="فتح أو إغلاق القائمة الجانبية" aria-expanded="false" aria-controls="mainNavWrap">
           <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
-        <div class="topbar-brand-lockup"><img class="topbar-brand-logo" src="assets/img/khawatir-logo.png" alt="جمعية خواطر أحلى شباب" /><div class="topbar-brand-text"><div class="topbar-brand-kicker">جمعية خواطر أحلى شباب</div><div class="topbar-title">لجنة أسرة كريمة</div></div></div>
+        <div class="topbar-brand-lockup"><img class="topbar-brand-logo" src="assets/img/royal-logo-blue.png" alt="جمعية خواطر أحلى شباب" /><div class="topbar-brand-text"><div class="topbar-brand-kicker">جمعية خواطر أحلى شباب</div><div class="topbar-title">لجنة أسرة كريمة</div></div></div>
       </div>
       <div class="topbar-end">
         <button class="topbar-btn" type="button" onclick="logout()" title="تسجيل الخروج">
@@ -237,12 +298,22 @@
           <button type="button" class="btn mini light" onclick="clearDashboardFilter()" style="background:#fff;border-color:#fca5a5;color:#dc2626">إلغاء الفلتر</button>
         </div>
 
-        <div id="bulkActionsBar" class="ds-toolbar hidden" style="background:#f0fdf4;border-color:#bbf7d0;color:#166534">
-          <div style="display:flex;align-items:center;gap:10px">
+        <div id="casesQuickSections" class="cases-quick-sections" aria-label="أقسام الحالات"></div>
+
+        <div id="bulkActionsBar" class="ds-toolbar hidden bulk-actions-bar" style="background:#f0fdf4;border-color:#bbf7d0;color:#166534">
+          <div class="bulk-actions-summary" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
             <strong>الحالات المحددة:</strong>
             <span id="bulkSelectedCount" style="font-size:1.1rem;font-weight:900">0</span>
+            <span id="bulkSelectedMeta" style="color:#166534;opacity:.82;font-size:.9rem">يمكن تنفيذ إجراءات جماعية مباشرة.</span>
           </div>
-          <button id="bulkClearSelectionBtn" type="button" class="btn mini light" onclick="clearBulkSelection()">إلغاء التحديد</button>
+          <div class="bulk-actions-controls" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <button id="bulkSponsorshipSelectionBtn" type="button" class="btn mini" onclick="openBulkSponsorshipModal()">دفع كفالة للمحدد</button>
+            <button id="bulkStatusBtn" type="button" class="btn mini light" onclick="openBulkStatusPrompt()">تغيير الحالة</button>
+            <button id="bulkRejectBtn" type="button" class="btn mini light" onclick="rejectSelectedCases()">رفض المحددين</button>
+            <button id="bulkDeleteBtn" type="button" class="btn mini light" onclick="deleteSelectedCases()" style="color:#dc2626;border-color:#fecaca">حذف المحددين</button>
+            <button id="bulkExportBtn" type="button" class="btn mini light" onclick="exportSelectedCasesToExcel()">تصدير المحددين</button>
+            <button id="bulkClearSelectionBtn" type="button" class="btn mini light" onclick="clearBulkSelection()">إلغاء التحديد</button>
+          </div>
         </div>
 
         <div class="ds-section-panel" style="padding:16px 20px">
@@ -254,30 +325,30 @@
           <div class="ds-filter-bar" style="margin-bottom:12px;background:transparent;padding:0;border:none">
             <div style="display:flex;flex-direction:column;gap:6px">
               <label class="label" style="font-size:.8rem;margin:0">بحث عام</label>
-              <input id="caseSearch" class="control" placeholder="اسم / رقم قومي / هاتف..." oninput="filterCases()" />
+              <input aria-label="اسم / رقم قومي / هاتف..." id="caseSearch" class="control" placeholder="اسم / رقم قومي / هاتف..." oninput="filterCases()" />
             </div>
             <div style="display:flex;flex-direction:column;gap:6px">
               <label class="label" style="font-size:.8rem;margin:0">المستكشف</label>
-              <input id="filterExplorer" class="control" placeholder="اسم المستكشف..." oninput="filterCases()" />
+              <input aria-label="اسم المستكشف..." id="filterExplorer" class="control" placeholder="اسم المستكشف..." oninput="filterCases()" />
             </div>
             <div style="display:flex;flex-direction:column;gap:6px">
               <label class="label" style="font-size:.8rem;margin:0">المحافظة</label>
-              <select id="filterGovernorate" class="control" onchange="filterCases()"></select>
+              <select aria-label="filterGovernorate" id="filterGovernorate" class="control" onchange="filterCases()"></select>
             </div>
             <div style="display:flex;flex-direction:column;gap:6px">
               <label class="label" style="font-size:.8rem;margin:0">التقييم</label>
-              <select id="filterCaseGrade" class="control" onchange="filterCases()"></select>
+              <select aria-label="filterCaseGrade" id="filterCaseGrade" class="control" onchange="filterCases()"></select>
             </div>
           </div>
 
           <div class="ds-filter-bar" style="margin-bottom:12px;background:transparent;padding:0;border:none;grid-template-columns:1fr 2fr">
             <div style="display:flex;flex-direction:column;gap:6px">
               <label class="label" style="font-size:.8rem;margin:0">المنطقة</label>
-              <input id="filterArea" class="control" placeholder="القرية / المركز..." oninput="filterCases()" />
+              <input aria-label="القرية / المركز..." id="filterArea" class="control" placeholder="القرية / المركز..." oninput="filterCases()" />
             </div>
             <div style="display:flex;flex-direction:column;gap:6px">
               <label class="label" style="font-size:.8rem;margin:0">بحث الاحتياجات</label>
-              <input id="filterNeeds" class="control" placeholder="سقف / مياه / ثلاجة / علاج..." oninput="filterCases()" />
+              <input aria-label="سقف / مياه / ثلاجة / علاج..." id="filterNeeds" class="control" placeholder="سقف / مياه / ثلاجة / علاج..." oninput="filterCases()" />
             </div>
           </div>
 
@@ -295,7 +366,7 @@
         <div id="casesCardsToolbar" class="ds-toolbar">
           <div class="ds-toolbar-group">
             <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #e2eaff;border-radius:10px;background:#fff;cursor:pointer">
-              <input id="casesSelectAll" type="checkbox" onclick="toggleSelectAllCases(this.checked)" style="width:16px;height:16px;cursor:pointer" />
+              <input aria-label="casesSelectAll" id="casesSelectAll" type="checkbox" onclick="toggleSelectAllCases(this.checked)" style="width:16px;height:16px;cursor:pointer" />
               <span style="font-weight:700;font-size:.9rem;color:var(--text-primary)">تحديد الكل</span>
             </label>
             <button id="casesSponsorshipBtn" class="btn" type="button" onclick="openSponsorshipFromToolbar()" style="background:var(--status-success);border-color:var(--status-success)">💳 تسليم كفالة للمحددين</button>
@@ -320,6 +391,38 @@
         </div>
       </section>
 
+      <section id="beneficiariesSection" class="section hidden" style="padding:0;background:transparent;box-shadow:none;border:none">
+        <div class="ds-page-header">
+          <div class="ds-page-header-content">
+            <h2>المستفيدون والأسر</h2>
+            <p>عرض الأسر المستفيدة مجمعة من بيانات الحالات مع بحث سريع ومؤشرات متابعة.</p>
+          </div>
+          <div class="ds-page-header-actions">
+            <button class="btn" type="button" onclick="showSection('newCase')">إضافة أسرة / حالة</button>
+            <button class="btn light" type="button" onclick="exportFilteredCasesToExcel()">تصدير البيانات</button>
+          </div>
+        </div>
+        <div class="ds-section-panel">
+          <div class="ds-toolbar">
+            <input id="beneficiarySearch" class="control" placeholder="ابحث باسم الأسرة أو الهاتف أو المنطقة" oninput="renderBeneficiariesPage_()" />
+          </div>
+          <div id="beneficiariesContent" class="table-wrap"></div>
+        </div>
+      </section>
+
+      <section id="regionsSection" class="section hidden" style="padding:0;background:transparent;box-shadow:none;border:none">
+        <div class="ds-page-header">
+          <div class="ds-page-header-content">
+            <h2>المناطق والمحافظات</h2>
+            <p>تحليل التوزيع الجغرافي للحالات حسب المحافظة والمنطقة لدعم قرارات الزيارات والمساعدات.</p>
+          </div>
+          <div class="ds-page-header-actions">
+            <button class="btn light" type="button" onclick="setDashboardGeoMode('gov');showSection('dashboard')">فتح تحليل الخريطة</button>
+          </div>
+        </div>
+        <div id="regionsContent" class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px"></div>
+      </section>
+
       <!-- Case Details Modal -->
       <div id="caseDetailsModal" class="modal" aria-hidden="true">
         <div class="modal-card" style="max-width:720px">
@@ -328,21 +431,25 @@
             <button class="close-btn" type="button" onclick="closeCaseDetails()">×</button>
           </div>
           <div id="caseDetailsBody" class="grid cols-2"></div>
-          <div class="modal-footer-actions descpr">
-            <div class="modal-footer-actions-2">
+          <div class="modal-footer-actions descpr case-details-footer">
+            <div class="modal-footer-actions-2 case-details-footer-media">
               <button id="printCaseBtn" type="button" class="btn light" onclick="onCaseDetailsPrintClick()"
-                style="color:#1f2937;border-color:#e5e7eb">🖨️ طباعة</button>
+                style="color:#1f2937;border-color:#e5e7eb">طباعة</button>
               <button id="caseDetailsScreenshotBtn" type="button" class="btn light"
                 onclick="captureCaseDetailsScreenshot()" style="color:#1f2937;border-color:#e5e7eb">📸 لقطة
                 شاشة</button>
               <button id="paymentsScreenshotBtn" type="button" class="btn light hidden"
                 onclick="capturePaymentsScreenshot()" style="color:#1f2937;border-color:#e5e7eb">📸 لقطة شاشة</button>
-              <button id="caseEditToggleBtn" type="button" class="btn" onclick="toggleCaseEditSave()">✏️ تعديل</button>
             </div>
-            <button id="rejectCaseBtn" type="button" class="btn light" onclick="rejectCurrentCase()"
-              style="color:#991b1b;border-color:#fecaca;background:#fff">رفض الحالة</button>
-            <button id="deleteCaseBtn" type="button" class="btn" onclick="deleteCurrentCase()"
-              style="background:#dc2626">🗑️ حذف الحالة</button>
+            <div class="case-details-footer-main">
+              <button id="caseEditToggleBtn" type="button" class="btn" onclick="toggleCaseEditSave()">✏️ تعديل</button>
+              <button id="rejectCaseBtn" type="button" class="btn light" onclick="rejectCurrentCase()"
+                style="color:#991b1b;border-color:#fecaca;background:#fff">رفض الحالة</button>
+            </div>
+            <div class="case-details-footer-danger">
+              <button id="deleteCaseBtn" type="button" class="btn" onclick="deleteCurrentCase()"
+                style="background:#dc2626">حذف الحالة</button>
+            </div>
 
           </div>
         </div>
@@ -355,9 +462,9 @@
             <button class="close-btn" type="button" onclick="closeUserActionsModal()">×</button>
           </div>
           <div class="grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
-            <div class="form-group" style="grid-column:1/-1"><label class="label">البريد الإلكتروني</label><input
+            <div class="form-group" style="grid-column:1/-1"><label class="label">البريد الإلكتروني</label><input aria-label="userActionsEmail"
                 id="userActionsEmail" class="control" disabled></div>
-            <div class="form-group" style="grid-column:1/-1"><label class="label">(userName)</label><input
+            <div class="form-group" style="grid-column:1/-1"><label class="label">(userName)</label><input aria-label="userActionsUsername"
                 id="userActionsUsername" class="control" disabled></div>
 
             <div class="form-group" style="grid-column:1/-1"><label class="label">الحالة</label>
@@ -409,6 +516,41 @@
         </div>
       </div>
 
+      <div id="addUserModal" class="modal" aria-hidden="true">
+        <div class="modal-card" style="max-width:720px">
+          <div class="modal-head">
+            <h3>إضافة مستخدم</h3>
+            <button class="close-btn" type="button" onclick="closeAddUserModal()" aria-label="إغلاق">×</button>
+          </div>
+          <p class="user-panel-note" style="margin:0 0 16px">أنشئ مستخدم Supabase جديداً بصلاحيات قراءة افتراضية، ثم حدث قائمة المستخدمين فوراً.</p>
+          <form id="addUserModalForm" onsubmit="createUserFromUi_(); return false;" autocomplete="on">
+            <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:16px">
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <label class="label" for="modalNewUserEmail" style="font-size:.85rem;margin:0">البريد الإلكتروني *</label>
+                <input aria-label="example@gmail.com" id="modalNewUserEmail" name="email" class="control" autocomplete="email" inputmode="email" placeholder="example@gmail.com" required>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <label class="label" for="modalNewUserUsername" style="font-size:.85rem;margin:0">اسم المستخدم</label>
+                <input aria-label="اتركه فارغاً لاستخدام اسم البريد" id="modalNewUserUsername" name="username" class="control" autocomplete="username" placeholder="اتركه فارغاً لاستخدام اسم البريد">
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <label class="label" for="modalNewUserName" style="font-size:.85rem;margin:0">الاسم المعروض</label>
+                <input aria-label="الاسم الظاهر داخل النظام" id="modalNewUserName" name="name" class="control" autocomplete="name" placeholder="الاسم الظاهر داخل النظام">
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <label class="label" for="modalNewUserTempPassword" style="font-size:.85rem;margin:0">كلمة مرور مؤقتة</label>
+                <input aria-label="اختياري: سيتم توليد كلمة مرور تلقائياً إذا تركته فارغاً" id="modalNewUserTempPassword" name="new-password" type="password" class="control" autocomplete="new-password" placeholder="اختياري: سيتم توليد كلمة مرور تلقائياً إذا تركته فارغاً">
+              </div>
+            </div>
+            <div style="margin-top:18px;display:flex;gap:8px;flex-wrap:wrap">
+              <button type="submit" class="btn">إنشاء المستخدم</button>
+              <button type="button" class="btn light" onclick="closeAddUserModal()" style="color:#1f2937;border-color:#e5e7eb">إغلاق</button>
+            </div>
+            <div id="modalNewUserHint" class="ds-empty-state hidden" aria-live="polite" style="margin-top:16px;padding:12px;min-height:auto"></div>
+          </form>
+        </div>
+      </div>
+
       <div id="editPaymentModal" class="modal" aria-hidden="true">
         <div class="modal-card" style="max-width:560px">
           <div class="modal-head">
@@ -419,7 +561,7 @@
           <input id="editPaymentUid" type="hidden" />
           <div class="grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
             <div class="form-group" style="grid-column:1/-1"><label class="label">النوع *</label>
-              <select id="editPaymentType" class="control">
+              <select aria-label="editPaymentType" id="editPaymentType" class="control">
                 <option value="">اختر</option>
                 <option value="sponsorship">كفالة</option>
                 <option value="تجهيز عرائس">تجهيز عرائس</option>
@@ -434,13 +576,13 @@
                 <option value="أخرى">أخرى</option>
               </select>
             </div>
-            <div class="form-group"><label class="label">التاريخ *</label><input id="editPaymentDate" type="date"
+            <div class="form-group"><label class="label">التاريخ *</label><input aria-label="editPaymentDate" id="editPaymentDate" type="date"
                 class="control" /></div>
-            <div class="form-group"><label class="label">المبلغ</label><input id="editPaymentAmount" type="number"
+            <div class="form-group"><label class="label">المبلغ</label><input aria-label="0" id="editPaymentAmount" type="number"
                 class="control" placeholder="0" /></div>
-            <div class="form-group" style="grid-column:1/-1"><label class="label">بواسطة</label><input
+            <div class="form-group" style="grid-column:1/-1"><label class="label">بواسطة</label><input aria-label="editPaymentBy"
                 id="editPaymentBy" class="control" /></div>
-            <div class="form-group" style="grid-column:1/-1"><label class="label">ملاحظات</label><input
+            <div class="form-group" style="grid-column:1/-1"><label class="label">ملاحظات</label><input aria-label="editPaymentNotes"
                 id="editPaymentNotes" class="control" /></div>
           </div>
           <div id="editPaymentHint" class="settings-hint" style="display:none;margin-top:10px"></div>
@@ -463,7 +605,7 @@
           <div class="grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
             <div id="sponsorScopeWrap" class="form-group" style="grid-column:1/-1">
               <label class="label">النطاق *</label>
-              <select id="sponsorScope" class="control" onchange="onSponsorScopeChange()">
+              <select aria-label="sponsorScope" id="sponsorScope" class="control" onchange="onSponsorScopeChange()">
                 <option value="selected">المحدد فقط</option>
                 <option value="filtered">الحالات المعروضة (حسب الفلتر)</option>
                 <option value="all">كل الحالات</option>
@@ -476,29 +618,29 @@
 
             <div id="sponsorScopeGovWrap" class="form-group hidden" style="grid-column:1/-1">
               <label class="label">المحافظة *</label>
-              <select id="sponsorScopeGov" class="control"></select>
+              <select aria-label="sponsorScopeGov" id="sponsorScopeGov" class="control"></select>
             </div>
 
             <div id="sponsorScopeAreaWrap" class="form-group hidden" style="grid-column:1/-1">
               <label class="label">المنطقة *</label>
-              <input id="sponsorScopeArea" class="control" placeholder="اكتب جزء من اسم المنطقة" />
+              <input aria-label="اكتب جزء من اسم المنطقة" id="sponsorScopeArea" class="control" placeholder="اكتب جزء من اسم المنطقة" />
             </div>
 
             <div id="sponsorScopeCategoryWrap" class="form-group hidden" style="grid-column:1/-1">
               <label class="label">الفئة *</label>
-              <select id="sponsorScopeCategory" class="control"></select>
+              <select aria-label="sponsorScopeCategory" id="sponsorScopeCategory" class="control"></select>
             </div>
 
-              <div class="form-group"><label class="label">تاريخ بداية الكفالة *</label><input id="sponsorStart"
+              <div class="form-group"><label class="label">تاريخ بداية الكفالة *</label><input aria-label="sponsorStart" id="sponsorStart"
                   type="date" class="control" /></div>
               <div class="form-group"><label class="label">نوع التسليم *</label>
-                <select id="sponsorType" class="control" onchange="onSponsorTypeChange_()">
+                <select aria-label="sponsorType" id="sponsorType" class="control" onchange="onSponsorTypeChange_()">
                   <option value="sponsorship">كفالة مالية</option>
                   <option value="ramadan_bags">شنط رمضان</option>
                   <option value="in_kind">مساعدات عينية</option>
                 </select>
               </div>
-              <div id="sponsorAmountWrap" class="form-group" style="grid-column:1/-1"><label class="label">قيمة الكفالة *</label><input
+              <div id="sponsorAmountWrap" class="form-group" style="grid-column:1/-1"><label class="label">قيمة الكفالة *</label><input aria-label="0"
                   id="sponsorAmount" type="number" class="control" placeholder="0" /></div>
             </div>
             <div style="display:flex;gap:8px;justify-content:flex-start;margin-top:10px">
@@ -520,7 +662,7 @@
           <div class="grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
             <div class="form-group" style="grid-column:1/-1">
               <label class="label">نوع المساعدة *</label>
-              <select id="assistanceType" class="control" onchange="onAssistanceTypeChange()">
+              <select aria-label="assistanceType" id="assistanceType" class="control" onchange="onAssistanceTypeChange()">
                 <option value="">اختر</option>
                 <option value="sponsorship">كفالة</option>
                 <option value="ramadan_bags">شنط رمضان</option>
@@ -539,13 +681,13 @@
             </div>
             <div class="form-group hidden" style="grid-column:1/-1" id="assistanceOtherWrap">
               <label class="label">نوع آخر</label>
-              <input id="assistanceOtherType" class="control" placeholder="اكتب نوع المساعدة" />
+              <input aria-label="اكتب نوع المساعدة" id="assistanceOtherType" class="control" placeholder="اكتب نوع المساعدة" />
             </div>
-            <div class="form-group"><label class="label">التاريخ *</label><input id="assistanceDate" type="date"
+            <div class="form-group"><label class="label">التاريخ *</label><input aria-label="assistanceDate" id="assistanceDate" type="date"
                 class="control" /></div>
-            <div class="form-group"><label class="label">المبلغ</label><input id="assistanceAmount" type="number"
+            <div class="form-group"><label class="label">المبلغ</label><input aria-label="0" id="assistanceAmount" type="number"
                 class="control" placeholder="0" /></div>
-            <div class="form-group" style="grid-column:1/-1"><label class="label">ملاحظات *</label><input
+            <div class="form-group" style="grid-column:1/-1"><label class="label">ملاحظات *</label><input aria-label="اكتب تفاصيل المساعدة"
                 id="assistanceNotes" class="control" placeholder="اكتب تفاصيل المساعدة" /></div>
           </div>
           <div id="addAssistanceHint" class="settings-hint" style="display:none;margin-top:10px"></div>
@@ -569,7 +711,7 @@
                 <button class="btn" type="button" onclick="triggerImportFilePick()">📄 اختيار ملف الشيت</button>
                 <button class="btn light" type="button" onclick="closeImportModal()"
                   style="color:#1f2937;border-color:#e5e7eb">إلغاء</button>
-                <input id="listImportInput" type="file" accept=".xlsx" class="hidden" />
+                <input aria-label="listImportInput" id="listImportInput" type="file" accept=".xlsx" class="hidden" />
               </div>
               <div style="margin-top:6px;color:#64748b;font-size:.9rem">ملاحظة: سيتم الاستيراد اعتماداً على البيانات
                 الموجودة داخل الشيت.</div>
@@ -746,25 +888,25 @@
           </div>
           <div class="ds-toolbar" style="border:none;border-radius:0;border-bottom:1px solid #e2eaff;margin:0;background:#fafcff">
             <div style="flex:1;max-width:320px">
-              <input id="dashTableSearch" class="control" style="width:100%;height:38px;min-height:38px;padding:6px 12px;font-size:.9rem" placeholder="بحث (اسم/رقم/منطقة...)" oninput="renderDashboardTable()" />
+              <input aria-label="بحث (اسم/رقم/منطقة...)" id="dashTableSearch" class="control" style="width:100%;height:38px;min-height:38px;padding:6px 12px;font-size:.9rem" placeholder="بحث (اسم/رقم/منطقة...)" oninput="renderDashboardTable()" />
             </div>
             <div class="ds-toolbar-group">
-              <select id="dashFilterStatus" class="control" style="height:38px;min-height:38px;padding:6px 12px;font-size:.9rem;min-width:140px" onchange="renderDashboardTable()">
+              <select aria-label="dashFilterStatus" id="dashFilterStatus" class="control" style="height:38px;min-height:38px;padding:6px 12px;font-size:.9rem;min-width:140px" onchange="renderDashboardTable()">
                 <option value="">إدارياً: الكل</option>
               </select>
-              <select id="dashFilterGrade" class="control" style="height:38px;min-height:38px;padding:6px 12px;font-size:.9rem;min-width:130px" onchange="renderDashboardTable()">
+              <select aria-label="dashFilterGrade" id="dashFilterGrade" class="control" style="height:38px;min-height:38px;padding:6px 12px;font-size:.9rem;min-width:130px" onchange="renderDashboardTable()">
                 <option value="">التقييم: الكل</option>
                 <option value="A">A (حرجة)</option>
                 <option value="B">B (متوسطة)</option>
                 <option value="C">C (أولوية أقل)</option>
               </select>
-              <select id="dashFilterGov" class="control" style="height:38px;min-height:38px;padding:6px 12px;font-size:.9rem" onchange="renderDashboardTable()">
+              <select aria-label="dashFilterGov" id="dashFilterGov" class="control" style="height:38px;min-height:38px;padding:6px 12px;font-size:.9rem" onchange="renderDashboardTable()">
                 <option value="">المحافظة: الكل</option>
               </select>
-              <select id="dashFilterType" class="control" style="height:38px;min-height:38px;padding:6px 12px;font-size:.9rem" onchange="renderDashboardTable()">
+              <select aria-label="dashFilterType" id="dashFilterType" class="control" style="height:38px;min-height:38px;padding:6px 12px;font-size:.9rem" onchange="renderDashboardTable()">
                 <option value="">النوع: الكل</option>
               </select>
-              <select id="dashTableSort" class="control" style="height:38px;min-height:38px;padding:6px 12px;font-size:.9rem;background:#f0f5ff;border-color:#d9e5ff;font-weight:700" onchange="renderDashboardTable()">
+              <select aria-label="dashTableSort" id="dashTableSort" class="control" style="height:38px;min-height:38px;padding:6px 12px;font-size:.9rem;background:#f0f5ff;border-color:#d9e5ff;font-weight:700" onchange="renderDashboardTable()">
                 <option value="need_desc">الاحتياج: أعلى</option>
                 <option value="need_asc">الاحتياج: أقل</option>
                 <option value="date_desc">التاريخ: أحدث</option>
@@ -816,17 +958,17 @@
           <div class="ds-filter-bar" style="margin-bottom:12px;background:transparent;padding:0;border:none;grid-template-columns:1fr 1fr">
             <div style="display:flex;flex-direction:column;gap:6px">
               <label class="label" style="font-size:.8rem;margin:0">من تاريخ</label>
-              <input id="reportsFromDate" type="date" class="control" onchange="generateReportPreview()" />
+              <input aria-label="reportsFromDate" id="reportsFromDate" type="date" class="control" onchange="generateReportPreview()" />
             </div>
             <div style="display:flex;flex-direction:column;gap:6px">
               <label class="label" style="font-size:.8rem;margin:0">إلى تاريخ</label>
-              <input id="reportsToDate" type="date" class="control" onchange="generateReportPreview()" />
+              <input aria-label="reportsToDate" id="reportsToDate" type="date" class="control" onchange="generateReportPreview()" />
             </div>
           </div>
 
           <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px">
             <label style="display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid #e2eaff;border-radius:10px;background:#f8fbff;cursor:pointer">
-              <input id="reportsAchievementsOnly" type="checkbox" onchange="generateReportPreview()" style="width:16px;height:16px;cursor:pointer" />
+              <input aria-label="reportsAchievementsOnly" id="reportsAchievementsOnly" type="checkbox" onchange="generateReportPreview()" style="width:16px;height:16px;cursor:pointer" />
               <span style="font-weight:700;font-size:.9rem;color:var(--text-primary)">عرض الإنجازات فقط (بدون جدول الحالات)</span>
             </label>
             <button class="btn mini light" type="button" onclick="copyReportsAchievementsText()" style="display:inline-flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> نسخ نص الإنجازات</button>
@@ -844,7 +986,7 @@
 
         <div id="reportsCardsToolbar" class="ds-toolbar">
           <div class="ds-toolbar-group">
-            <button class="btn" onclick="printReport()">🖨️ طباعة التقرير بالكامل</button>
+            <button class="btn" onclick="printReport()">طباعة التقرير بالكامل</button>
             <button class="btn light" type="button" onclick="exportReportsRangeToExcel()">📄 تصدير الحالات (Excel)</button>
             <button class="btn light" type="button" onclick="exportReportsToWord()">📝 تصدير Word</button>
             <button class="btn light" type="button" onclick="captureReportsScreenshot()">📸 التقاط صورة (Screenshot)</button>
@@ -917,6 +1059,31 @@
         <div id="reportPreview" style="margin-top:20px"></div>
       </section>
 
+      <section id="globalSearchSection" class="section hidden" style="padding:0;background:transparent;box-shadow:none;border:none">
+        <div class="ds-page-header">
+          <div class="ds-page-header-content">
+            <h2>البحث العام</h2>
+            <p>بحث موحد داخل الحالات والأسر والمناطق والمستخدمين حسب صلاحياتك.</p>
+          </div>
+        </div>
+        <div class="ds-section-panel">
+          <div class="ds-toolbar">
+            <input id="globalSearchInput" class="control" placeholder="اكتب اسم، رقم قومي، هاتف، محافظة، منطقة، أو حالة..." oninput="renderGlobalSearchPage_()" />
+          </div>
+          <div id="globalSearchResults" class="cards-grid"></div>
+        </div>
+      </section>
+
+      <section id="notificationsSection" class="section hidden" style="padding:0;background:transparent;box-shadow:none;border:none">
+        <div class="ds-page-header">
+          <div class="ds-page-header-content">
+            <h2>الإشعارات والتنبيهات</h2>
+            <p>تنبيهات عملية مبنية على الحالات العاجلة والطلبات الطبية والحالات غير المكتملة.</p>
+          </div>
+        </div>
+        <div id="notificationsContent" class="cards-grid"></div>
+      </section>
+
       <section id="medicalCommitteeSection" class="section hidden" style="padding:0;background:transparent;box-shadow:none;border:none">
         <div class="ds-page-header" style="background:var(--brand-primary);color:#fff">
           <div class="ds-page-header-content">
@@ -970,27 +1137,27 @@
 
           <div class="ds-toolbar" style="border:none;border-radius:0;border-bottom:1px solid #e2eaff;margin:0;background:#fafcff">
             <div style="flex:1;max-width:320px">
-              <input id="medTableSearch" class="control" style="width:100%;height:38px;min-height:38px;padding:6px 12px;font-size:.9rem" placeholder="بحث بالاسم / المنطقة / المستشفى / الطبيب..." oninput="renderMedicalTable()" />
+              <input aria-label="بحث بالاسم / المنطقة / المستشفى / الطبيب..." id="medTableSearch" class="control" style="width:100%;height:38px;min-height:38px;padding:6px 12px;font-size:.9rem" placeholder="بحث بالاسم / المنطقة / المستشفى / الطبيب..." oninput="renderMedicalTable()" />
             </div>
             <div class="ds-toolbar-group">
-              <select id="medFilterType" class="control" style="height:38px;min-height:38px;padding:6px 12px;font-size:.9rem" onchange="renderMedicalTable()">
+              <select aria-label="medFilterType" id="medFilterType" class="control" style="height:38px;min-height:38px;padding:6px 12px;font-size:.9rem" onchange="renderMedicalTable()">
                 <option value="">نوع التدخل: الكل</option>
                 <option value="ops">عمليات طبية</option>
                 <option value="sponsorship">كفالات مرضية</option>
               </select>
-              <select id="medFilterStatus" class="control" style="height:38px;min-height:38px;padding:6px 12px;font-size:.9rem" onchange="renderMedicalTable()">
+              <select aria-label="medFilterStatus" id="medFilterStatus" class="control" style="height:38px;min-height:38px;padding:6px 12px;font-size:.9rem" onchange="renderMedicalTable()">
                 <option value="">الحالة الإدارية: الكل</option>
               </select>
-              <select id="medFilterGrade" class="control" style="height:38px;min-height:38px;padding:6px 12px;font-size:.9rem" onchange="renderMedicalTable()">
+              <select aria-label="medFilterGrade" id="medFilterGrade" class="control" style="height:38px;min-height:38px;padding:6px 12px;font-size:.9rem" onchange="renderMedicalTable()">
                 <option value="">التقييم: الكل</option>
                 <option value="A">أولوية قصوى (A)</option>
                 <option value="B">متوسطة (B)</option>
                 <option value="C">عادية (C)</option>
               </select>
-              <select id="medFilterGov" class="control" style="height:38px;min-height:38px;padding:6px 12px;font-size:.9rem" onchange="renderMedicalTable()">
+              <select aria-label="medFilterGov" id="medFilterGov" class="control" style="height:38px;min-height:38px;padding:6px 12px;font-size:.9rem" onchange="renderMedicalTable()">
                 <option value="">المحافظة: الكل</option>
               </select>
-              <select id="medTableSort" class="control" style="height:38px;min-height:38px;padding:6px 12px;font-size:.9rem;background:#f0f5ff;border-color:#d9e5ff;font-weight:700" onchange="renderMedicalTable()">
+              <select aria-label="medTableSort" id="medTableSort" class="control" style="height:38px;min-height:38px;padding:6px 12px;font-size:.9rem;background:#f0f5ff;border-color:#d9e5ff;font-weight:700" onchange="renderMedicalTable()">
                 <option value="need_desc">الاحتياج: أعلى</option>
                 <option value="need_asc">الاحتياج: أقل</option>
                 <option value="date_desc">التاريخ: أحدث</option>
@@ -1045,7 +1212,7 @@
               </div>
               <p style="font-size:.9rem;color:var(--text-muted);margin:4px 0 0">يعرض آخر عمليات الرفض أو الحذف للحالات مع الأسباب المسجلة.</p>
             </div>
-            <button id="deleteAllCasesBtn" class="btn mini" type="button" onclick="deleteAllCases()" style="background:#dc2626">🗑️ حذف جميع الحالات</button>
+            <button id="deleteAllCasesBtn" class="btn mini" type="button" onclick="deleteAllCases()" style="background:#dc2626">حذف جميع الحالات</button>
           </div>
           <div id="deletedCasesSection" style="overflow-x:auto;border:1px solid #fee2e2;border-radius:12px">
             <table class="table" style="min-width:900px;margin:0;border:none">
@@ -1093,6 +1260,22 @@
         </div>
       </section>
 
+      <section id="unauthorizedSection" class="section hidden" style="padding:0;background:transparent;box-shadow:none;border:none">
+        <div class="ds-empty-state" style="padding:32px">
+          <h2>غير مصرح بالوصول</h2>
+          <p>لا تملك صلاحية فتح هذه الصفحة. إذا كنت ترى أن هذا خطأ، تواصل مع مدير النظام لمراجعة دورك وصلاحياتك.</p>
+          <button class="btn" type="button" onclick="showDefaultAllowedSection_()">العودة لصفحة متاحة</button>
+        </div>
+      </section>
+
+      <section id="notFoundSection" class="section hidden" style="padding:0;background:transparent;box-shadow:none;border:none">
+        <div class="ds-empty-state" style="padding:32px">
+          <h2>الصفحة غير موجودة</h2>
+          <p>الرابط أو القسم المطلوب غير موجود داخل النظام.</p>
+          <button class="btn" type="button" onclick="showDefaultAllowedSection_()">العودة للرئيسية</button>
+        </div>
+      </section>
+
       <section id="settingsSection" class="section hidden" style="padding:0;background:transparent;box-shadow:none;border:none">
         <div class="ds-page-header">
           <div class="ds-page-header-content">
@@ -1114,18 +1297,20 @@
             <p style="font-size:.9rem;color:var(--text-muted);margin-bottom:20px;padding:0 20px">تغيير كلمة المرور الخاصة بحسابك الحالي.</p>
 
             <form onsubmit="return false" autocomplete="on" style="padding:0 20px 20px">
+              <input aria-label="username" type="text" name="username" autocomplete="username"
+                style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden" tabindex="-1">
               <div style="display:flex;flex-direction:column;gap:16px">
                 <div style="display:flex;flex-direction:column;gap:6px">
                   <label class="label" style="font-size:.85rem;margin:0">كلمة المرور القديمة</label>
                   <div class="password-field">
-                    <input id="myOldPassword" type="password" class="control" autocomplete="current-password" placeholder="أدخل كلمة المرور الحالية">
+                    <input aria-label="أدخل كلمة المرور الحالية" id="myOldPassword" name="current-password" type="password" class="control" autocomplete="current-password" placeholder="أدخل كلمة المرور الحالية">
                     <button class="pw-toggle" type="button" data-pw-target="myOldPassword" aria-label="إظهار كلمة المرور">👁</button>
                   </div>
                 </div>
                 <div style="display:flex;flex-direction:column;gap:6px">
                   <label class="label" style="font-size:.85rem;margin:0">كلمة المرور الجديدة</label>
                   <div class="password-field">
-                    <input id="myNewPassword" type="password" class="control" autocomplete="new-password" placeholder="أدخل كلمة المرور الجديدة">
+                    <input aria-label="أدخل كلمة المرور الجديدة" id="myNewPassword" name="new-password" type="password" class="control" autocomplete="new-password" placeholder="أدخل كلمة المرور الجديدة">
                     <button class="pw-toggle" type="button" data-pw-target="myNewPassword" aria-label="إظهار كلمة المرور">👁</button>
                   </div>
                 </div>
@@ -1168,21 +1353,23 @@
           </div>
           <div class="ds-page-header-actions">
             <button class="btn light" type="button" onclick="showSection('settings')" style="color:#1f2937;display:inline-flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> العودة للإعدادات</button>
+            <button id="openAddUserBtn" class="btn" type="button" onclick="openAddUserModal()" aria-label="إضافة مستخدم جديد" aria-haspopup="dialog" aria-controls="addUserModal" style="display:inline-flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> إضافة مستخدم</button>
+            <button class="btn light" type="button" onclick="renderUsersList()" aria-label="تحديث قائمة المستخدمين" style="color:#1f2937;display:inline-flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.13-3.36L23 10"></path><path d="M20.49 15a9 9 0 0 1-14.13 3.36L1 14"></path></svg> تحديث</button>
           </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 3fr;gap:20px;height:calc(100vh - 120px)">
+        <div class="user-mgmt-layout" style="display:grid;grid-template-columns:1fr 3fr;gap:20px;height:calc(100vh - 120px)">
           <!-- Users List Sidebar -->
           <div class="ds-section-panel" style="margin:0;display:flex;flex-direction:column;height:100%">
             <div class="ds-section-panel-title" style="padding:16px;border-bottom:1px solid var(--border-light)">
               <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
               قائمة المستخدمين
             </div>
-            <div id="usersList" style="flex:1;overflow-y:auto;padding:12px;background:#f8fbff">
+            <div id="usersList" role="list" aria-live="polite" style="flex:1;overflow-y:auto;padding:12px;background:#f8fbff">
               <!-- Users render here via JS -->
             </div>
             <div style="padding:16px;border-top:1px solid var(--border-light);background:#fafcff;font-size:.8rem;color:var(--text-muted)">
-              لإضافة مستخدم جديد: أنشئه من لوحة Supabase (Authentication → Users). سيتم تسجيله تلقائياً بالنظام.
+              يمكنك الآن إضافة المستخدمين مباشرة من داخل النظام عبر زر إضافة مستخدم. تأكد من إعداد قواعد Supabase كما هو موضح في ملف الإعدادات المرفق.
             </div>
           </div>
 
@@ -1190,7 +1377,7 @@
           <div style="display:flex;flex-direction:column;gap:20px;height:100%;overflow-y:auto">
 
             <!-- Create User Form (Hidden by default, used if edge function exists) -->
-            <div class="ds-section-panel" style="margin:0;display:none">
+            <div class="ds-section-panel user-mgmt-create-panel hidden" style="margin:0;display:none !important" aria-hidden="true">
               <div class="ds-section-panel-title">
                 <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 إضافة مستخدم جديد
@@ -1199,19 +1386,19 @@
                 <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:16px">
                   <div style="display:flex;flex-direction:column;gap:6px">
                     <label class="label" style="font-size:.85rem;margin:0">البريد الإلكتروني *</label>
-                    <input id="newUserEmail" class="control" autocomplete="email" placeholder="example@gmail.com">
+                    <input aria-label="example@gmail.com" id="newUserEmail" name="email" class="control" autocomplete="email" placeholder="example@gmail.com">
                   </div>
                   <div style="display:flex;flex-direction:column;gap:6px">
                     <label class="label" style="font-size:.85rem;margin:0">اسم المستخدم (اختياري)</label>
-                    <input id="newUserUsername" class="control" autocomplete="username" placeholder="يُترك فارغاً لاستخدام البريد">
+                    <input aria-label="يُترك فارغاً لاستخدام البريد" id="newUserUsername" name="username" class="control" autocomplete="username" placeholder="يُترك فارغاً لاستخدام البريد">
                   </div>
                   <div style="display:flex;flex-direction:column;gap:6px">
                     <label class="label" style="font-size:.85rem;margin:0">الاسم المعروض</label>
-                    <input id="newUserName" class="control" autocomplete="name" placeholder="الاسم داخل النظام">
+                    <input aria-label="الاسم داخل النظام" id="newUserName" name="name" class="control" autocomplete="name" placeholder="الاسم داخل النظام">
                   </div>
                   <div style="display:flex;flex-direction:column;gap:6px">
                     <label class="label" style="font-size:.85rem;margin:0">كلمة مرور مؤقتة</label>
-                    <input id="newUserTempPassword" type="password" class="control" autocomplete="new-password" placeholder="يُستخدم في حال وجود Edge Function">
+                    <input aria-label="اتركها فارغة ليتم توليد كلمة مرور مؤقتة" id="newUserTempPassword" name="new-password" type="password" class="control" autocomplete="new-password" placeholder="اتركها فارغة ليتم توليد كلمة مرور مؤقتة">
                   </div>
                 </div>
                 <div style="margin-top:16px;display:flex;gap:8px">
@@ -1233,15 +1420,15 @@
                   <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:16px;margin-bottom:20px;padding:16px;background:#f8fbff;border:1px solid #e2eaff;border-radius:12px">
                     <div style="display:flex;flex-direction:column;gap:6px">
                       <label class="label" style="font-size:.85rem;margin:0;font-weight:700">اسم المستخدم للولوج</label>
-                      <input id="userMgmtUsername" autocomplete="username" class="control" style="background:#fff" placeholder="مثال: explorer2">
+                      <input aria-label="مثال: explorer2" id="userMgmtUsername" name="username" autocomplete="username" class="control" style="background:#fff" placeholder="مثال: explorer2">
                     </div>
                     <div style="display:flex;flex-direction:column;gap:6px">
                       <label class="label" style="font-size:.85rem;margin:0;font-weight:700">الاسم المعروض</label>
-                      <input id="userMgmtName" class="control" autocomplete="name" style="background:#fff" placeholder="الاسم للعرض">
+                      <input aria-label="الاسم للعرض" id="userMgmtName" class="control" autocomplete="name" style="background:#fff" placeholder="الاسم للعرض">
                     </div>
                     <div style="display:none;flex-direction:column;gap:6px">
                       <label class="label" style="font-size:.85rem;margin:0;font-weight:700">الدور (Role)</label>
-                      <select id="userMgmtRole" class="control" onchange="saveUserMgmtForm_(true)">
+                      <select aria-label="userMgmtRole" id="userMgmtRole" class="control" onchange="saveUserMgmtForm_(true)">
                         <option value="admin">إدارة (Admin)</option>
                         <option value="supervisor">مشرف (Supervisor)</option>
                         <option value="data_entry">مدخل بيانات (Data Entry)</option>
@@ -1253,7 +1440,7 @@
                     <div style="display:flex;flex-direction:column;gap:6px">
                       <label class="label" style="font-size:.85rem;margin:0;font-weight:700">حالة الحساب</label>
                       <label style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff;border:1px solid var(--border-light);border-radius:10px;cursor:pointer">
-                        <input id="userMgmtIsActive" type="checkbox" checked style="width:16px;height:16px;cursor:pointer" />
+                        <input aria-label="userMgmtIsActive" id="userMgmtIsActive" type="checkbox" checked style="width:16px;height:16px;cursor:pointer" />
                         <span style="font-weight:700">حساب مُفعّل</span>
                       </label>
                     </div>
@@ -1285,12 +1472,12 @@
                       <button type="button" class="btn" onclick="addOrUpdateUser()" style="display:inline-flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> حفظ بيانات المستخدم</button>
                     </div>
                     <div class="ds-toolbar-group">
-                      <button type="button" class="btn light" id="resetPasswordLinkBtn" onclick="generateResetPasswordLinkForSelectedUser()" style="display:inline-flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M2 18v3c0 .6.4 1 1 1h4v-3h3v-3h2l1.4-1.4a6.5 6.5 0 1 0-4-4Z"></path><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"></circle></svg> رابط تغيير المرور</button>
+                      <button type="button" class="btn light" id="resetPasswordLinkBtn" onclick="generateResetPasswordLinkForSelectedUser()" style="display:inline-flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M2 18v3c0 .6.4 1 1 1h4v-3h3v-3h2l1.4-1.4a6.5 6.5 0 1 0-4-4Z"></path><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"></circle></svg> تعيين كلمة مرور مؤقتة</button>
                       <button type="button" class="btn light" onclick="deleteUser()" style="color:var(--status-danger);border-color:#fca5a5;background:#fef2f2;display:inline-flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg> تعطيل</button>
                     </div>
                   </div>
                   <div style="margin-top:12px;font-size:.8rem;color:var(--text-muted)">
-                    ملاحظة: لتغيير كلمة مرور مستخدم آخر كمسؤول يجب تغييرها من لوحة تحكم Supabase مباشرة من قسم Authentication، أو استخدام زر إرسال رابط التغيير.
+                    يمكن للمسؤول تعيين كلمة مرور مؤقتة من داخل النظام، كما يمكن للمستخدم نفسه تغيير كلمة مروره من الإعدادات.
                   </div>
                 </form>
               </div>
@@ -1303,14 +1490,15 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script defer src="assets/js/modules/permissions.js?v=20260416_0835"></script>
-  <script defer src="assets/js/modules/utils.js?v=20260416_0835"></script>
-  <script defer src="assets/js/modules/api.js?v=20260416_0835"></script>
-  <script defer src="assets/js/modules/ui.js?v=20260416_0835"></script>
-  <script defer src="assets/js/app.js?v=20260416_0835"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="assets/vendor/chart.umd.min.js"></script>
+  <script src="assets/vendor/html2canvas.min.js"></script>
+  <script defer src="assets/js/config.js?v=20260421_1405"></script>
+  <script defer src="assets/js/modules/permissions.js?v=20260421_1405"></script>
+  <script defer src="assets/js/modules/utils.js?v=20260421_1405"></script>
+  <script defer src="assets/js/modules/api.js?v=20260421_1405"></script>
+  <script defer src="assets/js/modules/ui.js?v=20260421_1405"></script>
+  <script defer src="assets/js/app.js?v=20260421_1405"></script>
+  <script src="assets/vendor/xlsx.full.min.js"></script>
 </body>
 
 </html>

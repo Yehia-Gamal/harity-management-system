@@ -19,8 +19,8 @@ supabase secrets set ALLOWED_ORIGINS="https://your-domain.example,http://localho
 ## Deploy
 
 ```bash
-supabase functions deploy reset-password-link
-supabase functions deploy create-user
+supabase functions deploy reset-password-link --no-verify-jwt
+supabase functions deploy create-user --no-verify-jwt
 ```
 
 ## Security Expectations
@@ -28,5 +28,6 @@ supabase functions deploy create-user
 - Do not call service-role APIs from frontend code.
 - Keep `ALLOWED_ORIGINS` explicit per environment.
 - Both functions require a valid user JWT and `users_manage`/`super_admin`.
+- Gateway JWT verification is disabled for these functions; JWT validation happens inside `_shared/security.ts`.
 - Both functions use the service-role key only inside Edge runtime.
 - Keep backend role checks aligned with `ROLE_MODEL.md`.

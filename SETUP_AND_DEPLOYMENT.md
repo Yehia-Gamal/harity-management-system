@@ -54,11 +54,15 @@ supabase secrets set SUPABASE_SERVICE_ROLE_KEY="..."
 supabase secrets set ALLOWED_ORIGINS="https://your-domain.example,http://localhost:3000,http://127.0.0.1:5500"
 ```
 
+The repository includes `supabase/config.toml` with the hosted project ref, so the CLI link step is:
+
+```powershell
+supabase link --project-ref fbctibquzuxfjonhbrjr
+```
+
 Do not place the service-role key in frontend files.
 
-Schema and RLS assumptions for production comparison:
-
-- `SCHEMA_AND_RLS_ASSUMPTIONS.md`
+Schema and RLS contracts are implemented in `supabase/migrations` and summarized in `SUPABASE_CONTRACTS.md`.
 
 ## Supabase Migration
 
@@ -82,9 +86,14 @@ This migration defines:
 Deploy:
 
 ```powershell
-supabase functions deploy reset-password-link
-supabase functions deploy create-user
+supabase functions deploy reset-password-link --no-verify-jwt
+supabase functions deploy create-user --no-verify-jwt
 ```
+
+These functions perform their own JWT and `users_manage` authorization checks in
+`supabase/functions/_shared/security.ts`. Gateway JWT verification must stay disabled
+for these functions because ES256 Auth JWTs can be rejected by the Edge gateway before
+the function code runs.
 
 Shared helper:
 

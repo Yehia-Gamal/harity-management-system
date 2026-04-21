@@ -22,6 +22,17 @@ on public.audit_log (case_id);
 create index if not exists profiles_username_idx
 on public.profiles (username);
 
+-- Existing hosted projects may already have older versions of these RPCs.
+-- PostgreSQL requires dropping functions when OUT parameters / return tables change.
+drop function if exists public.list_profiles_public();
+drop function if exists public.delete_case(text);
+drop function if exists public.delete_all_cases();
+drop function if exists public.admin_update_profile(text, text, jsonb, boolean);
+drop function if exists public.admin_delete_profile(text);
+drop function if exists public.admin_set_profile_active(text, boolean);
+drop function if exists public.list_cases_page(integer, integer, text, text, text, text, text);
+drop function if exists public.list_audit_log_page(integer, integer, text);
+
 create or replace function public.current_profile_permissions()
 returns jsonb
 language sql
@@ -453,3 +464,78 @@ grant execute on function public.admin_set_profile_active(text, boolean) to auth
 grant execute on function public.admin_delete_profile(text) to authenticated;
 grant execute on function public.list_cases_page(integer, integer, text, text, text, text, text) to authenticated;
 grant execute on function public.list_audit_log_page(integer, integer, text) to authenticated;
+
+drop policy if exists profiles_select_policy on public.profiles;
+create policy profiles_select_policy
+on public.profiles
+for select
+to authenticated
+using (
+  id = auth.uid()
+  or public.has_app_permission('users_manage')
+  or public.has_app_permission('settings')
+  or public.has_app_permission('cases_read')
+);
+
+drop policy if exists profiles_update_policy on public.profiles;
+create policy profiles_update_policy
+on public.profiles
+for update
+to authenticated
+using (
+  id = auth.uid()
+  or public.has_app_permission('users_manage')
+)
+with check (
+  id = auth.uid()
+  or public.has_app_permission('users_manage')
+);
+
+drop policy if exists cases_select_policy on public.cases;
+create policy cases_select_policy
+on public.cases
+for select
+to authenticated
+using (public.has_app_permission('cases_read'));
+
+drop policy if exists cases_insert_policy on public.cases;
+create policy cases_insert_policy
+on public.cases
+for insert
+to authenticated
+with check (public.has_app_permission('cases_create'));
+
+drop policy if exists cases_update_policy on public.cases;
+create policy cases_update_policy
+on public.cases
+for update
+to authenticated
+using (public.has_app_permission('cases_edit'))
+with check (public.has_app_permission('cases_edit'));
+
+drop policy if exists audit_log_select_policy on public.audit_log;
+create policy audit_log_select_policy
+on public.audit_log
+for select
+to authenticated
+using (
+  public.has_app_permission('audit')
+  or public.has_app_permission('users_manage')
+  or public.has_app_permission('cases_read')
+);
+
+drop policy if exists audit_log_insert_policy on public.audit_log;
+create policy audit_log_insert_policy
+on public.audit_log
+for insert
+to authenticated
+with check (
+  auth.uid() is not null
+  and (
+    created_by is null
+    or created_by = auth.uid()
+    or public.has_app_permission('users_manage')
+    or public.has_app_permission('cases_read')
+    or public.has_app_permission('audit')
+  )
+);

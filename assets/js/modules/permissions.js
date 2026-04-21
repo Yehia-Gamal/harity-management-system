@@ -26,6 +26,16 @@
     return roleIs((p.__role || p._role || '').toString().trim(), ['hidden_super_admin']);
   }
 
+  function normalizePermissionsObject(perms) {
+    const src = perms && typeof perms === 'object' ? perms : {};
+    const out = {};
+    Object.keys(src).forEach((key) => {
+      out[key] = !!src[key];
+    });
+    if (src.__role || src._role) out.__role = normalizeRoleKey(src.__role || src._role);
+    return out;
+  }
+
   window.CharityPermissions = Object.freeze({
     LEGACY_ROLE_ALIASES: Object.freeze({ ...LEGACY_ROLE_ALIASES }),
     CANONICAL_ROLES: Object.freeze([...CANONICAL_ROLES]),
@@ -33,6 +43,7 @@
     MANAGER_ACCESS_ROLES: Object.freeze([...MANAGER_ACCESS_ROLES]),
     normalizeRoleKey,
     roleIs,
-    isHiddenRolePermissions
+    isHiddenRolePermissions,
+    normalizePermissionsObject
   });
 })();
